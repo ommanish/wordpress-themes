@@ -65,5 +65,15 @@ function nexa_pro_enqueue_admin_assets( $hook_suffix ) {
 		array(),
 		NEXA_PRO_VERSION
 	);
+
+	wp_enqueue_media();
+
+	wp_enqueue_script(
+		'nexa-pro-admin',
+		NEXA_PRO_URI . '/assets/js/admin.js',
+		array(),
+		NEXA_PRO_VERSION,
+		true
+	);
 }
 add_action( 'admin_enqueue_scripts', 'nexa_pro_enqueue_admin_assets' );

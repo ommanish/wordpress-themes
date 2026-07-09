@@ -2,7 +2,7 @@
 	display: inline-flex;
 }
 
-.primary-navigation.is-js .primary-menu {
+.primary-navigation.is-js .primary-navigation__panel {
 	position: absolute;
 	top: calc(100% + var(--nexa-pro-space-xs));
 	right: 0;
@@ -18,18 +18,31 @@
 	box-shadow: var(--nexa-pro-shadow-md);
 }
 
-.primary-navigation.is-open .primary-menu {
+.primary-navigation.is-open .primary-navigation__panel {
 	display: grid;
+}
+
+@media (max-width: 782px) {
+	.admin-bar .nexa-pro-header--sticky {
+		top: 46px;
+	}
 }
 
 @media (max-width: 479px) {
 	.site-header__inner {
-		align-items: flex-start;
 		gap: var(--nexa-pro-space-md);
 	}
 
 	.site-branding {
-		max-width: calc(100% - 5.75rem);
+		max-width: calc(100% - 7rem);
+	}
+
+	.site-branding--has-mobile-logo .site-branding__logo--desktop {
+		display: none;
+	}
+
+	.site-branding--has-mobile-logo .site-branding__logo--mobile {
+		display: inline-flex;
 	}
 
 	.search-form__controls {
@@ -68,8 +81,8 @@
 		display: none;
 	}
 
-	.primary-navigation.is-js .primary-menu,
-	.primary-menu {
+	.primary-navigation.is-js .primary-navigation__panel,
+	.primary-navigation__panel {
 		position: static;
 		display: flex;
 		align-items: center;
@@ -82,8 +95,32 @@
 		box-shadow: none;
 	}
 
+	.primary-menu {
+		display: flex;
+		align-items: center;
+		gap: var(--nexa-pro-space-2xs);
+		width: auto;
+		max-width: none;
+		padding: 0;
+		border: 0;
+		border-radius: 0;
+		box-shadow: none;
+	}
+
+	.nexa-pro-header--standard .primary-navigation__panel {
+		justify-content: flex-end;
+	}
+
 	.primary-menu a {
 		padding: var(--nexa-pro-space-xs) var(--nexa-pro-space-sm);
+	}
+
+	.header-cta--desktop {
+		display: inline-flex;
+	}
+
+	.header-cta--mobile {
+		display: none;
 	}
 
 	.site-footer__inner {
@@ -94,5 +131,24 @@
 
 	.post-navigation .nav-links {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 960px) {
+	.nexa-pro-header--centered .site-header__inner {
+		display: grid;
+		grid-template-columns: 1fr;
+		justify-items: center;
+		text-align: center;
+	}
+
+	.nexa-pro-header--centered .primary-navigation {
+		justify-content: center;
+		width: 100%;
+	}
+
+	.nexa-pro-header--centered .primary-navigation__panel,
+	.nexa-pro-header--centered .primary-menu {
+		justify-content: center;
 	}
 }
