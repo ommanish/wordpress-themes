@@ -15,4 +15,5 @@ define( 'NEXA_PRO_URI', get_template_directory_uri() );
 
 require_once NEXA_PRO_DIR . '/inc/setup.php';
 require_once NEXA_PRO_DIR . '/inc/assets.php';
-
+require_once NEXA_PRO_DIR . '/inc/template-functions.php';
+require_once NEXA_PRO_DIR . '/inc/template-tags.php';

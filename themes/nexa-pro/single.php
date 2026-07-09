@@ -1,6 +1,6 @@
 <?php
 /**
- * Page template.
+ * Single post template.
  *
  * @package Nexa_Pro
  */
@@ -13,6 +13,7 @@ get_header();
 	while ( have_posts() ) :
 		the_post();
 		get_template_part( 'template-parts/content' );
+		nexa_pro_post_navigation();
 
 		if ( nexa_pro_should_show_comments() ) {
 			comments_template();
@@ -23,3 +24,4 @@ get_header();
 
 <?php
 get_footer();
+

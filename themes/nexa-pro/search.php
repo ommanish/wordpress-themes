@@ -1,6 +1,6 @@
 <?php
 /**
- * The main template file.
+ * Search results template.
  *
  * @package Nexa_Pro
  */
@@ -9,6 +9,18 @@ get_header();
 ?>
 
 <div class="nexa-pro-container content-layout">
+	<header class="page-header">
+		<h1 class="page-title">
+			<?php
+			printf(
+				/* translators: %s: Search query. */
+				esc_html__( 'Search results for: %s', 'nexa-pro' ),
+				esc_html( get_search_query() )
+			);
+			?>
+		</h1>
+	</header>
+
 	<?php if ( have_posts() ) : ?>
 		<div class="post-list">
 			<?php
