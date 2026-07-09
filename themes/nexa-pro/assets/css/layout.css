@@ -82,6 +82,30 @@
 	padding-block: var(--nexa-pro-space-section);
 }
 
+.homepage-section {
+	padding-block: var(--nexa-pro-space-section);
+}
+
+.homepage-section--compact {
+	padding-block: var(--nexa-pro-space-xl);
+}
+
+.homepage-section--alt {
+	background: var(--nexa-pro-color-surface);
+}
+
+.homepage-hero__inner,
+.homepage-split {
+	display: grid;
+	gap: var(--nexa-pro-space-2xl);
+	align-items: center;
+}
+
+.homepage-grid {
+	display: grid;
+	gap: var(--nexa-pro-space-lg);
+}
+
 .page-header,
 .entry-header {
 	margin-bottom: var(--nexa-pro-space-lg);
@@ -140,4 +164,3 @@
 .has-nexa-pro-dark-surface a {
 	color: var(--nexa-pro-color-dark-text);
 }
-

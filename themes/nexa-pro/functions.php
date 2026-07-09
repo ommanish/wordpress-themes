@@ -17,3 +17,4 @@ require_once NEXA_PRO_DIR . '/inc/setup.php';
 require_once NEXA_PRO_DIR . '/inc/assets.php';
 require_once NEXA_PRO_DIR . '/inc/template-functions.php';
 require_once NEXA_PRO_DIR . '/inc/template-tags.php';
+require_once NEXA_PRO_DIR . '/inc/homepage-sections.php';

@@ -47,6 +47,22 @@
 }
 
 @media (min-width: 780px) {
+	.homepage-hero__inner,
+	.homepage-split {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+
+	.homepage-grid--three {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.homepage-cta__inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--nexa-pro-space-xl);
+	}
+
 	.primary-navigation.is-js .menu-toggle,
 	.menu-toggle {
 		display: none;
@@ -80,4 +96,3 @@
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
-
