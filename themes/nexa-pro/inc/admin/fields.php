@@ -76,6 +76,38 @@ function nexa_pro_admin_textarea_field( $key, $label, $description = '' ) {
 }
 
 /**
+ * Render a textarea field that can display an intentionally saved empty value.
+ *
+ * @param string $key Option key.
+ * @param string $label Field label.
+ * @param string $description Field description.
+ * @return void
+ */
+function nexa_pro_admin_raw_textarea_field( $key, $label, $description = '' ) {
+	$value    = nexa_pro_get_raw_option( $key, '' );
+	$field_id = 'nexa-pro-' . str_replace( '_', '-', $key );
+
+	?>
+	<tr>
+		<th scope="row">
+			<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
+		</th>
+		<td>
+			<textarea
+				id="<?php echo esc_attr( $field_id ); ?>"
+				name="nexa_pro_options[<?php echo esc_attr( $key ); ?>]"
+				class="large-text"
+				rows="4"
+			><?php echo esc_textarea( $value ); ?></textarea>
+			<?php if ( $description ) : ?>
+				<p class="description"><?php echo esc_html( $description ); ?></p>
+			<?php endif; ?>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
  * Render a color admin field.
  *
  * @param string $key Option key.
@@ -209,6 +241,58 @@ function nexa_pro_admin_media_field( $key, $label, $description = '' ) {
 }
 
 /**
+ * Render homepage section settings fields.
+ *
+ * @param string $prefix Section option prefix.
+ * @param string $label Section label.
+ * @return void
+ */
+function nexa_pro_admin_homepage_section_fields( $prefix, $label ) {
+	nexa_pro_admin_checkbox_field(
+		$prefix . '_show',
+		sprintf(
+			/* translators: %s: Homepage section label. */
+			__( 'Show %s section', 'nexa-pro' ),
+			$label
+		),
+		__( 'Disable this to remove the entire section and its anchor from the homepage. Update any menu, hero, header, or button links that point to disabled sections.', 'nexa-pro' )
+	);
+
+	if ( 'cta' !== $prefix ) {
+		nexa_pro_admin_text_field(
+			$prefix . '_label',
+			__( 'Section label', 'nexa-pro' ),
+			__( 'Appears as the small label above the section heading.', 'nexa-pro' )
+		);
+	}
+
+	nexa_pro_admin_text_field(
+		$prefix . '_heading',
+		__( 'Section heading', 'nexa-pro' ),
+		__( 'Required for this section. Empty submissions preserve the existing heading.', 'nexa-pro' )
+	);
+
+	nexa_pro_admin_raw_textarea_field(
+		$prefix . '_text',
+		__( 'Section description', 'nexa-pro' ),
+		__( 'Appears below the section heading when provided.', 'nexa-pro' )
+	);
+
+	if ( 'cta' === $prefix ) {
+		nexa_pro_admin_text_field(
+			'cta_button_text',
+			__( 'Button text', 'nexa-pro' ),
+			__( 'Appears in the CTA button when both button text and URL are provided.', 'nexa-pro' )
+		);
+		nexa_pro_admin_text_field(
+			'cta_button_url',
+			__( 'Button URL', 'nexa-pro' ),
+			__( 'Use a full absolute URL or a same-page fragment such as #contact. Update links manually if their target section is disabled.', 'nexa-pro' )
+		);
+	}
+}
+
+/**
  * Render admin fields for a tab.
  *
  * @param string $tab Active tab.
@@ -298,6 +382,30 @@ function nexa_pro_render_admin_fields( $tab ) {
 						__( 'Mobile menu CTA', 'nexa-pro' ),
 						__( 'Shows the same CTA inside the mobile menu only when CTA text and URL are valid.', 'nexa-pro' )
 					);
+					break;
+
+				case 'about':
+					nexa_pro_admin_homepage_section_fields( 'about', __( 'About', 'nexa-pro' ) );
+					break;
+
+				case 'services':
+					nexa_pro_admin_homepage_section_fields( 'services', __( 'Services', 'nexa-pro' ) );
+					break;
+
+				case 'features':
+					nexa_pro_admin_homepage_section_fields( 'features', __( 'Features', 'nexa-pro' ) );
+					break;
+
+				case 'process':
+					nexa_pro_admin_homepage_section_fields( 'process', __( 'Process', 'nexa-pro' ) );
+					break;
+
+				case 'why':
+					nexa_pro_admin_homepage_section_fields( 'why', __( 'Why Choose Us', 'nexa-pro' ) );
+					break;
+
+				case 'cta':
+					nexa_pro_admin_homepage_section_fields( 'cta', __( 'CTA', 'nexa-pro' ) );
 					break;
 
 				case 'hero':
