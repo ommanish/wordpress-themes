@@ -88,6 +88,127 @@ function nexa_pro_admin_color_field( $key, $label, $description = '' ) {
 }
 
 /**
+ * Render a checkbox admin field.
+ *
+ * @param string $key Option key.
+ * @param string $label Field label.
+ * @param string $description Field description.
+ * @return void
+ */
+function nexa_pro_admin_checkbox_field( $key, $label, $description = '' ) {
+	$value    = nexa_pro_get_option( $key, '0' );
+	$field_id = 'nexa-pro-' . str_replace( '_', '-', $key );
+
+	?>
+	<tr>
+		<th scope="row"><?php echo esc_html( $label ); ?></th>
+		<td>
+			<input type="hidden" name="nexa_pro_options[<?php echo esc_attr( $key ); ?>]" value="0">
+			<label for="<?php echo esc_attr( $field_id ); ?>">
+				<input
+					type="checkbox"
+					id="<?php echo esc_attr( $field_id ); ?>"
+					name="nexa_pro_options[<?php echo esc_attr( $key ); ?>]"
+					value="1"
+					<?php checked( '1', $value ); ?>
+				>
+				<?php esc_html_e( 'Enabled', 'nexa-pro' ); ?>
+			</label>
+			<?php if ( $description ) : ?>
+				<p class="description"><?php echo esc_html( $description ); ?></p>
+			<?php endif; ?>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
+ * Render a select admin field.
+ *
+ * @param string $key Option key.
+ * @param string $label Field label.
+ * @param array  $choices Select choices.
+ * @param string $description Field description.
+ * @return void
+ */
+function nexa_pro_admin_select_field( $key, $label, $choices, $description = '' ) {
+	$value    = nexa_pro_get_option( $key, '' );
+	$field_id = 'nexa-pro-' . str_replace( '_', '-', $key );
+
+	?>
+	<tr>
+		<th scope="row">
+			<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
+		</th>
+		<td>
+			<select id="<?php echo esc_attr( $field_id ); ?>" name="nexa_pro_options[<?php echo esc_attr( $key ); ?>]">
+				<?php foreach ( $choices as $choice_value => $choice_label ) : ?>
+					<option value="<?php echo esc_attr( $choice_value ); ?>" <?php selected( $value, $choice_value ); ?>>
+						<?php echo esc_html( $choice_label ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+			<?php if ( $description ) : ?>
+				<p class="description"><?php echo esc_html( $description ); ?></p>
+			<?php endif; ?>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
+ * Render a media attachment ID field.
+ *
+ * @param string $key Option key.
+ * @param string $label Field label.
+ * @param string $description Field description.
+ * @return void
+ */
+function nexa_pro_admin_media_field( $key, $label, $description = '' ) {
+	$value       = absint( nexa_pro_get_option( $key, 0 ) );
+	$field_id    = 'nexa-pro-' . str_replace( '_', '-', $key );
+	$preview     = $value ? wp_get_attachment_image( $value, 'medium', false, array( 'class' => 'nexa-pro-admin-media__image' ) ) : '';
+	$has_preview = '' !== $preview;
+
+	?>
+	<tr>
+		<th scope="row">
+			<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
+		</th>
+		<td>
+			<div class="nexa-pro-admin-media" data-nexa-pro-media-field>
+				<div class="nexa-pro-admin-media__preview" data-nexa-pro-media-preview>
+					<?php echo $preview; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</div>
+				<input
+					type="number"
+					min="0"
+					step="1"
+					id="<?php echo esc_attr( $field_id ); ?>"
+					name="nexa_pro_options[<?php echo esc_attr( $key ); ?>]"
+					value="<?php echo esc_attr( $value ); ?>"
+					class="small-text"
+					data-nexa-pro-media-input
+				>
+				<button type="button" class="button" data-nexa-pro-media-select>
+					<?php esc_html_e( 'Select image', 'nexa-pro' ); ?>
+				</button>
+				<button type="button" class="button" data-nexa-pro-media-remove <?php disabled( ! $value ); ?>>
+					<?php esc_html_e( 'Remove image', 'nexa-pro' ); ?>
+				</button>
+				<?php if ( $value && ! $has_preview ) : ?>
+					<p class="description"><?php esc_html_e( 'This attachment ID could not render a preview. It will fall back on the front end until a valid image is selected.', 'nexa-pro' ); ?></p>
+				<?php endif; ?>
+			</div>
+			<?php if ( $description ) : ?>
+				<p class="description"><?php echo esc_html( $description ); ?></p>
+			<?php endif; ?>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
  * Render admin fields for a tab.
  *
  * @param string $tab Active tab.
@@ -123,15 +244,59 @@ function nexa_pro_render_admin_fields( $tab ) {
 					break;
 
 				case 'header':
+					nexa_pro_admin_media_field(
+						'logo_attachment_id',
+						__( 'Desktop logo attachment ID', 'nexa-pro' ),
+						__( 'Select a media-library image for the desktop header logo. Leave empty to use the native WordPress custom logo or brand text fallback.', 'nexa-pro' )
+					);
+					nexa_pro_admin_media_field(
+						'mobile_logo_attachment_id',
+						__( 'Mobile logo attachment ID', 'nexa-pro' ),
+						__( 'Select an optional mobile-specific logo. Leave empty to use the desktop logo, native WordPress custom logo, or brand text fallback.', 'nexa-pro' )
+					);
+					nexa_pro_admin_checkbox_field(
+						'display_brand_text',
+						__( 'Display brand text', 'nexa-pro' ),
+						__( 'Shows the brand name and optional tagline beside the logo. If disabled and no valid logo exists, the brand name still displays.', 'nexa-pro' )
+					);
+					nexa_pro_admin_select_field(
+						'header_layout',
+						__( 'Header layout', 'nexa-pro' ),
+						array(
+							'standard' => __( 'Standard', 'nexa-pro' ),
+							'centered' => __( 'Centered', 'nexa-pro' ),
+						),
+						__( 'Standard places brand left with navigation and CTA right. Centered places the brand above centered navigation on wide screens.', 'nexa-pro' )
+					);
+					nexa_pro_admin_checkbox_field(
+						'sticky_header',
+						__( 'Sticky header', 'nexa-pro' ),
+						__( 'Keeps the header visible with CSS position sticky and accounts for the WordPress admin bar.', 'nexa-pro' )
+					);
+					nexa_pro_admin_checkbox_field(
+						'transparent_header',
+						__( 'Transparent homepage header', 'nexa-pro' ),
+						__( 'Applies only on the front page when the hero section is present. Other pages use a solid header.', 'nexa-pro' )
+					);
+					nexa_pro_admin_checkbox_field(
+						'header_cta_enabled',
+						__( 'Desktop header CTA', 'nexa-pro' ),
+						__( 'Shows one desktop header button when CTA text and URL are also provided.', 'nexa-pro' )
+					);
 					nexa_pro_admin_text_field(
 						'header_cta_text',
 						__( 'Header CTA text', 'nexa-pro' ),
-						__( 'Prepared for the header call-to-action area. Leave blank to hide until the header layout supports it.', 'nexa-pro' )
+						__( 'Appears in the optional header CTA button. Leave blank to hide the CTA.', 'nexa-pro' )
 					);
 					nexa_pro_admin_text_field(
 						'header_cta_url',
 						__( 'Header CTA URL', 'nexa-pro' ),
 						__( 'Use a full absolute URL or a same-page fragment such as #contact.', 'nexa-pro' )
+					);
+					nexa_pro_admin_checkbox_field(
+						'mobile_cta_enabled',
+						__( 'Mobile menu CTA', 'nexa-pro' ),
+						__( 'Shows the same CTA inside the mobile menu only when CTA text and URL are valid.', 'nexa-pro' )
 					);
 					break;
 

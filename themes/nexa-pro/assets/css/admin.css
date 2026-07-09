@@ -33,3 +33,30 @@
 .nexa-pro-admin textarea {
 	max-width: 620px;
 }
+
+.nexa-pro-admin-media {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.75rem;
+	max-width: 620px;
+}
+
+.nexa-pro-admin-media__preview {
+	flex-basis: 100%;
+	min-height: 0;
+}
+
+.nexa-pro-admin-media__image {
+	display: block;
+	width: auto;
+	max-width: 220px;
+	max-height: 90px;
+	padding: 0.5rem;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+}
+
+.nexa-pro-admin-media .small-text {
+	width: 7rem;
+}

@@ -14,8 +14,38 @@
 }
 
 .site-header {
+	position: relative;
+	z-index: 30;
 	border-bottom: var(--nexa-pro-border);
 	background: var(--nexa-pro-color-canvas);
+	transition: background-color var(--nexa-pro-transition), box-shadow var(--nexa-pro-transition), border-color var(--nexa-pro-transition);
+}
+
+.nexa-pro-header--sticky {
+	position: sticky;
+	top: 0;
+}
+
+.admin-bar .nexa-pro-header--sticky {
+	top: 32px;
+}
+
+.nexa-pro-header--transparent {
+	--nexa-pro-header-overlay-height: 5rem;
+
+	margin-bottom: calc(-1 * var(--nexa-pro-header-overlay-height));
+	border-bottom-color: transparent;
+	background: transparent;
+}
+
+.nexa-pro-header--transparent.is-scrolled {
+	border-bottom-color: var(--nexa-pro-color-border);
+	background: color-mix(in srgb, var(--nexa-pro-color-canvas) 94%, transparent);
+	box-shadow: var(--nexa-pro-shadow-sm);
+}
+
+.nexa-pro-header--transparent + .site-main > .homepage-section:first-child {
+	padding-top: calc(var(--nexa-pro-space-section) + var(--nexa-pro-header-overlay-height));
 }
 
 .site-header__inner {
@@ -29,6 +59,37 @@
 }
 
 .site-branding {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.site-branding__link {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--nexa-pro-space-sm);
+	max-width: 100%;
+	color: var(--nexa-pro-color-ink);
+	text-decoration: none;
+}
+
+.site-branding__logo {
+	display: inline-flex;
+	flex: 0 0 auto;
+}
+
+.site-branding__logo--mobile {
+	display: none;
+}
+
+.site-branding__logo-image {
+	display: block;
+	width: auto;
+	max-width: min(12rem, 42vw);
+	max-height: 3.25rem;
+}
+
+.site-branding__text {
+	display: grid;
 	min-width: 0;
 }
 
@@ -37,11 +98,6 @@
 	font-size: var(--nexa-pro-font-size-lg);
 	font-weight: var(--nexa-pro-font-weight-bold);
 	line-height: var(--nexa-pro-line-height-heading);
-}
-
-.site-title a {
-	color: var(--nexa-pro-color-ink);
-	text-decoration: none;
 }
 
 .site-description {
@@ -56,9 +112,16 @@
 }
 
 .primary-navigation {
+	flex: 0 0 auto;
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
+	gap: var(--nexa-pro-space-sm);
+}
+
+.primary-navigation__panel {
+	display: grid;
+	gap: var(--nexa-pro-space-sm);
 }
 
 .primary-menu,

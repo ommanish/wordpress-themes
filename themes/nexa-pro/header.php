@@ -19,53 +19,41 @@
 <a class="skip-link screen-reader-text" href="#primary"><?php esc_html_e( 'Skip to content', 'nexa-pro' ); ?></a>
 
 <div class="site">
-	<header class="site-header" role="banner">
+	<header class="<?php echo esc_attr( nexa_pro_get_header_class_attribute() ); ?>" role="banner">
 		<div class="site-header__inner nexa-pro-container">
-			<div class="site-branding">
-				<?php
-				if ( has_custom_logo() ) {
-					the_custom_logo();
-				}
-
-				if ( is_front_page() && is_home() ) :
-					?>
-					<h1 class="site-title">
-						<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></a>
-					</h1>
-					<?php
-				else :
-					?>
-					<p class="site-title">
-						<a href="<?php echo esc_url( home_url( '/' ) ); ?>" rel="home"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></a>
-					</p>
-					<?php
-				endif;
-
-				$nexa_pro_description = get_bloginfo( 'description', 'display' );
-				if ( $nexa_pro_description || is_customize_preview() ) :
-					?>
-					<p class="site-description"><?php echo esc_html( $nexa_pro_description ); ?></p>
-				<?php endif; ?>
-			</div>
+			<?php nexa_pro_render_site_branding(); ?>
 
 			<nav class="primary-navigation" aria-label="<?php esc_attr_e( 'Primary menu', 'nexa-pro' ); ?>">
-				<button class="menu-toggle" type="button" aria-controls="primary-menu" aria-expanded="false">
+				<button
+					class="menu-toggle"
+					type="button"
+					aria-controls="primary-menu-panel"
+					aria-expanded="false"
+					aria-label="<?php esc_attr_e( 'Open primary menu', 'nexa-pro' ); ?>"
+					data-aria-open="<?php esc_attr_e( 'Open primary menu', 'nexa-pro' ); ?>"
+					data-aria-close="<?php esc_attr_e( 'Close primary menu', 'nexa-pro' ); ?>"
+				>
 					<span class="menu-toggle__bar" aria-hidden="true"></span>
 					<span class="menu-toggle__text"><?php esc_html_e( 'Menu', 'nexa-pro' ); ?></span>
 				</button>
 
-				<?php
-				wp_nav_menu(
-					array(
-						'theme_location' => 'primary',
-						'menu_id'        => 'primary-menu',
-						'menu_class'     => 'primary-menu',
-						'container'      => false,
-						'fallback_cb'    => 'nexa_pro_primary_menu_fallback',
-					)
-				);
-				?>
+				<div id="primary-menu-panel" class="primary-navigation__panel">
+					<?php
+					wp_nav_menu(
+						array(
+							'theme_location' => 'primary',
+							'menu_id'        => 'primary-menu',
+							'menu_class'     => 'primary-menu',
+							'container'      => false,
+							'fallback_cb'    => 'nexa_pro_primary_menu_fallback',
+						)
+					);
+					?>
+					<?php nexa_pro_render_header_cta( 'mobile' ); ?>
+				</div>
 			</nav>
+
+			<?php nexa_pro_render_header_cta( 'desktop' ); ?>
 		</div>
 	</header>
 

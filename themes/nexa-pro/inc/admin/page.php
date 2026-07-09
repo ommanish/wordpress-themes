@@ -78,10 +78,10 @@ function nexa_pro_render_dashboard_tab() {
 	?>
 	<div class="nexa-pro-admin__panel">
 		<h2><?php esc_html_e( 'Theme settings foundation', 'nexa-pro' ); ?></h2>
-		<p><?php esc_html_e( 'Use these first settings to configure the global brand, header call to action, and homepage hero content. More controls will be added in later tickets.', 'nexa-pro' ); ?></p>
+		<p><?php esc_html_e( 'Use these settings to configure the global brand, header branding and navigation behavior, and homepage hero content. More controls will be added in later tickets.', 'nexa-pro' ); ?></p>
 		<ul>
 			<li><?php esc_html_e( 'Global: brand labels and color tokens.', 'nexa-pro' ); ?></li>
-			<li><?php esc_html_e( 'Header: call-to-action text and URL prepared for header layouts.', 'nexa-pro' ); ?></li>
+			<li><?php esc_html_e( 'Header: logos, brand text display, sticky or transparent state, layout, and call-to-action behavior.', 'nexa-pro' ); ?></li>
 			<li><?php esc_html_e( 'Hero: homepage hero text and button links.', 'nexa-pro' ); ?></li>
 		</ul>
 	</div>
@@ -121,4 +121,3 @@ function nexa_pro_render_admin_page() {
 	</div>
 	<?php
 }
-

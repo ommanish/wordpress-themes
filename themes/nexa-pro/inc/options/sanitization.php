@@ -68,6 +68,27 @@ function nexa_pro_sanitize_options( $input ) {
 				$output[ $key ] = sanitize_text_field( $value );
 				break;
 
+			case 'logo_attachment_id':
+			case 'mobile_logo_attachment_id':
+				$output[ $key ] = absint( $value );
+				break;
+
+			case 'display_brand_text':
+			case 'sticky_header':
+			case 'transparent_header':
+			case 'header_cta_enabled':
+			case 'mobile_cta_enabled':
+				$output[ $key ] = '1' === (string) $value ? '1' : '0';
+				break;
+
+			case 'header_layout':
+				$layout = sanitize_key( $value );
+
+				if ( in_array( $layout, array( 'standard', 'centered' ), true ) ) {
+					$output[ $key ] = $layout;
+				}
+				break;
+
 			case 'hero_text':
 				$output[ $key ] = sanitize_textarea_field( $value );
 				break;

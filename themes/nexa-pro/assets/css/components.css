@@ -2,12 +2,15 @@
 	display: none;
 	align-items: center;
 	gap: var(--nexa-pro-space-xs);
+	flex: 0 0 auto;
+	min-width: 5.75rem;
 	padding: 0.625rem 0.875rem;
 	border: var(--nexa-pro-border);
 	border-radius: var(--nexa-pro-radius-md);
 	background: var(--nexa-pro-color-canvas);
 	color: var(--nexa-pro-color-ink);
 	cursor: pointer;
+	white-space: nowrap;
 	transition: border-color var(--nexa-pro-transition), color var(--nexa-pro-transition);
 }
 
@@ -61,6 +64,20 @@
 .primary-menu a:hover,
 .primary-menu a:focus-visible {
 	background: var(--nexa-pro-color-surface);
+}
+
+.header-cta {
+	flex: 0 0 auto;
+	white-space: normal;
+}
+
+.header-cta--desktop {
+	display: none;
+}
+
+.header-cta--mobile {
+	width: 100%;
+	margin-top: var(--nexa-pro-space-sm);
 }
 
 .entry-title a {
