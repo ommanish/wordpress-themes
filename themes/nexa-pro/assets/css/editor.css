@@ -1,0 +1,36 @@
+@import url("tokens.css");
+@import url("base.css");
+@import url("components.css");
+
+.editor-styles-wrapper {
+	background: var(--nexa-pro-color-canvas);
+	color: var(--nexa-pro-color-ink);
+	font-family: var(--nexa-pro-font-sans);
+	font-size: var(--nexa-pro-font-size-base);
+	line-height: var(--nexa-pro-line-height-base);
+}
+
+.editor-styles-wrapper .wp-block {
+	max-width: var(--nexa-pro-width-content);
+}
+
+.editor-styles-wrapper .wp-block[data-align="wide"] {
+	max-width: var(--nexa-pro-width-wide);
+}
+
+.editor-styles-wrapper .wp-block[data-align="full"] {
+	max-width: none;
+}
+
+.editor-styles-wrapper h1 {
+	font-size: var(--nexa-pro-font-size-2xl);
+}
+
+.editor-styles-wrapper h2 {
+	font-size: var(--nexa-pro-font-size-xl);
+}
+
+.editor-styles-wrapper h3 {
+	font-size: var(--nexa-pro-font-size-lg);
+}
+

@@ -1,0 +1,73 @@
+:root {
+	--nexa-pro-color-canvas: #ffffff;
+	--nexa-pro-color-canvas-alt: #f7f9fc;
+	--nexa-pro-color-surface: #f4f6f8;
+	--nexa-pro-color-surface-raised: #ffffff;
+	--nexa-pro-color-ink: #15171a;
+	--nexa-pro-color-ink-soft: #354052;
+	--nexa-pro-color-muted: #5d6673;
+	--nexa-pro-color-border: #dce2e8;
+	--nexa-pro-color-border-strong: #b9c3cf;
+	--nexa-pro-color-primary: #2563eb;
+	--nexa-pro-color-primary-dark: #1d4ed8;
+	--nexa-pro-color-primary-soft: #eff6ff;
+	--nexa-pro-color-accent: #0f766e;
+	--nexa-pro-color-accent-soft: #ecfdf5;
+	--nexa-pro-color-focus: #0f766e;
+	--nexa-pro-color-dark-surface: #15171a;
+	--nexa-pro-color-dark-surface-alt: #20242b;
+	--nexa-pro-color-dark-text: #f8fafc;
+	--nexa-pro-color-dark-muted: #cbd5e1;
+	--nexa-pro-color-dark-border: #394150;
+	--nexa-pro-color-background: var(--nexa-pro-color-canvas);
+	--nexa-pro-color-text: var(--nexa-pro-color-ink);
+	--nexa-pro-color-link: var(--nexa-pro-color-primary);
+	--nexa-pro-color-link-hover: var(--nexa-pro-color-primary-dark);
+
+	--nexa-pro-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	--nexa-pro-font-size-xs: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
+	--nexa-pro-font-size-sm: clamp(0.875rem, 0.84rem + 0.18vw, 0.9375rem);
+	--nexa-pro-font-size-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+	--nexa-pro-font-size-md: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem);
+	--nexa-pro-font-size-lg: clamp(1.25rem, 1.1rem + 0.75vw, 1.625rem);
+	--nexa-pro-font-size-xl: clamp(1.75rem, 1.35rem + 1.8vw, 2.75rem);
+	--nexa-pro-font-size-2xl: clamp(2rem, 1.45rem + 2.7vw, 3.5rem);
+	--nexa-pro-line-height-tight: 1.1;
+	--nexa-pro-line-height-heading: 1.2;
+	--nexa-pro-line-height-base: 1.6;
+	--nexa-pro-font-weight-normal: 400;
+	--nexa-pro-font-weight-medium: 600;
+	--nexa-pro-font-weight-bold: 700;
+
+	--nexa-pro-space-2xs: 0.25rem;
+	--nexa-pro-space-xs: 0.5rem;
+	--nexa-pro-space-sm: 0.75rem;
+	--nexa-pro-space-md: 1rem;
+	--nexa-pro-space-lg: 1.5rem;
+	--nexa-pro-space-xl: 2rem;
+	--nexa-pro-space-2xl: 3rem;
+	--nexa-pro-space-3xl: 4rem;
+	--nexa-pro-space-section: clamp(2.5rem, 6vw, 5rem);
+	--nexa-pro-space-gutter: clamp(1rem, 4vw, 2rem);
+
+	--nexa-pro-width-content: 760px;
+	--nexa-pro-width-wide: 1180px;
+	--nexa-pro-width-container: min(calc(100% - var(--nexa-pro-space-gutter) - var(--nexa-pro-space-gutter)), var(--nexa-pro-width-wide));
+	--nexa-pro-width-readable: min(100%, var(--nexa-pro-width-content));
+
+	--nexa-pro-border-width: 1px;
+	--nexa-pro-border-style: solid;
+	--nexa-pro-border: var(--nexa-pro-border-width) var(--nexa-pro-border-style) var(--nexa-pro-color-border);
+	--nexa-pro-radius-xs: 0.25rem;
+	--nexa-pro-radius-sm: 0.375rem;
+	--nexa-pro-radius-md: 0.5rem;
+	--nexa-pro-radius-lg: 0.75rem;
+	--nexa-pro-shadow-sm: 0 6px 18px rgba(21, 23, 26, 0.06);
+	--nexa-pro-shadow-md: 0 16px 40px rgba(21, 23, 26, 0.08);
+	--nexa-pro-shadow-focus: 0 0 0 3px color-mix(in srgb, var(--nexa-pro-color-focus) 25%, transparent);
+
+	--nexa-pro-transition-duration: 180ms;
+	--nexa-pro-transition-duration-fast: 120ms;
+	--nexa-pro-transition-timing: ease;
+	--nexa-pro-transition: var(--nexa-pro-transition-duration) var(--nexa-pro-transition-timing);
+}
