@@ -3,6 +3,12 @@
 	"version": 2,
 	"settings": {
 		"appearanceTools": true,
+		"border": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true
+		},
 		"color": {
 			"custom": true,
 			"defaultPalette": false,
@@ -11,6 +17,11 @@
 					"name": "Ink",
 					"slug": "ink",
 					"color": "#15171a"
+				},
+				{
+					"name": "Ink Soft",
+					"slug": "ink-soft",
+					"color": "#354052"
 				},
 				{
 					"name": "Canvas",
@@ -23,14 +34,34 @@
 					"color": "#f4f6f8"
 				},
 				{
+					"name": "Border",
+					"slug": "border",
+					"color": "#dce2e8"
+				},
+				{
 					"name": "Primary",
 					"slug": "primary",
 					"color": "#2563eb"
 				},
 				{
+					"name": "Primary Soft",
+					"slug": "primary-soft",
+					"color": "#eff6ff"
+				},
+				{
 					"name": "Accent",
 					"slug": "accent",
 					"color": "#0f766e"
+				},
+				{
+					"name": "Dark Surface",
+					"slug": "dark-surface",
+					"color": "#15171a"
+				},
+				{
+					"name": "Dark Text",
+					"slug": "dark-text",
+					"color": "#f8fafc"
 				}
 			]
 		},
@@ -39,6 +70,48 @@
 			"wideSize": "1180px"
 		},
 		"spacing": {
+			"spacingSizes": [
+				{
+					"name": "2XS",
+					"slug": "2-xs",
+					"size": "0.25rem"
+				},
+				{
+					"name": "XS",
+					"slug": "xs",
+					"size": "0.5rem"
+				},
+				{
+					"name": "Small",
+					"slug": "sm",
+					"size": "0.75rem"
+				},
+				{
+					"name": "Medium",
+					"slug": "md",
+					"size": "1rem"
+				},
+				{
+					"name": "Large",
+					"slug": "lg",
+					"size": "1.5rem"
+				},
+				{
+					"name": "XL",
+					"slug": "xl",
+					"size": "2rem"
+				},
+				{
+					"name": "2XL",
+					"slug": "2-xl",
+					"size": "3rem"
+				},
+				{
+					"name": "3XL",
+					"slug": "3-xl",
+					"size": "4rem"
+				}
+			],
 			"units": [
 				"px",
 				"rem",
@@ -60,24 +133,34 @@
 			],
 			"fontSizes": [
 				{
+					"name": "XS",
+					"slug": "xs",
+					"size": "clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem)"
+				},
+				{
 					"name": "Small",
 					"slug": "small",
-					"size": "0.875rem"
+					"size": "clamp(0.875rem, 0.84rem + 0.18vw, 0.9375rem)"
 				},
 				{
 					"name": "Base",
 					"slug": "base",
-					"size": "1rem"
+					"size": "clamp(1rem, 0.96rem + 0.2vw, 1.0625rem)"
 				},
 				{
 					"name": "Large",
 					"slug": "large",
-					"size": "1.25rem"
+					"size": "clamp(1.25rem, 1.1rem + 0.75vw, 1.625rem)"
 				},
 				{
 					"name": "XL",
 					"slug": "xl",
-					"size": "2rem"
+					"size": "clamp(1.75rem, 1.35rem + 1.8vw, 2.75rem)"
+				},
+				{
+					"name": "2XL",
+					"slug": "2-xl",
+					"size": "clamp(2rem, 1.45rem + 2.7vw, 3.5rem)"
 				}
 			]
 		}
@@ -87,10 +170,28 @@
 			"background": "var(--wp--preset--color--canvas)",
 			"text": "var(--wp--preset--color--ink)"
 		},
+		"elements": {
+			"button": {
+				"border": {
+					"radius": "0.5rem"
+				},
+				"color": {
+					"background": "var(--wp--preset--color--primary)",
+					"text": "var(--wp--preset--color--canvas)"
+				},
+				"typography": {
+					"fontWeight": "700"
+				}
+			},
+			"link": {
+				"color": {
+					"text": "var(--wp--preset--color--primary)"
+				}
+			}
+		},
 		"typography": {
 			"fontFamily": "var(--wp--preset--font-family--system-sans)",
 			"lineHeight": "1.6"
 		}
 	}
 }
-

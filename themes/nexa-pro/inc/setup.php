@@ -24,7 +24,7 @@ function nexa_pro_setup() {
 	add_theme_support( 'wp-block-styles' );
 	add_theme_support( 'align-wide' );
 	add_theme_support( 'editor-styles' );
-	add_editor_style( 'assets/css/theme.css' );
+	add_editor_style( 'assets/css/editor.css' );
 
 	add_theme_support(
 		'html5',
