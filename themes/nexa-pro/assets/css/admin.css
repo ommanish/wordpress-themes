@@ -1,0 +1,35 @@
+.nexa-pro-admin {
+	max-width: 960px;
+}
+
+.nexa-pro-admin .nav-tab-wrapper {
+	margin-top: 1rem;
+}
+
+.nexa-pro-admin__panel,
+.nexa-pro-admin__form {
+	margin-top: 1.5rem;
+	padding: 1.5rem;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.nexa-pro-admin__panel h2 {
+	margin-top: 0;
+}
+
+.nexa-pro-admin__save {
+	position: sticky;
+	bottom: 0;
+	margin: 1.5rem -1.5rem -1.5rem;
+	padding: 1rem 1.5rem;
+	background: #fff;
+	border-top: 1px solid #dcdcde;
+}
+
+.nexa-pro-admin input[type="url"],
+.nexa-pro-admin input[type="text"],
+.nexa-pro-admin textarea {
+	max-width: 620px;
+}

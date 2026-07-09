@@ -18,18 +18,18 @@ function nexa_pro_get_homepage_sections() {
 	return array(
 		'hero'         => array(
 			'template' => 'hero',
-			'eyebrow'  => __( 'Nexa Pro', 'nexa-pro' ),
-			'heading'  => __( 'A polished WordPress foundation for professional service websites.', 'nexa-pro' ),
-			'text'     => __( 'Launch a clear, accessible, and conversion-ready business website with structured sections built for agencies, consultants, SaaS teams, recruiters, and service providers.', 'nexa-pro' ),
+			'eyebrow'  => nexa_pro_get_option( 'hero_eyebrow' ),
+			'heading'  => nexa_pro_get_option( 'hero_heading' ),
+			'text'     => nexa_pro_get_option( 'hero_text' ),
 			'actions'  => array(
 				array(
-					'label' => __( 'Explore the sections', 'nexa-pro' ),
-					'url'   => '#services',
+					'label' => nexa_pro_get_option( 'hero_primary_cta_text' ),
+					'url'   => nexa_pro_get_option( 'hero_primary_cta_url' ),
 					'style' => 'primary',
 				),
 				array(
-					'label' => __( 'View setup path', 'nexa-pro' ),
-					'url'   => '#process',
+					'label' => nexa_pro_get_option( 'hero_secondary_cta_text' ),
+					'url'   => nexa_pro_get_option( 'hero_secondary_cta_url' ),
 					'style' => 'secondary',
 				),
 			),
