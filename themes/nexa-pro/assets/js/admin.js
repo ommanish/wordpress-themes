@@ -19,6 +19,8 @@
 			var selectButton = field.querySelector('[data-nexa-pro-media-select]');
 			var removeButton = field.querySelector('[data-nexa-pro-media-remove]');
 			var preview = field.querySelector('[data-nexa-pro-media-preview]');
+			var selectText = selectButton ? selectButton.getAttribute('data-nexa-pro-media-select-text') || 'Select image' : 'Select image';
+			var replaceText = selectButton ? selectButton.getAttribute('data-nexa-pro-media-replace-text') || 'Replace image' : 'Replace image';
 
 			if (!input || !selectButton || !removeButton || !preview) {
 				return;
@@ -26,8 +28,9 @@
 
 			var frame = null;
 
-			function setRemoveState() {
+			function updateMediaState() {
 				removeButton.disabled = !input.value;
+				selectButton.textContent = input.value ? replaceText : selectText;
 			}
 
 			selectButton.addEventListener('click', function () {
@@ -59,7 +62,7 @@
 							preview.appendChild(image);
 						}
 
-						setRemoveState();
+						updateMediaState();
 					});
 				}
 
@@ -69,12 +72,17 @@
 			removeButton.addEventListener('click', function () {
 				input.value = '';
 				preview.textContent = '';
-				setRemoveState();
-				input.focus();
+				updateMediaState();
+
+				if (input.type === 'hidden') {
+					selectButton.focus();
+				} else {
+					input.focus();
+				}
 			});
 
-			input.addEventListener('input', setRemoveState);
-			setRemoveState();
+			input.addEventListener('input', updateMediaState);
+			updateMediaState();
 		});
 	}
 

@@ -10,9 +10,16 @@ $section = isset( $args['section'] ) && is_array( $args['section'] ) ? $args['se
 if ( empty( $section['heading'] ) || empty( $section['text'] ) ) {
 	return;
 }
+
+$background_style = nexa_pro_homepage_background_image_style( $section );
+$section_class    = 'homepage-section homepage-cta has-nexa-pro-dark-surface';
+
+if ( $background_style ) {
+	$section_class .= ' homepage-section--has-background-image';
+}
 ?>
 
-<section class="homepage-section homepage-cta has-nexa-pro-dark-surface">
+<section class="<?php echo esc_attr( $section_class ); ?>"<?php echo $background_style ? ' style="' . esc_attr( $background_style ) . '"' : ''; ?>>
 	<div class="nexa-pro-container homepage-cta__inner">
 		<div class="section-heading">
 			<h2><?php echo esc_html( $section['heading'] ); ?></h2>
@@ -26,4 +33,3 @@ if ( empty( $section['heading'] ) || empty( $section['text'] ) ) {
 		<?php endif; ?>
 	</div>
 </section>
-

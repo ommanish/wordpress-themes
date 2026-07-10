@@ -131,6 +131,30 @@ function nexa_pro_get_homepage_section_order() {
 }
 
 /**
+ * Determine whether an attachment ID is a valid image.
+ *
+ * @param mixed $attachment_id Attachment ID.
+ * @return bool
+ */
+function nexa_pro_is_valid_image_attachment_id( $attachment_id ) {
+	$attachment_id = absint( $attachment_id );
+
+	return $attachment_id > 0 && wp_attachment_is_image( $attachment_id );
+}
+
+/**
+ * Get a validated image attachment ID option.
+ *
+ * @param string $key Option key.
+ * @return int
+ */
+function nexa_pro_get_image_attachment_id( $key ) {
+	$attachment_id = absint( nexa_pro_get_raw_option( $key, 0 ) );
+
+	return nexa_pro_is_valid_image_attachment_id( $attachment_id ) ? $attachment_id : 0;
+}
+
+/**
  * Normalize saved repeater items for read-only use.
  *
  * This defensively filters malformed rows, but does not generate IDs or repair

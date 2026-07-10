@@ -34,7 +34,7 @@ function nexa_pro_get_homepage_sections() {
 				),
 			),
 			'image'    => array(
-				'id'  => 0,
+				'id'  => nexa_pro_get_image_attachment_id( 'about_image_id' ),
 				'url' => '',
 				'alt' => '',
 			),
@@ -72,6 +72,7 @@ function nexa_pro_get_homepage_sections() {
 			'heading'  => nexa_pro_get_raw_option( 'services_heading' ),
 			'text'     => nexa_pro_get_raw_option( 'services_text' ),
 			'items'    => nexa_pro_get_services_items(),
+			'background_image_id' => nexa_pro_get_image_attachment_id( 'services_background_image_id' ),
 		),
 		'features'     => array(
 			'template' => 'features',
@@ -79,6 +80,7 @@ function nexa_pro_get_homepage_sections() {
 			'heading'  => nexa_pro_get_raw_option( 'features_heading' ),
 			'text'     => nexa_pro_get_raw_option( 'features_text' ),
 			'items'    => nexa_pro_get_features_items(),
+			'background_image_id' => nexa_pro_get_image_attachment_id( 'features_background_image_id' ),
 		),
 		'process'      => array(
 			'template' => 'process',
@@ -87,6 +89,7 @@ function nexa_pro_get_homepage_sections() {
 			'heading'  => nexa_pro_get_raw_option( 'process_heading' ),
 			'text'     => nexa_pro_get_raw_option( 'process_text' ),
 			'items'    => nexa_pro_get_process_items(),
+			'background_image_id' => nexa_pro_get_image_attachment_id( 'process_background_image_id' ),
 		),
 		'why'          => array(
 			'template' => 'why',
@@ -95,6 +98,11 @@ function nexa_pro_get_homepage_sections() {
 			'heading'  => nexa_pro_get_raw_option( 'why_heading' ),
 			'text'     => nexa_pro_get_raw_option( 'why_text' ),
 			'items'    => nexa_pro_get_why_items(),
+			'image'    => array(
+				'id'  => nexa_pro_get_image_attachment_id( 'why_image_id' ),
+				'url' => '',
+				'alt' => '',
+			),
 		),
 		'portfolio'    => array(
 			'template' => 'portfolio',
@@ -115,6 +123,11 @@ function nexa_pro_get_homepage_sections() {
 					'text'  => __( 'A neutral example for ongoing campaigns, enablement, or improvement programs.', 'nexa-pro' ),
 				),
 			),
+			'image'    => array(
+				'id'  => nexa_pro_get_image_attachment_id( 'portfolio_image_id' ),
+				'url' => '',
+				'alt' => '',
+			),
 		),
 		'testimonials' => array(
 			'template' => 'testimonials',
@@ -122,6 +135,7 @@ function nexa_pro_get_homepage_sections() {
 			'eyebrow'  => __( 'Testimonials', 'nexa-pro' ),
 			'heading'  => __( 'Add real customer feedback when the site is ready.', 'nexa-pro' ),
 			'message'  => __( 'This section is prepared for testimonials. Replace this setup note with authentic customer feedback before launch.', 'nexa-pro' ),
+			'background_image_id' => nexa_pro_get_image_attachment_id( 'testimonials_background_image_id' ),
 		),
 		'team'         => array(
 			'template' => 'team',
@@ -142,6 +156,7 @@ function nexa_pro_get_homepage_sections() {
 					'text'  => __( 'Use this card for operations, onboarding, or customer support roles.', 'nexa-pro' ),
 				),
 			),
+			'background_image_id' => nexa_pro_get_image_attachment_id( 'team_background_image_id' ),
 		),
 		'faq'          => array(
 			'template' => 'faq',
@@ -174,6 +189,7 @@ function nexa_pro_get_homepage_sections() {
 				__( 'Location: add your service area or office details.', 'nexa-pro' ),
 				__( 'Contact method: add a verified form, phone number, or email address.', 'nexa-pro' ),
 			),
+			'background_image_id' => nexa_pro_get_image_attachment_id( 'contact_background_image_id' ),
 		),
 		'cta'          => array(
 			'template' => 'cta',
@@ -183,6 +199,7 @@ function nexa_pro_get_homepage_sections() {
 				'label' => nexa_pro_get_raw_option( 'cta_button_text' ),
 				'url'   => nexa_pro_get_valid_homepage_url_option( 'cta_button_url' ),
 			),
+			'background_image_id' => nexa_pro_get_image_attachment_id( 'cta_background_image_id' ),
 		),
 	);
 
@@ -269,6 +286,32 @@ function nexa_pro_get_valid_homepage_url_option( $key ) {
 	$url = nexa_pro_get_raw_option( $key, '' );
 
 	return '' !== esc_url( $url ) ? $url : '';
+}
+
+/**
+ * Get a safe inline style value for a homepage background image.
+ *
+ * @param array $section Section data.
+ * @return string
+ */
+function nexa_pro_homepage_background_image_style( $section ) {
+	if ( empty( $section['background_image_id'] ) ) {
+		return '';
+	}
+
+	$image_id = absint( $section['background_image_id'] );
+
+	if ( ! nexa_pro_is_valid_image_attachment_id( $image_id ) ) {
+		return '';
+	}
+
+	$image_url = wp_get_attachment_image_url( $image_id, 'large' );
+
+	if ( ! $image_url ) {
+		return '';
+	}
+
+	return '--nexa-pro-section-background-image: url("' . esc_url( $image_url ) . '");';
 }
 
 /**

@@ -12,9 +12,15 @@ if ( empty( $section['id'] ) || empty( $section['heading'] ) ) {
 }
 
 $items = isset( $section['items'] ) && is_array( $section['items'] ) ? $section['items'] : array();
+$background_style = nexa_pro_homepage_background_image_style( $section );
+$section_class    = 'homepage-section homepage-section--alt';
+
+if ( $background_style ) {
+	$section_class .= ' homepage-section--has-background-image';
+}
 ?>
 
-<section id="<?php echo esc_attr( $section['id'] ); ?>" class="homepage-section homepage-section--alt">
+<section id="<?php echo esc_attr( $section['id'] ); ?>" class="<?php echo esc_attr( $section_class ); ?>"<?php echo $background_style ? ' style="' . esc_attr( $background_style ) . '"' : ''; ?>>
 	<div class="nexa-pro-container">
 		<?php nexa_pro_homepage_section_heading( $section ); ?>
 

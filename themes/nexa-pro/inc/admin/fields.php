@@ -194,13 +194,22 @@ function nexa_pro_admin_select_field( $key, $label, $choices, $description = '' 
  * @param string $key Option key.
  * @param string $label Field label.
  * @param string $description Field description.
+ * @param bool   $show_id_input Whether to show a numeric attachment ID input.
+ * @param bool   $validate_image Whether to validate the value as an image attachment.
  * @return void
  */
-function nexa_pro_admin_media_field( $key, $label, $description = '' ) {
-	$value       = absint( nexa_pro_get_option( $key, 0 ) );
+function nexa_pro_admin_media_field( $key, $label, $description = '', $show_id_input = true, $validate_image = false ) {
+	$value       = $validate_image ? nexa_pro_get_image_attachment_id( $key ) : absint( nexa_pro_get_option( $key, 0 ) );
 	$field_id    = 'nexa-pro-' . str_replace( '_', '-', $key );
 	$preview     = $value ? wp_get_attachment_image( $value, 'medium', false, array( 'class' => 'nexa-pro-admin-media__image' ) ) : '';
 	$has_preview = '' !== $preview;
+	$select_text = $value ? __( 'Replace image', 'nexa-pro' ) : __( 'Select image', 'nexa-pro' );
+	$input_type  = $show_id_input ? 'number' : 'hidden';
+	$input_class = $show_id_input ? 'small-text' : '';
+	/* translators: %s: Media field label. */
+	$select_label = sprintf( __( 'Select image for %s', 'nexa-pro' ), $label );
+	/* translators: %s: Media field label. */
+	$remove_label = sprintf( __( 'Remove image for %s', 'nexa-pro' ), $label );
 
 	?>
 	<tr>
@@ -213,19 +222,36 @@ function nexa_pro_admin_media_field( $key, $label, $description = '' ) {
 					<?php echo $preview; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 				<input
-					type="number"
-					min="0"
-					step="1"
+					type="<?php echo esc_attr( $input_type ); ?>"
+					<?php if ( $show_id_input ) : ?>
+						min="0"
+						step="1"
+					<?php endif; ?>
 					id="<?php echo esc_attr( $field_id ); ?>"
 					name="nexa_pro_options[<?php echo esc_attr( $key ); ?>]"
 					value="<?php echo esc_attr( $value ); ?>"
-					class="small-text"
+					<?php if ( $input_class ) : ?>
+						class="<?php echo esc_attr( $input_class ); ?>"
+					<?php endif; ?>
 					data-nexa-pro-media-input
 				>
-				<button type="button" class="button" data-nexa-pro-media-select>
-					<?php esc_html_e( 'Select image', 'nexa-pro' ); ?>
+				<button
+					type="button"
+					class="button"
+					data-nexa-pro-media-select
+					data-nexa-pro-media-select-text="<?php esc_attr_e( 'Select image', 'nexa-pro' ); ?>"
+					data-nexa-pro-media-replace-text="<?php esc_attr_e( 'Replace image', 'nexa-pro' ); ?>"
+					aria-label="<?php echo esc_attr( $select_label ); ?>"
+				>
+					<?php echo esc_html( $select_text ); ?>
 				</button>
-				<button type="button" class="button" data-nexa-pro-media-remove <?php disabled( ! $value ); ?>>
+				<button
+					type="button"
+					class="button"
+					data-nexa-pro-media-remove
+					aria-label="<?php echo esc_attr( $remove_label ); ?>"
+					<?php disabled( ! $value ); ?>
+				>
 					<?php esc_html_e( 'Remove image', 'nexa-pro' ); ?>
 				</button>
 				<?php if ( $value && ! $has_preview ) : ?>
@@ -503,6 +529,68 @@ function nexa_pro_admin_homepage_section_fields( $prefix, $label ) {
 		__( 'Disable this to remove the entire section and its anchor from the homepage. Update any menu, hero, header, or button links that point to disabled sections.', 'nexa-pro' )
 	);
 
+	switch ( $prefix ) {
+		case 'about':
+			nexa_pro_admin_media_field(
+				'about_image_id',
+				__( 'About image', 'nexa-pro' ),
+				__( 'Select an optional image displayed beside the About section content.', 'nexa-pro' ),
+				false,
+				true
+			);
+			break;
+
+		case 'services':
+			nexa_pro_admin_media_field(
+				'services_background_image_id',
+				__( 'Services background image', 'nexa-pro' ),
+				__( 'Select an optional decorative background image for the Services section.', 'nexa-pro' ),
+				false,
+				true
+			);
+			break;
+
+		case 'features':
+			nexa_pro_admin_media_field(
+				'features_background_image_id',
+				__( 'Features background image', 'nexa-pro' ),
+				__( 'Select an optional decorative background image for the Features section.', 'nexa-pro' ),
+				false,
+				true
+			);
+			break;
+
+		case 'process':
+			nexa_pro_admin_media_field(
+				'process_background_image_id',
+				__( 'Process background image', 'nexa-pro' ),
+				__( 'Select an optional decorative background image for the Process section.', 'nexa-pro' ),
+				false,
+				true
+			);
+			break;
+
+		case 'why':
+			nexa_pro_admin_media_field(
+				'why_image_id',
+				__( 'Why Choose Us image', 'nexa-pro' ),
+				__( 'Select an optional image displayed beside the Why Choose Us content.', 'nexa-pro' ),
+				false,
+				true
+			);
+			break;
+
+		case 'cta':
+			nexa_pro_admin_media_field(
+				'cta_background_image_id',
+				__( 'CTA background image', 'nexa-pro' ),
+				__( 'Select an optional decorative background image for the CTA section.', 'nexa-pro' ),
+				false,
+				true
+			);
+			break;
+	}
+
 	if ( 'cta' !== $prefix ) {
 		nexa_pro_admin_text_field(
 			$prefix . '_label',
@@ -573,6 +661,18 @@ function nexa_pro_admin_homepage_section_fields( $prefix, $label ) {
 			);
 			break;
 	}
+}
+
+/**
+ * Render a homepage media-only section tab.
+ *
+ * @param string $key Option key.
+ * @param string $label Field label.
+ * @param string $description Field description.
+ * @return void
+ */
+function nexa_pro_admin_homepage_media_only_fields( $key, $label, $description ) {
+	nexa_pro_admin_media_field( $key, $label, $description, false, true );
 }
 
 /**
@@ -794,6 +894,38 @@ function nexa_pro_render_admin_fields( $tab ) {
 
 				case 'why':
 					nexa_pro_admin_homepage_section_fields( 'why', __( 'Why Choose Us', 'nexa-pro' ) );
+					break;
+
+				case 'portfolio':
+					nexa_pro_admin_homepage_media_only_fields(
+						'portfolio_image_id',
+						__( 'Portfolio image', 'nexa-pro' ),
+						__( 'Select an optional image displayed with the Portfolio section.', 'nexa-pro' )
+					);
+					break;
+
+				case 'testimonials':
+					nexa_pro_admin_homepage_media_only_fields(
+						'testimonials_background_image_id',
+						__( 'Testimonials background image', 'nexa-pro' ),
+						__( 'Select an optional decorative background image for the Testimonials section.', 'nexa-pro' )
+					);
+					break;
+
+				case 'team':
+					nexa_pro_admin_homepage_media_only_fields(
+						'team_background_image_id',
+						__( 'Team background image', 'nexa-pro' ),
+						__( 'Select an optional decorative background image for the Team section.', 'nexa-pro' )
+					);
+					break;
+
+				case 'contact':
+					nexa_pro_admin_homepage_media_only_fields(
+						'contact_background_image_id',
+						__( 'Contact background image', 'nexa-pro' ),
+						__( 'Select an optional decorative background image for the Contact section.', 'nexa-pro' )
+					);
 					break;
 
 				case 'cta':

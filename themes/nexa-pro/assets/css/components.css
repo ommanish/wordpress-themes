@@ -253,8 +253,41 @@
 	background: var(--nexa-pro-color-surface);
 }
 
+.section-heading + .homepage-media {
+	margin-bottom: var(--nexa-pro-space-xl);
+}
+
 .homepage-media__image {
+	display: block;
 	width: 100%;
+	height: auto;
+}
+
+.homepage-section--has-background-image {
+	background-image:
+		linear-gradient(
+			color-mix(in srgb, var(--nexa-pro-color-canvas) 88%, transparent),
+			color-mix(in srgb, var(--nexa-pro-color-canvas) 88%, transparent)
+		),
+		var(--nexa-pro-section-background-image);
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.homepage-section--alt.homepage-section--has-background-image {
+	background-image:
+		linear-gradient(
+			color-mix(in srgb, var(--nexa-pro-color-surface) 88%, transparent),
+			color-mix(in srgb, var(--nexa-pro-color-surface) 88%, transparent)
+		),
+		var(--nexa-pro-section-background-image);
+}
+
+.homepage-cta.homepage-section--has-background-image {
+	background-image:
+		linear-gradient(rgba(21, 23, 26, 0.78), rgba(21, 23, 26, 0.78)),
+		var(--nexa-pro-section-background-image);
 }
 
 .homepage-inline-list,
