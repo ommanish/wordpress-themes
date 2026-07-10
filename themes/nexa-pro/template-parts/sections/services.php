@@ -7,26 +7,34 @@
 
 $section = isset( $args['section'] ) && is_array( $args['section'] ) ? $args['section'] : array();
 
-if ( empty( $section['id'] ) || empty( $section['heading'] ) || empty( $section['items'] ) || ! is_array( $section['items'] ) ) {
+if ( empty( $section['id'] ) || empty( $section['heading'] ) ) {
 	return;
 }
+
+$items = isset( $section['items'] ) && is_array( $section['items'] ) ? $section['items'] : array();
 ?>
 
 <section id="<?php echo esc_attr( $section['id'] ); ?>" class="homepage-section homepage-section--alt">
 	<div class="nexa-pro-container">
 		<?php nexa_pro_homepage_section_heading( $section ); ?>
 
-		<div class="homepage-grid homepage-grid--three">
-			<?php foreach ( $section['items'] as $item ) : ?>
-				<?php if ( empty( $item['title'] ) || empty( $item['text'] ) ) : ?>
+		<?php if ( $items ) : ?>
+			<div class="homepage-grid homepage-grid--three">
+			<?php foreach ( $items as $item ) : ?>
+				<?php if ( empty( $item['title'] ) ) : ?>
 					<?php continue; ?>
 				<?php endif; ?>
 				<article class="card homepage-card">
 					<h3><?php echo esc_html( $item['title'] ); ?></h3>
-					<p><?php echo esc_html( $item['text'] ); ?></p>
+					<?php if ( ! empty( $item['text'] ) ) : ?>
+						<p><?php echo esc_html( $item['text'] ); ?></p>
+					<?php endif; ?>
+					<?php if ( ! empty( $item['link_text'] ) && ! empty( $item['link_url'] ) && '' !== esc_url( $item['link_url'] ) ) : ?>
+						<p><a href="<?php echo esc_url( $item['link_url'] ); ?>"><?php echo esc_html( $item['link_text'] ); ?></a></p>
+					<?php endif; ?>
 				</article>
 			<?php endforeach; ?>
-		</div>
+			</div>
+		<?php endif; ?>
 	</div>
 </section>
-

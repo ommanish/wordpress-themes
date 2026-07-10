@@ -80,6 +80,83 @@ function nexa_pro_get_raw_option( $key, $fallback = null ) {
 }
 
 /**
+ * Normalize saved repeater items for read-only use.
+ *
+ * This defensively filters malformed rows, but does not generate IDs or repair
+ * duplicates. Stable ID repair belongs to save-time sanitization.
+ *
+ * @param string $key Repeater option key.
+ * @param array  $fields Allowed schema fields.
+ * @return array
+ */
+function nexa_pro_get_repeater_items( $key, $fields ) {
+	$items = nexa_pro_get_raw_option( $key, array() );
+
+	if ( ! is_array( $items ) ) {
+		return array();
+	}
+
+	$output = array();
+
+	foreach ( $items as $item ) {
+		if ( ! is_array( $item ) || empty( $item['title'] ) ) {
+			continue;
+		}
+
+		$row = array();
+
+		foreach ( $fields as $field ) {
+			if ( 'id' === $field ) {
+				$row['id'] = isset( $item['id'] ) ? sanitize_key( $item['id'] ) : '';
+				continue;
+			}
+
+			$row[ $field ] = isset( $item[ $field ] ) ? (string) $item[ $field ] : '';
+		}
+
+		$output[] = $row;
+	}
+
+	return $output;
+}
+
+/**
+ * Get service repeater items.
+ *
+ * @return array
+ */
+function nexa_pro_get_services_items() {
+	return nexa_pro_get_repeater_items( 'services_items', array( 'id', 'title', 'text', 'link_text', 'link_url' ) );
+}
+
+/**
+ * Get feature repeater items.
+ *
+ * @return array
+ */
+function nexa_pro_get_features_items() {
+	return nexa_pro_get_repeater_items( 'features_items', array( 'id', 'title', 'text' ) );
+}
+
+/**
+ * Get process repeater items.
+ *
+ * @return array
+ */
+function nexa_pro_get_process_items() {
+	return nexa_pro_get_repeater_items( 'process_items', array( 'id', 'title', 'text' ) );
+}
+
+/**
+ * Get why repeater items.
+ *
+ * @return array
+ */
+function nexa_pro_get_why_items() {
+	return nexa_pro_get_repeater_items( 'why_items', array( 'id', 'title', 'text' ) );
+}
+
+/**
  * Get the configured brand name with WordPress site title fallback.
  *
  * @return string

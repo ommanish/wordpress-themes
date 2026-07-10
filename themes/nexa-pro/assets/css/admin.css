@@ -63,3 +63,62 @@
 .nexa-pro-admin-media .small-text {
 	width: 7rem;
 }
+
+.nexa-pro-repeater {
+	max-width: 720px;
+}
+
+.nexa-pro-repeater__heading {
+	margin: 0 0 0.5rem;
+	font-size: 1rem;
+}
+
+.nexa-pro-repeater__items {
+	display: grid;
+	gap: 1rem;
+	margin: 1rem 0;
+}
+
+.nexa-pro-repeater__item {
+	padding: 1rem;
+	background: #fff;
+	border: 1px solid #dcdcde;
+}
+
+.nexa-pro-repeater__item.is-removed {
+	background: #fcf0f1;
+	border-color: #d63638;
+}
+
+.nexa-pro-repeater__item-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
+.nexa-pro-repeater__item-header h4 {
+	margin: 0;
+}
+
+.nexa-pro-repeater__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+}
+
+.nexa-pro-repeater__field label {
+	display: block;
+	margin-bottom: 0.25rem;
+	font-weight: 600;
+}
+
+.nexa-pro-repeater__remove {
+	margin-bottom: 0;
+}
+
+.nexa-pro-repeater__empty[hidden] {
+	display: none;
+}

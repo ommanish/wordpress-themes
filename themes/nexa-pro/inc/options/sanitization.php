@@ -32,6 +32,123 @@ function nexa_pro_sanitize_url_or_fragment( $url ) {
 }
 
 /**
+ * Get schemas for homepage repeater options.
+ *
+ * @return array
+ */
+function nexa_pro_get_repeater_schemas() {
+	return array(
+		'services_items' => array(
+			'section' => 'services',
+			'fields'  => array( 'id', 'title', 'text', 'link_text', 'link_url' ),
+		),
+		'features_items' => array(
+			'section' => 'features',
+			'fields'  => array( 'id', 'title', 'text' ),
+		),
+		'process_items'  => array(
+			'section' => 'process',
+			'fields'  => array( 'id', 'title', 'text' ),
+		),
+		'why_items'      => array(
+			'section' => 'why',
+			'fields'  => array( 'id', 'title', 'text' ),
+		),
+	);
+}
+
+/**
+ * Build a stable, deterministic repeater item ID.
+ *
+ * @param string $section Section key.
+ * @param string $title Item title.
+ * @param array  $used_ids IDs already used in this repeater.
+ * @param string $submitted_id Submitted ID.
+ * @return string
+ */
+function nexa_pro_sanitize_repeater_item_id( $section, $title, $used_ids, $submitted_id = '' ) {
+	$id = sanitize_key( $submitted_id );
+
+	if ( '' === $id || isset( $used_ids[ $id ] ) ) {
+		$title_base = sanitize_key( $title );
+		$base       = sanitize_key( $section . ( $title_base ? '-' . $title_base : '' ) );
+
+		if ( '' === $base ) {
+			$base = sanitize_key( $section . '-item' );
+		}
+
+		$id     = $base;
+		$suffix = 2;
+
+		while ( isset( $used_ids[ $id ] ) ) {
+			$id = $base . '-' . $suffix;
+			$suffix++;
+		}
+	}
+
+	return $id;
+}
+
+/**
+ * Sanitize a homepage repeater option.
+ *
+ * @param mixed  $items Raw submitted items.
+ * @param array  $schema Repeater schema.
+ * @param string $key Option key.
+ * @return array
+ */
+function nexa_pro_sanitize_repeater_items( $items, $schema, $key ) {
+	if ( ! is_array( $items ) ) {
+		return array();
+	}
+
+	$output   = array();
+	$used_ids = array();
+	$count    = 0;
+
+	foreach ( $items as $item ) {
+		if ( 20 <= $count ) {
+			break;
+		}
+
+		$count++;
+
+		if ( ! is_array( $item ) || ! empty( $item['_remove'] ) ) {
+			continue;
+		}
+
+		$title = isset( $item['title'] ) ? sanitize_text_field( $item['title'] ) : '';
+
+		if ( '' === $title ) {
+			continue;
+		}
+
+		$id  = nexa_pro_sanitize_repeater_item_id(
+			$schema['section'],
+			$title,
+			$used_ids,
+			isset( $item['id'] ) ? $item['id'] : ''
+		);
+		$row = array(
+			'id'    => $id,
+			'title' => $title,
+			'text'  => isset( $item['text'] ) ? sanitize_textarea_field( $item['text'] ) : '',
+		);
+
+		if ( 'services_items' === $key ) {
+			$url              = isset( $item['link_url'] ) ? nexa_pro_sanitize_url_or_fragment( $item['link_url'] ) : '';
+			$row['link_text'] = isset( $item['link_text'] ) ? sanitize_text_field( $item['link_text'] ) : '';
+			$row['link_url']  = null === $url ? '' : $url;
+		}
+
+		$output[]        = $row;
+		$used_ids[ $id ] = true;
+	}
+
+	return $output;
+}
+
+/**
  * Sanitize theme options for storage.
  *
  * Missing or invalid submitted values preserve the existing saved value, falling
@@ -43,6 +160,7 @@ function nexa_pro_sanitize_url_or_fragment( $url ) {
 function nexa_pro_sanitize_options( $input ) {
 	$defaults = nexa_pro_get_default_options();
 	$existing = get_option( 'nexa_pro_options', array() );
+	$schemas  = nexa_pro_get_repeater_schemas();
 
 	if ( ! is_array( $existing ) ) {
 		$existing = array();
@@ -52,6 +170,16 @@ function nexa_pro_sanitize_options( $input ) {
 
 	if ( ! is_array( $input ) ) {
 		return $output;
+	}
+
+	$submitted_repeaters = array();
+
+	foreach ( $schemas as $repeater_key => $schema ) {
+		$marker_key = $repeater_key . '_submitted';
+
+		if ( isset( $input[ $marker_key ] ) && '1' === (string) $input[ $marker_key ] ) {
+			$submitted_repeaters[ $repeater_key ] = $schema;
+		}
 	}
 
 	$input = array_intersect_key( $input, $defaults );
@@ -148,6 +276,21 @@ function nexa_pro_sanitize_options( $input ) {
 					$output[ $key ] = $url;
 				}
 				break;
+
+			case 'services_items':
+			case 'features_items':
+			case 'process_items':
+			case 'why_items':
+				if ( isset( $submitted_repeaters[ $key ] ) ) {
+					$output[ $key ] = nexa_pro_sanitize_repeater_items( $value, $submitted_repeaters[ $key ], $key );
+				}
+				break;
+		}
+	}
+
+	foreach ( $submitted_repeaters as $key => $schema ) {
+		if ( ! array_key_exists( $key, $input ) ) {
+			$output[ $key ] = array();
 		}
 	}
 

@@ -71,40 +71,14 @@ function nexa_pro_get_homepage_sections() {
 			'eyebrow'  => nexa_pro_get_raw_option( 'services_label' ),
 			'heading'  => nexa_pro_get_raw_option( 'services_heading' ),
 			'text'     => nexa_pro_get_raw_option( 'services_text' ),
-			'items'    => array(
-				array(
-					'title' => __( 'Advisory services', 'nexa-pro' ),
-					'text'  => __( 'Frame expert guidance, planning, audits, or retained consulting offers.', 'nexa-pro' ),
-				),
-				array(
-					'title' => __( 'Implementation support', 'nexa-pro' ),
-					'text'  => __( 'Describe hands-on delivery, setup, migration, or operational support.', 'nexa-pro' ),
-				),
-				array(
-					'title' => __( 'Ongoing optimization', 'nexa-pro' ),
-					'text'  => __( 'Explain recurring improvement, reporting, enablement, or growth services.', 'nexa-pro' ),
-				),
-			),
+			'items'    => nexa_pro_get_services_items(),
 		),
 		'features'     => array(
 			'template' => 'features',
 			'eyebrow'  => nexa_pro_get_raw_option( 'features_label' ),
 			'heading'  => nexa_pro_get_raw_option( 'features_heading' ),
 			'text'     => nexa_pro_get_raw_option( 'features_text' ),
-			'items'    => array(
-				array(
-					'title' => __( 'Structured sections', 'nexa-pro' ),
-					'text'  => __( 'Clear section boundaries help visitors move from context to action.', 'nexa-pro' ),
-				),
-				array(
-					'title' => __( 'Flexible cards', 'nexa-pro' ),
-					'text'  => __( 'Card grids work for services, benefits, team profiles, and resource previews.', 'nexa-pro' ),
-				),
-				array(
-					'title' => __( 'Accessible defaults', 'nexa-pro' ),
-					'text'  => __( 'Headings, links, focus states, and layout foundations are designed with accessibility in mind.', 'nexa-pro' ),
-				),
-			),
+			'items'    => nexa_pro_get_features_items(),
 		),
 		'process'      => array(
 			'template' => 'process',
@@ -112,20 +86,7 @@ function nexa_pro_get_homepage_sections() {
 			'eyebrow'  => nexa_pro_get_raw_option( 'process_label' ),
 			'heading'  => nexa_pro_get_raw_option( 'process_heading' ),
 			'text'     => nexa_pro_get_raw_option( 'process_text' ),
-			'items'    => array(
-				array(
-					'title' => __( 'Discover', 'nexa-pro' ),
-					'text'  => __( 'Clarify goals, audience needs, constraints, and the most important user journeys.', 'nexa-pro' ),
-				),
-				array(
-					'title' => __( 'Shape', 'nexa-pro' ),
-					'text'  => __( 'Organize content, page structure, calls to action, and proof points.', 'nexa-pro' ),
-				),
-				array(
-					'title' => __( 'Launch', 'nexa-pro' ),
-					'text'  => __( 'Publish a focused experience and prepare the next round of improvements.', 'nexa-pro' ),
-				),
-			),
+			'items'    => nexa_pro_get_process_items(),
 		),
 		'why'          => array(
 			'template' => 'why',
@@ -133,11 +94,7 @@ function nexa_pro_get_homepage_sections() {
 			'eyebrow'  => nexa_pro_get_raw_option( 'why_label' ),
 			'heading'  => nexa_pro_get_raw_option( 'why_heading' ),
 			'text'     => nexa_pro_get_raw_option( 'why_text' ),
-			'items'    => array(
-				__( 'Built with reusable WordPress template parts.', 'nexa-pro' ),
-				__( 'Prepared for future homepage settings without coupling content to templates.', 'nexa-pro' ),
-				__( 'Uses the existing design-token system for consistent spacing, color, and type.', 'nexa-pro' ),
-			),
+			'items'    => nexa_pro_get_why_items(),
 		),
 		'portfolio'    => array(
 			'template' => 'portfolio',

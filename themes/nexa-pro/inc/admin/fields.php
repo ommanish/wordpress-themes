@@ -241,6 +241,251 @@ function nexa_pro_admin_media_field( $key, $label, $description = '' ) {
 }
 
 /**
+ * Get repeater items for an admin field.
+ *
+ * @param string $key Repeater option key.
+ * @return array
+ */
+function nexa_pro_admin_get_repeater_items( $key ) {
+	switch ( $key ) {
+		case 'services_items':
+			return nexa_pro_get_services_items();
+
+		case 'features_items':
+			return nexa_pro_get_features_items();
+
+		case 'process_items':
+			return nexa_pro_get_process_items();
+
+		case 'why_items':
+			return nexa_pro_get_why_items();
+	}
+
+	return array();
+}
+
+/**
+ * Render a homepage repeater row.
+ *
+ * @param string  $key Repeater option key.
+ * @param string  $row_key Row key used in field names.
+ * @param array   $item Item data.
+ * @param string  $item_label Singular item label.
+ * @param bool    $is_template Whether this row is rendered inside a template element.
+ * @param int     $position One-based row position for server-rendered labels.
+ * @return void
+ */
+function nexa_pro_admin_repeater_row( $key, $row_key, $item, $item_label, $is_template = false, $position = 0 ) {
+	$field_base = 'nexa_pro_options[' . $key . '][' . $row_key . ']';
+	$id_base    = 'nexa-pro-' . str_replace( '_', '-', $key ) . '-' . $row_key;
+	$title      = isset( $item['title'] ) ? $item['title'] : '';
+	$text       = isset( $item['text'] ) ? $item['text'] : '';
+	$item_id    = isset( $item['id'] ) ? $item['id'] : '';
+	$link_text  = isset( $item['link_text'] ) ? $item['link_text'] : '';
+	$link_url   = isset( $item['link_url'] ) ? $item['link_url'] : '';
+	$row_class  = 'nexa-pro-repeater__item';
+
+	if ( $is_template ) {
+		$row_class .= ' is-template';
+	}
+
+	?>
+	<div class="<?php echo esc_attr( $row_class ); ?>" data-nexa-pro-repeater-row data-nexa-pro-row-key="<?php echo esc_attr( $row_key ); ?>">
+		<div class="nexa-pro-repeater__item-header">
+			<h4 data-nexa-pro-repeater-row-title>
+				<?php
+				if ( $position ) {
+					printf(
+						/* translators: 1: Repeater item label. 2: Item number. */
+						esc_html__( '%1$s %2$d', 'nexa-pro' ),
+						esc_html( $item_label ),
+						absint( $position )
+					);
+				} else {
+					printf(
+						/* translators: %s: Repeater item label. */
+						esc_html__( '%s item', 'nexa-pro' ),
+						esc_html( $item_label )
+					);
+				}
+				?>
+			</h4>
+			<div class="nexa-pro-repeater__actions">
+				<button type="button" class="button" data-nexa-pro-repeater-move="up" hidden>
+					<?php esc_html_e( 'Move up', 'nexa-pro' ); ?>
+				</button>
+				<button type="button" class="button" data-nexa-pro-repeater-move="down" hidden>
+					<?php esc_html_e( 'Move down', 'nexa-pro' ); ?>
+				</button>
+				<button type="button" class="button" data-nexa-pro-repeater-remove hidden>
+					<?php esc_html_e( 'Remove', 'nexa-pro' ); ?>
+				</button>
+				<button type="button" class="button hidden" data-nexa-pro-repeater-undo hidden>
+					<?php esc_html_e( 'Undo remove', 'nexa-pro' ); ?>
+				</button>
+			</div>
+		</div>
+
+		<input
+			type="hidden"
+			name="<?php echo esc_attr( $field_base ); ?>[id]"
+			value="<?php echo esc_attr( $item_id ); ?>"
+			data-nexa-pro-repeater-id
+		>
+
+		<p class="nexa-pro-repeater__field">
+			<label for="<?php echo esc_attr( $id_base ); ?>-title">
+				<?php esc_html_e( 'Title', 'nexa-pro' ); ?>
+			</label>
+			<input
+				type="text"
+				id="<?php echo esc_attr( $id_base ); ?>-title"
+				name="<?php echo esc_attr( $field_base ); ?>[title]"
+				value="<?php echo esc_attr( $title ); ?>"
+				class="regular-text"
+				data-nexa-pro-repeater-title
+			>
+		</p>
+
+		<p class="nexa-pro-repeater__field">
+			<label for="<?php echo esc_attr( $id_base ); ?>-text">
+				<?php esc_html_e( 'Description', 'nexa-pro' ); ?>
+			</label>
+			<textarea
+				id="<?php echo esc_attr( $id_base ); ?>-text"
+				name="<?php echo esc_attr( $field_base ); ?>[text]"
+				class="large-text"
+				rows="3"
+			><?php echo esc_textarea( $text ); ?></textarea>
+		</p>
+
+		<?php if ( 'services_items' === $key ) : ?>
+			<p class="nexa-pro-repeater__field">
+				<label for="<?php echo esc_attr( $id_base ); ?>-link-text">
+					<?php esc_html_e( 'Link text', 'nexa-pro' ); ?>
+				</label>
+				<input
+					type="text"
+					id="<?php echo esc_attr( $id_base ); ?>-link-text"
+					name="<?php echo esc_attr( $field_base ); ?>[link_text]"
+					value="<?php echo esc_attr( $link_text ); ?>"
+					class="regular-text"
+				>
+			</p>
+			<p class="nexa-pro-repeater__field">
+				<label for="<?php echo esc_attr( $id_base ); ?>-link-url">
+					<?php esc_html_e( 'Link URL', 'nexa-pro' ); ?>
+				</label>
+				<input
+					type="text"
+					id="<?php echo esc_attr( $id_base ); ?>-link-url"
+					name="<?php echo esc_attr( $field_base ); ?>[link_url]"
+					value="<?php echo esc_attr( $link_url ); ?>"
+					class="regular-text"
+				>
+			</p>
+		<?php endif; ?>
+
+		<p class="nexa-pro-repeater__remove">
+			<label>
+				<input
+					type="checkbox"
+					name="<?php echo esc_attr( $field_base ); ?>[_remove]"
+					value="1"
+					data-nexa-pro-repeater-remove-checkbox
+				>
+				<?php esc_html_e( 'Remove this item', 'nexa-pro' ); ?>
+			</label>
+		</p>
+	</div>
+	<?php
+}
+
+/**
+ * Render a homepage repeater field.
+ *
+ * @param string $key Repeater option key.
+ * @param string $heading Repeater heading.
+ * @param string $item_label Singular item label.
+ * @param string $description Repeater description.
+ * @return void
+ */
+function nexa_pro_admin_repeater_field( $key, $heading, $item_label, $description = '' ) {
+	$items     = nexa_pro_admin_get_repeater_items( $key );
+	$field_id  = 'nexa-pro-' . str_replace( '_', '-', $key );
+	$row_keys  = array();
+	$row_index = 0;
+
+	?>
+	<tr>
+		<th scope="row">
+			<?php echo esc_html( $heading ); ?>
+		</th>
+		<td>
+			<div
+				class="nexa-pro-repeater"
+				id="<?php echo esc_attr( $field_id ); ?>"
+				data-nexa-pro-repeater
+				data-nexa-pro-repeater-key="<?php echo esc_attr( $key ); ?>"
+				data-nexa-pro-item-label="<?php echo esc_attr( $item_label ); ?>"
+			>
+				<input type="hidden" name="nexa_pro_options[<?php echo esc_attr( $key ); ?>_submitted]" value="1">
+				<h3 class="nexa-pro-repeater__heading"><?php echo esc_html( $heading ); ?></h3>
+				<?php if ( $description ) : ?>
+					<p class="description"><?php echo esc_html( $description ); ?></p>
+				<?php endif; ?>
+				<div class="nexa-pro-repeater__status screen-reader-text" aria-live="polite" data-nexa-pro-repeater-status></div>
+				<div class="nexa-pro-repeater__items" data-nexa-pro-repeater-items>
+					<?php foreach ( $items as $item ) : ?>
+						<?php
+						$row_key = ! empty( $item['id'] ) ? sanitize_key( $item['id'] ) : 'row-' . $row_index;
+
+						if ( '' === $row_key || isset( $row_keys[ $row_key ] ) ) {
+							$row_key = 'row-' . $row_index;
+						}
+
+						$row_keys[ $row_key ] = true;
+						$row_index++;
+						nexa_pro_admin_repeater_row( $key, $row_key, $item, $item_label, false, $row_index );
+						?>
+					<?php endforeach; ?>
+				</div>
+				<p class="nexa-pro-repeater__empty" data-nexa-pro-repeater-empty <?php echo $items ? 'hidden' : ''; ?>>
+					<?php esc_html_e( 'No items are currently configured. Save this tab to keep this repeater empty.', 'nexa-pro' ); ?>
+				</p>
+				<button type="button" class="button" data-nexa-pro-repeater-add hidden>
+					<?php
+					printf(
+						/* translators: %s: Repeater item label. */
+						esc_html__( 'Add %s', 'nexa-pro' ),
+						esc_html( $item_label )
+					);
+					?>
+				</button>
+				<template data-nexa-pro-repeater-template>
+					<?php
+					nexa_pro_admin_repeater_row(
+						$key,
+						'__index__',
+						array(
+							'id'        => '',
+							'title'     => '',
+							'text'      => '',
+							'link_text' => '',
+							'link_url'  => '',
+						),
+						$item_label,
+						true
+					);
+					?>
+				</template>
+			</div>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
  * Render homepage section settings fields.
  *
  * @param string $prefix Section option prefix.
@@ -289,6 +534,44 @@ function nexa_pro_admin_homepage_section_fields( $prefix, $label ) {
 			__( 'Button URL', 'nexa-pro' ),
 			__( 'Use a full absolute URL or a same-page fragment such as #contact. Update links manually if their target section is disabled.', 'nexa-pro' )
 		);
+	}
+
+	switch ( $prefix ) {
+		case 'services':
+			nexa_pro_admin_repeater_field(
+				'services_items',
+				__( 'Service items', 'nexa-pro' ),
+				__( 'Service', 'nexa-pro' ),
+				__( 'Add, edit, remove, and reorder the service cards shown in this section.', 'nexa-pro' )
+			);
+			break;
+
+		case 'features':
+			nexa_pro_admin_repeater_field(
+				'features_items',
+				__( 'Feature items', 'nexa-pro' ),
+				__( 'Feature', 'nexa-pro' ),
+				__( 'Add, edit, remove, and reorder the feature cards shown in this section.', 'nexa-pro' )
+			);
+			break;
+
+		case 'process':
+			nexa_pro_admin_repeater_field(
+				'process_items',
+				__( 'Process items', 'nexa-pro' ),
+				__( 'Process step', 'nexa-pro' ),
+				__( 'Add, edit, remove, and reorder the process steps shown in this section.', 'nexa-pro' )
+			);
+			break;
+
+		case 'why':
+			nexa_pro_admin_repeater_field(
+				'why_items',
+				__( 'Why Choose Us items', 'nexa-pro' ),
+				__( 'Why item', 'nexa-pro' ),
+				__( 'Add, edit, remove, and reorder the points shown in this section.', 'nexa-pro' )
+			);
+			break;
 	}
 }
 
