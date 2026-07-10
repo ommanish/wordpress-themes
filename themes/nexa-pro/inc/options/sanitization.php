@@ -165,6 +165,78 @@ function nexa_pro_sanitize_image_attachment_id( $attachment_id ) {
 }
 
 /**
+ * Sanitize a design color value.
+ *
+ * @param mixed $value Color value.
+ * @return string|null
+ */
+function nexa_pro_sanitize_design_color( $value ) {
+	if ( ! is_scalar( $value ) ) {
+		return null;
+	}
+
+	$color = sanitize_hex_color( $value );
+
+	return $color ? strtolower( $color ) : null;
+}
+
+/**
+ * Sanitize a font family choice.
+ *
+ * @param mixed $value Font choice value.
+ * @return string|null
+ */
+function nexa_pro_sanitize_font_choice( $value ) {
+	if ( ! is_scalar( $value ) ) {
+		return null;
+	}
+
+	$value  = sanitize_key( $value );
+	$stacks = nexa_pro_get_font_stack_map();
+
+	return isset( $stacks[ $value ] ) ? $value : null;
+}
+
+/**
+ * Sanitize a numeric design value.
+ *
+ * @param string $key Option key.
+ * @param mixed  $value Raw value.
+ * @return int|float|null
+ */
+function nexa_pro_sanitize_design_number( $key, $value ) {
+	if ( ! is_numeric( $value ) ) {
+		return null;
+	}
+
+	$number   = nexa_pro_clamp_design_number( $key, $value );
+	$defaults = nexa_pro_get_default_global_design_options();
+
+	if ( $number === $defaults[ $key ] && (float) $value !== (float) $defaults[ $key ] ) {
+		return null;
+	}
+
+	return $number;
+}
+
+/**
+ * Sanitize a design font weight.
+ *
+ * @param string $key Option key.
+ * @param mixed  $value Raw value.
+ * @return string|null
+ */
+function nexa_pro_sanitize_design_font_weight( $key, $value ) {
+	if ( ! is_scalar( $value ) ) {
+		return null;
+	}
+
+	$value = (string) absint( $value );
+
+	return in_array( $value, nexa_pro_get_allowed_font_weights( $key ), true ) ? $value : null;
+}
+
+/**
  * Sanitize theme options for storage.
  *
  * Missing or invalid submitted values preserve the existing saved value, falling
@@ -188,8 +260,10 @@ function nexa_pro_sanitize_options( $input ) {
 		return $output;
 	}
 
-	$submitted_repeaters = array();
+	$submitted_repeaters  = array();
+	$design_keys          = nexa_pro_get_global_design_option_keys();
 	$reset_homepage_order = isset( $input['homepage_section_order_reset'] ) && '1' === (string) $input['homepage_section_order_reset'];
+	$reset_global_design  = isset( $input['global_design_reset'] ) && '1' === (string) $input['global_design_reset'];
 
 	foreach ( $schemas as $repeater_key => $schema ) {
 		$marker_key = $repeater_key . '_submitted';
@@ -203,9 +277,21 @@ function nexa_pro_sanitize_options( $input ) {
 		$output['homepage_section_order'] = nexa_pro_get_default_homepage_section_order();
 	}
 
+	if ( $reset_global_design ) {
+		$design_defaults = nexa_pro_get_default_global_design_options();
+
+		foreach ( $design_keys as $design_key ) {
+			$output[ $design_key ] = $design_defaults[ $design_key ];
+		}
+	}
+
 	$input = array_intersect_key( $input, $defaults );
 
 	foreach ( $input as $key => $value ) {
+		if ( $reset_global_design && in_array( $key, $design_keys, true ) ) {
+			continue;
+		}
+
 		switch ( $key ) {
 			case 'brand_name':
 			case 'brand_tagline':
@@ -297,6 +383,58 @@ function nexa_pro_sanitize_options( $input ) {
 
 				if ( $color ) {
 					$output[ $key ] = $color;
+				}
+				break;
+
+			case 'color_primary':
+			case 'color_secondary':
+			case 'color_accent':
+			case 'color_background':
+			case 'color_surface':
+			case 'color_text':
+			case 'color_text_muted':
+			case 'color_heading':
+			case 'color_border':
+			case 'color_button_primary_background':
+			case 'color_button_primary_text':
+			case 'color_button_primary_hover':
+			case 'color_button_secondary_background':
+			case 'color_button_secondary_text':
+			case 'color_button_secondary_border':
+			case 'color_link':
+			case 'color_link_hover':
+				$color = nexa_pro_sanitize_design_color( $value );
+
+				if ( null !== $color ) {
+					$output[ $key ] = $color;
+				}
+				break;
+
+			case 'font_body':
+			case 'font_heading':
+				$font = nexa_pro_sanitize_font_choice( $value );
+
+				if ( null !== $font ) {
+					$output[ $key ] = $font;
+				}
+				break;
+
+			case 'font_size_base':
+			case 'line_height_body':
+			case 'line_height_heading':
+				$number = nexa_pro_sanitize_design_number( $key, $value );
+
+				if ( null !== $number ) {
+					$output[ $key ] = $number;
+				}
+				break;
+
+			case 'font_weight_heading':
+			case 'font_weight_button':
+				$weight = nexa_pro_sanitize_design_font_weight( $key, $value );
+
+				if ( null !== $weight ) {
+					$output[ $key ] = $weight;
 				}
 				break;
 

@@ -95,8 +95,10 @@
 
 .site-title {
 	margin: 0;
+	color: var(--nexa-pro-color-heading);
+	font-family: var(--nexa-pro-font-heading);
 	font-size: var(--nexa-pro-font-size-lg);
-	font-weight: var(--nexa-pro-font-weight-bold);
+	font-weight: var(--nexa-pro-font-weight-heading);
 	line-height: var(--nexa-pro-line-height-heading);
 }
 

@@ -4,10 +4,30 @@
 
 .editor-styles-wrapper {
 	background: var(--nexa-pro-color-canvas);
-	color: var(--nexa-pro-color-ink);
-	font-family: var(--nexa-pro-font-sans);
+	color: var(--nexa-pro-color-text);
+	font-family: var(--nexa-pro-font-body);
 	font-size: var(--nexa-pro-font-size-base);
 	line-height: var(--nexa-pro-line-height-base);
+}
+
+.editor-styles-wrapper h1,
+.editor-styles-wrapper h2,
+.editor-styles-wrapper h3,
+.editor-styles-wrapper h4,
+.editor-styles-wrapper h5,
+.editor-styles-wrapper h6 {
+	color: var(--nexa-pro-color-heading);
+	font-family: var(--nexa-pro-font-heading);
+	font-weight: var(--nexa-pro-font-weight-heading);
+	line-height: var(--nexa-pro-line-height-heading);
+}
+
+.editor-styles-wrapper a {
+	color: var(--nexa-pro-color-link);
+}
+
+.editor-styles-wrapper a:hover {
+	color: var(--nexa-pro-color-link-hover);
 }
 
 .editor-styles-wrapper .wp-block {
@@ -33,4 +53,3 @@
 .editor-styles-wrapper h3 {
 	font-size: var(--nexa-pro-font-size-lg);
 }
-

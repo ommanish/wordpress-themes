@@ -7,6 +7,85 @@
 		return;
 	}
 
+	function setDesignFieldValue(field, value) {
+		if (!field) {
+			return;
+		}
+
+		if (field.matches('[data-nexa-pro-color-field]') && window.jQuery && window.jQuery.fn.wpColorPicker) {
+			window.jQuery(field).wpColorPicker('color', value);
+		} else {
+			field.value = value;
+		}
+
+		field.dispatchEvent(new Event('input', { bubbles: true }));
+		field.dispatchEvent(new Event('change', { bubbles: true }));
+	}
+
+	function initColorFields() {
+		if (!window.jQuery || !window.jQuery.fn.wpColorPicker) {
+			return;
+		}
+
+		window.jQuery(admin).find('[data-nexa-pro-color-field]').wpColorPicker();
+	}
+
+	function initDesignFieldResets() {
+		admin.addEventListener('click', function (event) {
+			var resetButton = event.target.closest('[data-nexa-pro-field-reset]');
+			var row = resetButton ? resetButton.closest('tr') : null;
+			var field = row ? row.querySelector('[data-nexa-pro-design-default]') : null;
+			var defaultValue = field ? field.getAttribute('data-nexa-pro-design-default') : null;
+
+			if (!resetButton || !admin.contains(resetButton) || !field || defaultValue === null) {
+				return;
+			}
+
+			setDesignFieldValue(field, defaultValue);
+			field.focus();
+		});
+	}
+
+	function initGlobalDesignReset() {
+		var resetInput = admin.querySelector('[data-nexa-pro-global-design-reset]');
+		var resetButton = admin.querySelector('[data-nexa-pro-global-design-reset-button]');
+		var status = admin.querySelector('[data-nexa-pro-global-design-reset-status]');
+
+		if (!resetInput || !resetButton) {
+			return;
+		}
+
+		admin.querySelectorAll('[data-nexa-pro-design-default]').forEach(function (field) {
+			field.addEventListener('input', function () {
+				resetInput.value = '0';
+			});
+			field.addEventListener('change', function () {
+				resetInput.value = '0';
+			});
+		});
+
+		resetButton.addEventListener('click', function () {
+			var confirmation = resetButton.getAttribute('data-nexa-pro-reset-confirm') || '';
+			var fields = admin.querySelectorAll('[data-nexa-pro-design-default]');
+
+			if (confirmation && !window.confirm(confirmation)) {
+				return;
+			}
+
+			fields.forEach(function (field) {
+				setDesignFieldValue(field, field.getAttribute('data-nexa-pro-design-default') || '');
+			});
+
+			resetInput.value = '1';
+
+			if (status) {
+				status.textContent = 'Global design settings reset to defaults. Save settings to apply.';
+			}
+
+			resetButton.focus();
+		});
+	}
+
 	function initMediaFields() {
 		if (!window.wp || !window.wp.media) {
 			return;
@@ -487,6 +566,9 @@
 	}
 
 	initMediaFields();
+	initColorFields();
+	initDesignFieldResets();
+	initGlobalDesignReset();
 
 	admin.querySelectorAll('[data-nexa-pro-repeater]').forEach(initRepeater);
 	admin.querySelectorAll('[data-nexa-pro-homepage-order]').forEach(initHomepageOrder);

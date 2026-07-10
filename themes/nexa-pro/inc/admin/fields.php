@@ -116,7 +116,44 @@ function nexa_pro_admin_raw_textarea_field( $key, $label, $description = '' ) {
  * @return void
  */
 function nexa_pro_admin_color_field( $key, $label, $description = '' ) {
-	nexa_pro_admin_text_field( $key, $label, $description, 'text' );
+	$value    = nexa_pro_get_design_color( $key );
+	$defaults = nexa_pro_get_default_global_design_options();
+	$default  = isset( $defaults[ $key ] ) ? $defaults[ $key ] : $value;
+	$field_id = 'nexa-pro-' . str_replace( '_', '-', $key );
+
+	?>
+	<tr>
+		<th scope="row">
+			<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
+		</th>
+		<td>
+			<input
+				type="text"
+				id="<?php echo esc_attr( $field_id ); ?>"
+				name="nexa_pro_options[<?php echo esc_attr( $key ); ?>]"
+				value="<?php echo esc_attr( $value ); ?>"
+				class="regular-text nexa-pro-color-field"
+				data-nexa-pro-color-field
+				data-nexa-pro-design-default="<?php echo esc_attr( $default ); ?>"
+			>
+			<button type="button" class="button button-secondary" data-nexa-pro-field-reset>
+				<?php esc_html_e( 'Reset', 'nexa-pro' ); ?>
+			</button>
+			<?php if ( $description ) : ?>
+				<p class="description"><?php echo esc_html( $description ); ?></p>
+			<?php endif; ?>
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %s: Default color value. */
+					esc_html__( 'Hex colors only. Default: %s.', 'nexa-pro' ),
+					esc_html( $default )
+				);
+				?>
+			</p>
+		</td>
+	</tr>
+	<?php
 }
 
 /**
@@ -183,6 +220,132 @@ function nexa_pro_admin_select_field( $key, $label, $choices, $description = '' 
 			<?php if ( $description ) : ?>
 				<p class="description"><?php echo esc_html( $description ); ?></p>
 			<?php endif; ?>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
+ * Render an admin field group heading.
+ *
+ * @param string $heading Group heading.
+ * @param string $description Group description.
+ * @return void
+ */
+function nexa_pro_admin_field_group( $heading, $description = '' ) {
+	?>
+	<tr class="nexa-pro-admin-field-group">
+		<td colspan="2">
+			<h2><?php echo esc_html( $heading ); ?></h2>
+			<?php if ( $description ) : ?>
+				<p class="description"><?php echo esc_html( $description ); ?></p>
+			<?php endif; ?>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
+ * Render a design select field with reset metadata.
+ *
+ * @param string $key Option key.
+ * @param string $label Field label.
+ * @param array  $choices Select choices.
+ * @param string $description Field description.
+ * @return void
+ */
+function nexa_pro_admin_design_select_field( $key, $label, $choices, $description = '' ) {
+	if ( in_array( $key, array( 'font_body', 'font_heading' ), true ) ) {
+		$value = nexa_pro_get_font_choice( $key );
+	} elseif ( in_array( $key, array( 'font_weight_heading', 'font_weight_button' ), true ) ) {
+		$value = nexa_pro_get_design_font_weight( $key );
+	} else {
+		$value = nexa_pro_get_option( $key, '' );
+	}
+
+	$defaults = nexa_pro_get_default_global_design_options();
+	$default  = isset( $defaults[ $key ] ) ? $defaults[ $key ] : $value;
+	$field_id = 'nexa-pro-' . str_replace( '_', '-', $key );
+
+	?>
+	<tr>
+		<th scope="row">
+			<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
+		</th>
+		<td>
+			<select
+				id="<?php echo esc_attr( $field_id ); ?>"
+				name="nexa_pro_options[<?php echo esc_attr( $key ); ?>]"
+				data-nexa-pro-design-default="<?php echo esc_attr( $default ); ?>"
+			>
+				<?php foreach ( $choices as $choice_value => $choice_label ) : ?>
+					<option value="<?php echo esc_attr( $choice_value ); ?>" <?php selected( $value, $choice_value ); ?>>
+						<?php echo esc_html( $choice_label ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+			<button type="button" class="button button-secondary" data-nexa-pro-field-reset>
+				<?php esc_html_e( 'Reset', 'nexa-pro' ); ?>
+			</button>
+			<?php if ( $description ) : ?>
+				<p class="description"><?php echo esc_html( $description ); ?></p>
+			<?php endif; ?>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
+ * Render a numeric global design field.
+ *
+ * @param string $key Option key.
+ * @param string $label Field label.
+ * @param string $description Field description.
+ * @param string $min Minimum value.
+ * @param string $max Maximum value.
+ * @param string $step Input step.
+ * @return void
+ */
+function nexa_pro_admin_design_number_field( $key, $label, $description, $min, $max, $step ) {
+	$value    = nexa_pro_get_design_number( $key );
+	$defaults = nexa_pro_get_default_global_design_options();
+	$default  = isset( $defaults[ $key ] ) ? $defaults[ $key ] : $value;
+	$field_id = 'nexa-pro-' . str_replace( '_', '-', $key );
+
+	?>
+	<tr>
+		<th scope="row">
+			<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
+		</th>
+		<td>
+			<input
+				type="number"
+				id="<?php echo esc_attr( $field_id ); ?>"
+				name="nexa_pro_options[<?php echo esc_attr( $key ); ?>]"
+				value="<?php echo esc_attr( $value ); ?>"
+				min="<?php echo esc_attr( $min ); ?>"
+				max="<?php echo esc_attr( $max ); ?>"
+				step="<?php echo esc_attr( $step ); ?>"
+				class="small-text"
+				data-nexa-pro-design-default="<?php echo esc_attr( $default ); ?>"
+			>
+			<button type="button" class="button button-secondary" data-nexa-pro-field-reset>
+				<?php esc_html_e( 'Reset', 'nexa-pro' ); ?>
+			</button>
+			<?php if ( $description ) : ?>
+				<p class="description"><?php echo esc_html( $description ); ?></p>
+			<?php endif; ?>
+			<p class="description">
+				<?php
+				printf(
+					/* translators: 1: Minimum value. 2: Maximum value. 3: Default value. */
+					esc_html__( 'Allowed range: %1$s to %2$s. Default: %3$s.', 'nexa-pro' ),
+					esc_html( $min ),
+					esc_html( $max ),
+					esc_html( $default )
+				);
+				?>
+			</p>
 		</td>
 	</tr>
 	<?php
@@ -785,6 +948,50 @@ function nexa_pro_admin_homepage_order_field() {
 }
 
 /**
+ * Render global design reset controls.
+ *
+ * @return void
+ */
+function nexa_pro_admin_global_design_reset_field() {
+	?>
+	<tr class="nexa-pro-admin-global-reset">
+		<th scope="row"><?php esc_html_e( 'Reset design settings', 'nexa-pro' ); ?></th>
+		<td>
+			<input type="hidden" name="nexa_pro_options[global_design_reset]" value="0" data-nexa-pro-global-design-reset>
+			<button
+				type="button"
+				class="button button-secondary"
+				data-nexa-pro-global-design-reset-button
+				data-nexa-pro-reset-confirm="<?php esc_attr_e( 'Reset global colors and typography to the Nexa Pro defaults?', 'nexa-pro' ); ?>"
+			>
+				<?php esc_html_e( 'Reset global design settings', 'nexa-pro' ); ?>
+			</button>
+			<p class="description">
+				<?php esc_html_e( 'Resets only the color and typography fields on this tab. Header, Hero, homepage content, repeaters, section order, visibility, and media settings are preserved.', 'nexa-pro' ); ?>
+			</p>
+			<div class="screen-reader-text" aria-live="polite" data-nexa-pro-global-design-reset-status></div>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
+ * Get font weight field choices.
+ *
+ * @param array $weights Allowed weights.
+ * @return array
+ */
+function nexa_pro_admin_font_weight_choices( $weights ) {
+	$choices = array();
+
+	foreach ( $weights as $weight ) {
+		$choices[ $weight ] = $weight;
+	}
+
+	return $choices;
+}
+
+/**
  * Render admin fields for a tab.
  *
  * @param string $tab Active tab.
@@ -807,16 +1014,160 @@ function nexa_pro_render_admin_fields( $tab ) {
 						__( 'Brand tagline', 'nexa-pro' ),
 						__( 'Appears in theme-controlled brand areas when intentionally populated. Falls back to the WordPress tagline.', 'nexa-pro' )
 					);
+
+					nexa_pro_admin_field_group(
+						__( 'Brand colors', 'nexa-pro' ),
+						__( 'Use readable hex colors. These values drive the global theme tokens used across the front end and editor.', 'nexa-pro' )
+					);
 					nexa_pro_admin_color_field(
-						'primary_color',
+						'color_primary',
 						__( 'Primary color', 'nexa-pro' ),
-						__( 'Use a hex color such as #2563eb. This controls the primary front-end color token.', 'nexa-pro' )
+						__( 'Primary brand color used by emphasis states and related theme tokens.', 'nexa-pro' )
 					);
 					nexa_pro_admin_color_field(
-						'accent_color',
-						__( 'Accent color', 'nexa-pro' ),
-						__( 'Use a hex color such as #0f766e. This controls the accent front-end color token.', 'nexa-pro' )
+						'color_secondary',
+						__( 'Secondary color', 'nexa-pro' ),
+						__( 'Secondary brand color available to the global token system.', 'nexa-pro' )
 					);
+					nexa_pro_admin_color_field(
+						'color_accent',
+						__( 'Accent color', 'nexa-pro' ),
+						__( 'Accent color used for focus and supporting emphasis. Check contrast when pairing with light surfaces.', 'nexa-pro' )
+					);
+
+					nexa_pro_admin_field_group(
+						__( 'Text and surface colors', 'nexa-pro' ),
+						__( 'These values control page background, text, headings, cards, and borders. Review body text and headings against the selected background for readable contrast.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_background',
+						__( 'Page background color', 'nexa-pro' ),
+						__( 'Applies to the main page canvas and default body background.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_surface',
+						__( 'Surface and card background', 'nexa-pro' ),
+						__( 'Applies to cards and raised content surfaces that use the global surface token.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_text',
+						__( 'Main text color', 'nexa-pro' ),
+						__( 'Applies to primary body copy and inherited text tokens.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_text_muted',
+						__( 'Muted text color', 'nexa-pro' ),
+						__( 'Applies to descriptions, metadata, and supporting text.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_heading',
+						__( 'Heading color', 'nexa-pro' ),
+						__( 'Applies to front-end and editor headings.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_border',
+						__( 'Border color', 'nexa-pro' ),
+						__( 'Applies to controls, cards, navigation panels, and other tokenized borders.', 'nexa-pro' )
+					);
+
+					nexa_pro_admin_field_group(
+						__( 'Buttons and links', 'nexa-pro' ),
+						__( 'Button and link colors should preserve strong contrast, especially primary button text against its background and links against the page background.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_button_primary_background',
+						__( 'Primary button background', 'nexa-pro' ),
+						__( 'Applies to primary theme buttons and submit buttons.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_button_primary_text',
+						__( 'Primary button text', 'nexa-pro' ),
+						__( 'Applies to text on primary buttons.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_button_primary_hover',
+						__( 'Primary button hover background', 'nexa-pro' ),
+						__( 'Applies when primary buttons are hovered or focused.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_button_secondary_background',
+						__( 'Secondary button background', 'nexa-pro' ),
+						__( 'Applies to secondary theme buttons.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_button_secondary_text',
+						__( 'Secondary button text', 'nexa-pro' ),
+						__( 'Applies to text on secondary buttons.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_button_secondary_border',
+						__( 'Secondary button border', 'nexa-pro' ),
+						__( 'Applies to secondary button borders.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_link',
+						__( 'Link color', 'nexa-pro' ),
+						__( 'Applies to standard front-end and editor links.', 'nexa-pro' )
+					);
+					nexa_pro_admin_color_field(
+						'color_link_hover',
+						__( 'Link hover color', 'nexa-pro' ),
+						__( 'Applies to link hover and focus color states.', 'nexa-pro' )
+					);
+
+					nexa_pro_admin_field_group(
+						__( 'Typography', 'nexa-pro' ),
+						__( 'Uses local system-safe font stacks only. No external font requests are loaded.', 'nexa-pro' )
+					);
+					nexa_pro_admin_design_select_field(
+						'font_body',
+						__( 'Body font family', 'nexa-pro' ),
+						nexa_pro_get_font_family_choices(),
+						__( 'Applies to body copy, forms, and most interface text.', 'nexa-pro' )
+					);
+					nexa_pro_admin_design_select_field(
+						'font_heading',
+						__( 'Heading font family', 'nexa-pro' ),
+						nexa_pro_get_font_family_choices(),
+						__( 'Applies to headings in the front end and editor.', 'nexa-pro' )
+					);
+					nexa_pro_admin_design_number_field(
+						'font_size_base',
+						__( 'Base font size', 'nexa-pro' ),
+						__( 'Integer pixel value used for the global base text size when changed from the default.', 'nexa-pro' ),
+						'14',
+						'22',
+						'1'
+					);
+					nexa_pro_admin_design_number_field(
+						'line_height_body',
+						__( 'Body line height', 'nexa-pro' ),
+						__( 'Decimal value for readable body text spacing.', 'nexa-pro' ),
+						'1.2',
+						'2.0',
+						'0.05'
+					);
+					nexa_pro_admin_design_number_field(
+						'line_height_heading',
+						__( 'Heading line height', 'nexa-pro' ),
+						__( 'Decimal value for heading spacing.', 'nexa-pro' ),
+						'1.0',
+						'1.6',
+						'0.05'
+					);
+					nexa_pro_admin_design_select_field(
+						'font_weight_heading',
+						__( 'Heading font weight', 'nexa-pro' ),
+						nexa_pro_admin_font_weight_choices( nexa_pro_get_allowed_font_weights( 'font_weight_heading' ) ),
+						__( 'Applies to global heading weight.', 'nexa-pro' )
+					);
+					nexa_pro_admin_design_select_field(
+						'font_weight_button',
+						__( 'Button font weight', 'nexa-pro' ),
+						nexa_pro_admin_font_weight_choices( nexa_pro_get_allowed_font_weights( 'font_weight_button' ) ),
+						__( 'Applies to primary and secondary theme buttons.', 'nexa-pro' )
+					);
+					nexa_pro_admin_global_design_reset_field();
 					break;
 
 				case 'header':

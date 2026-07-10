@@ -81,7 +81,7 @@
 }
 
 .entry-title a {
-	color: var(--nexa-pro-color-ink);
+	color: var(--nexa-pro-color-heading);
 	text-decoration: none;
 }
 
@@ -219,14 +219,14 @@
 }
 
 .button--secondary {
-	border: var(--nexa-pro-border);
-	background: var(--nexa-pro-color-canvas);
-	color: var(--nexa-pro-color-ink);
+	border: var(--nexa-pro-border-width) var(--nexa-pro-border-style) var(--nexa-pro-color-button-secondary-border);
+	background: var(--nexa-pro-color-button-secondary-background);
+	color: var(--nexa-pro-color-button-secondary-text);
 }
 
 .button--secondary:hover {
 	background: var(--nexa-pro-color-surface);
-	color: var(--nexa-pro-color-ink);
+	color: var(--nexa-pro-color-button-secondary-text);
 }
 
 .homepage-hero__content > *:first-child,
@@ -382,9 +382,9 @@ input[type="submit"] {
 	padding: 0.75rem var(--nexa-pro-space-md);
 	border: 0;
 	border-radius: var(--nexa-pro-radius-md);
-	background: var(--nexa-pro-color-primary);
-	color: var(--nexa-pro-color-canvas);
-	font-weight: var(--nexa-pro-font-weight-bold);
+	background: var(--nexa-pro-color-button-primary-background);
+	color: var(--nexa-pro-color-button-primary-text);
+	font-weight: var(--nexa-pro-font-weight-button);
 	line-height: 1.2;
 	text-align: center;
 	text-decoration: none;
@@ -396,8 +396,8 @@ input[type="submit"] {
 .button:hover,
 button[type="submit"]:hover,
 input[type="submit"]:hover {
-	background: var(--nexa-pro-color-primary-dark);
-	color: var(--nexa-pro-color-canvas);
+	background: var(--nexa-pro-color-button-primary-hover);
+	color: var(--nexa-pro-color-button-primary-text);
 }
 
 input[type="search"],

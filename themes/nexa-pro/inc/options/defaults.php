@@ -33,12 +33,105 @@ function nexa_pro_get_default_homepage_section_order() {
 }
 
 /**
+ * Get global design color option keys.
+ *
+ * @return array
+ */
+function nexa_pro_get_design_color_option_keys() {
+	return array(
+		'color_primary',
+		'color_secondary',
+		'color_accent',
+		'color_background',
+		'color_surface',
+		'color_text',
+		'color_text_muted',
+		'color_heading',
+		'color_border',
+		'color_button_primary_background',
+		'color_button_primary_text',
+		'color_button_primary_hover',
+		'color_button_secondary_background',
+		'color_button_secondary_text',
+		'color_button_secondary_border',
+		'color_link',
+		'color_link_hover',
+	);
+}
+
+/**
+ * Get global typography option keys.
+ *
+ * @return array
+ */
+function nexa_pro_get_design_typography_option_keys() {
+	return array(
+		'font_body',
+		'font_heading',
+		'font_size_base',
+		'line_height_body',
+		'line_height_heading',
+		'font_weight_heading',
+		'font_weight_button',
+	);
+}
+
+/**
+ * Get all global design option keys.
+ *
+ * @return array
+ */
+function nexa_pro_get_global_design_option_keys() {
+	return array_merge(
+		nexa_pro_get_design_color_option_keys(),
+		nexa_pro_get_design_typography_option_keys()
+	);
+}
+
+/**
+ * Get default global design options.
+ *
+ * Values mirror the current CSS token defaults so an unsaved installation does
+ * not visually change.
+ *
+ * @return array
+ */
+function nexa_pro_get_default_global_design_options() {
+	return array(
+		'color_primary'                     => '#2563eb',
+		'color_secondary'                   => '#1d4ed8',
+		'color_accent'                      => '#0f766e',
+		'color_background'                  => '#ffffff',
+		'color_surface'                     => '#ffffff',
+		'color_text'                        => '#15171a',
+		'color_text_muted'                  => '#5d6673',
+		'color_heading'                     => '#15171a',
+		'color_border'                      => '#dce2e8',
+		'color_button_primary_background'   => '#2563eb',
+		'color_button_primary_text'         => '#ffffff',
+		'color_button_primary_hover'        => '#1d4ed8',
+		'color_button_secondary_background' => '#ffffff',
+		'color_button_secondary_text'       => '#15171a',
+		'color_button_secondary_border'     => '#dce2e8',
+		'color_link'                        => '#2563eb',
+		'color_link_hover'                  => '#1d4ed8',
+		'font_body'                         => 'system-ui',
+		'font_heading'                      => 'system-ui',
+		'font_size_base'                    => 16,
+		'line_height_body'                  => 1.6,
+		'line_height_heading'               => 1.2,
+		'font_weight_heading'               => '700',
+		'font_weight_button'                => '700',
+	);
+}
+
+/**
  * Get the default Nexa Pro options.
  *
  * @return array
  */
 function nexa_pro_get_default_options() {
-	return array(
+	$defaults = array(
 		'brand_name'              => '',
 		'brand_tagline'           => '',
 		'primary_color'           => '#2563eb',
@@ -170,5 +263,10 @@ function nexa_pro_get_default_options() {
 		'cta_background_image_id'   => 0,
 		'contact_background_image_id' => 0,
 		'homepage_section_order'    => nexa_pro_get_default_homepage_section_order(),
+	);
+
+	return array_merge(
+		$defaults,
+		nexa_pro_get_default_global_design_options()
 	);
 }
