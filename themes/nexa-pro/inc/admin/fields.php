@@ -364,6 +364,9 @@ function nexa_pro_admin_design_number_field( $key, $label, $description, $min, $
 function nexa_pro_admin_media_field( $key, $label, $description = '', $show_id_input = true, $validate_image = false ) {
 	$value       = $validate_image ? nexa_pro_get_image_attachment_id( $key ) : absint( nexa_pro_get_option( $key, 0 ) );
 	$field_id    = 'nexa-pro-' . str_replace( '_', '-', $key );
+	$wrapper_id  = $field_id . '-media-field';
+	$preview_id  = $field_id . '-preview';
+	$status_id   = $field_id . '-status';
 	$preview     = $value ? wp_get_attachment_image( $value, 'medium', false, array( 'class' => 'nexa-pro-admin-media__image' ) ) : '';
 	$has_preview = '' !== $preview;
 	$select_text = $value ? __( 'Replace image', 'nexa-pro' ) : __( 'Select image', 'nexa-pro' );
@@ -372,7 +375,13 @@ function nexa_pro_admin_media_field( $key, $label, $description = '', $show_id_i
 	/* translators: %s: Media field label. */
 	$select_label = sprintf( __( 'Select image for %s', 'nexa-pro' ), $label );
 	/* translators: %s: Media field label. */
+	$replace_label = sprintf( __( 'Replace image for %s', 'nexa-pro' ), $label );
+	/* translators: %s: Media field label. */
 	$remove_label = sprintf( __( 'Remove image for %s', 'nexa-pro' ), $label );
+	/* translators: %s: Media field label. */
+	$selected_status = sprintf( __( 'Image selected for %s.', 'nexa-pro' ), $label );
+	/* translators: %s: Media field label. */
+	$removed_status = sprintf( __( 'Image removed for %s.', 'nexa-pro' ), $label );
 
 	?>
 	<tr>
@@ -380,8 +389,18 @@ function nexa_pro_admin_media_field( $key, $label, $description = '', $show_id_i
 			<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
 		</th>
 		<td>
-			<div class="nexa-pro-admin-media" data-nexa-pro-media-field>
-				<div class="nexa-pro-admin-media__preview" data-nexa-pro-media-preview>
+			<div
+				id="<?php echo esc_attr( $wrapper_id ); ?>"
+				class="nexa-pro-admin-media"
+				data-nexa-pro-media-field
+				data-nexa-pro-media-selected-status="<?php echo esc_attr( $selected_status ); ?>"
+				data-nexa-pro-media-removed-status="<?php echo esc_attr( $removed_status ); ?>"
+			>
+				<div
+					id="<?php echo esc_attr( $preview_id ); ?>"
+					class="nexa-pro-admin-media__preview"
+					data-nexa-pro-media-preview
+				>
 					<?php echo $preview; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 				<input
@@ -392,10 +411,11 @@ function nexa_pro_admin_media_field( $key, $label, $description = '', $show_id_i
 					<?php endif; ?>
 					id="<?php echo esc_attr( $field_id ); ?>"
 					name="nexa_pro_options[<?php echo esc_attr( $key ); ?>]"
-					value="<?php echo esc_attr( $value ); ?>"
+					value="<?php echo esc_attr( $value ? $value : '' ); ?>"
 					<?php if ( $input_class ) : ?>
 						class="<?php echo esc_attr( $input_class ); ?>"
 					<?php endif; ?>
+					aria-describedby="<?php echo esc_attr( $status_id ); ?>"
 					data-nexa-pro-media-input
 				>
 				<button
@@ -404,7 +424,11 @@ function nexa_pro_admin_media_field( $key, $label, $description = '', $show_id_i
 					data-nexa-pro-media-select
 					data-nexa-pro-media-select-text="<?php esc_attr_e( 'Select image', 'nexa-pro' ); ?>"
 					data-nexa-pro-media-replace-text="<?php esc_attr_e( 'Replace image', 'nexa-pro' ); ?>"
-					aria-label="<?php echo esc_attr( $select_label ); ?>"
+					data-nexa-pro-media-select-label="<?php echo esc_attr( $select_label ); ?>"
+					data-nexa-pro-media-replace-label="<?php echo esc_attr( $replace_label ); ?>"
+					aria-label="<?php echo esc_attr( $value ? $replace_label : $select_label ); ?>"
+					aria-controls="<?php echo esc_attr( $preview_id ); ?>"
+					aria-describedby="<?php echo esc_attr( $status_id ); ?>"
 				>
 					<?php echo esc_html( $select_text ); ?>
 				</button>
@@ -413,10 +437,21 @@ function nexa_pro_admin_media_field( $key, $label, $description = '', $show_id_i
 					class="button"
 					data-nexa-pro-media-remove
 					aria-label="<?php echo esc_attr( $remove_label ); ?>"
+					aria-controls="<?php echo esc_attr( $preview_id ); ?>"
+					aria-describedby="<?php echo esc_attr( $status_id ); ?>"
 					<?php disabled( ! $value ); ?>
+					<?php if ( ! $value ) : ?>
+						hidden
+					<?php endif; ?>
 				>
 					<?php esc_html_e( 'Remove image', 'nexa-pro' ); ?>
 				</button>
+				<span
+					id="<?php echo esc_attr( $status_id ); ?>"
+					class="screen-reader-text"
+					data-nexa-pro-media-status
+					aria-live="polite"
+				></span>
 				<?php if ( $value && ! $has_preview ) : ?>
 					<p class="description"><?php esc_html_e( 'This attachment ID could not render a preview. It will fall back on the front end until a valid image is selected.', 'nexa-pro' ); ?></p>
 				<?php endif; ?>

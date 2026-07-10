@@ -98,69 +98,143 @@
 			var selectButton = field.querySelector('[data-nexa-pro-media-select]');
 			var removeButton = field.querySelector('[data-nexa-pro-media-remove]');
 			var preview = field.querySelector('[data-nexa-pro-media-preview]');
+			var status = field.querySelector('[data-nexa-pro-media-status]');
 			var selectText = selectButton ? selectButton.getAttribute('data-nexa-pro-media-select-text') || 'Select image' : 'Select image';
 			var replaceText = selectButton ? selectButton.getAttribute('data-nexa-pro-media-replace-text') || 'Replace image' : 'Replace image';
+			var selectLabel = selectButton ? selectButton.getAttribute('data-nexa-pro-media-select-label') || selectText : selectText;
+			var replaceLabel = selectButton ? selectButton.getAttribute('data-nexa-pro-media-replace-label') || replaceText : replaceText;
+			var selectedStatus = field.getAttribute('data-nexa-pro-media-selected-status') || 'Image selected.';
+			var removedStatus = field.getAttribute('data-nexa-pro-media-removed-status') || 'Image removed.';
 
 			if (!input || !selectButton || !removeButton || !preview) {
 				return;
 			}
 
-			var frame = null;
+			function getAttachmentId() {
+				var attachmentId = parseInt(input.value, 10);
 
-			function updateMediaState() {
-				removeButton.disabled = !input.value;
-				selectButton.textContent = input.value ? replaceText : selectText;
+				return !isNaN(attachmentId) && attachmentId > 0 ? attachmentId : 0;
 			}
 
-			selectButton.addEventListener('click', function () {
-				if (!frame) {
-					frame = window.wp.media({
-						title: selectButton.textContent,
-						button: {
-							text: selectButton.textContent
-						},
-						library: {
-							type: 'image'
-						},
-						multiple: false
-					});
+			function setAttachmentId(attachmentId) {
+				input.value = attachmentId ? String(attachmentId) : '';
+				input.dispatchEvent(new Event('input', { bubbles: true }));
+				input.dispatchEvent(new Event('change', { bubbles: true }));
+			}
 
-					frame.on('select', function () {
-						var attachment = frame.state().get('selection').first().toJSON();
-						var previewUrl = attachment.sizes && attachment.sizes.medium ? attachment.sizes.medium.url : attachment.url;
-						var alt = attachment.alt || attachment.title || '';
+			function setStatus(message) {
+				if (status) {
+					status.textContent = message;
+				}
+			}
 
-						input.value = attachment.id || '';
-						preview.textContent = '';
-
-						if (previewUrl) {
-							var image = document.createElement('img');
-							image.className = 'nexa-pro-admin-media__image';
-							image.src = previewUrl;
-							image.alt = alt;
-							preview.appendChild(image);
-						}
-
-						updateMediaState();
-					});
+			function getPreviewUrl(attachment) {
+				if (attachment.sizes && attachment.sizes.medium && attachment.sizes.medium.url) {
+					return attachment.sizes.medium.url;
 				}
 
+				if (attachment.sizes && attachment.sizes.thumbnail && attachment.sizes.thumbnail.url) {
+					return attachment.sizes.thumbnail.url;
+				}
+
+				return attachment.url || '';
+			}
+
+			function renderPreview(attachment) {
+				var previewUrl = getPreviewUrl(attachment);
+				var alt = attachment.alt || attachment.title || '';
+
+				preview.textContent = '';
+
+				if (previewUrl) {
+					var image = document.createElement('img');
+					image.className = 'nexa-pro-admin-media__image';
+					image.src = previewUrl;
+					image.alt = alt;
+					preview.appendChild(image);
+				}
+			}
+
+			function preselectCurrentAttachment(frame) {
+				var currentId = getAttachmentId();
+
+				if (!currentId) {
+					return;
+				}
+
+				frame.on('open', function () {
+					var selection = frame.state().get('selection');
+					var attachment = window.wp.media.attachment(currentId);
+
+					if (!selection || !attachment) {
+						return;
+					}
+
+					attachment.fetch();
+					selection.reset([attachment]);
+				});
+			}
+
+			function updateMediaState() {
+				var hasImage = getAttachmentId() > 0;
+
+				removeButton.disabled = !hasImage;
+				removeButton.hidden = !hasImage;
+				selectButton.textContent = hasImage ? replaceText : selectText;
+				selectButton.setAttribute('aria-label', hasImage ? replaceLabel : selectLabel);
+			}
+
+			selectButton.addEventListener('click', function (event) {
+				var actionText = getAttachmentId() > 0 ? replaceText : selectText;
+				var frame = window.wp.media({
+					title: actionText,
+					button: {
+						text: actionText
+					},
+					library: {
+						type: 'image'
+					},
+					multiple: false
+				});
+
+				event.preventDefault();
+
+				preselectCurrentAttachment(frame);
+				frame.on('select', function () {
+					var selection = frame.state().get('selection');
+					var attachmentModel = selection ? selection.first() : null;
+					var attachment = attachmentModel ? attachmentModel.toJSON() : null;
+					var attachmentId = attachment && attachment.id ? parseInt(attachment.id, 10) : 0;
+
+					if (!attachment || !attachmentId) {
+						return;
+					}
+
+					setAttachmentId(attachmentId);
+					renderPreview(attachment);
+					updateMediaState();
+					setStatus(selectedStatus);
+					selectButton.focus();
+				});
 				frame.open();
 			});
 
 			removeButton.addEventListener('click', function () {
-				input.value = '';
+				setAttachmentId(0);
 				preview.textContent = '';
 				updateMediaState();
-
-				if (input.type === 'hidden') {
-					selectButton.focus();
-				} else {
-					input.focus();
-				}
+				setStatus(removedStatus);
+				selectButton.focus();
 			});
 
-			input.addEventListener('input', updateMediaState);
+			input.addEventListener('input', function () {
+				if (!getAttachmentId()) {
+					preview.textContent = '';
+				}
+
+				updateMediaState();
+			});
+
 			updateMediaState();
 		});
 	}
