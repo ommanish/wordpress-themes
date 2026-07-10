@@ -149,6 +149,22 @@ function nexa_pro_sanitize_repeater_items( $items, $schema, $key ) {
 }
 
 /**
+ * Sanitize an image attachment ID for storage.
+ *
+ * @param mixed $attachment_id Attachment ID.
+ * @return int
+ */
+function nexa_pro_sanitize_image_attachment_id( $attachment_id ) {
+	if ( ! is_scalar( $attachment_id ) ) {
+		return 0;
+	}
+
+	$attachment_id = absint( $attachment_id );
+
+	return nexa_pro_is_valid_image_attachment_id( $attachment_id ) ? $attachment_id : 0;
+}
+
+/**
  * Sanitize theme options for storage.
  *
  * Missing or invalid submitted values preserve the existing saved value, falling
@@ -204,6 +220,19 @@ function nexa_pro_sanitize_options( $input ) {
 			case 'logo_attachment_id':
 			case 'mobile_logo_attachment_id':
 				$output[ $key ] = absint( $value );
+				break;
+
+			case 'about_image_id':
+			case 'services_background_image_id':
+			case 'features_background_image_id':
+			case 'process_background_image_id':
+			case 'why_image_id':
+			case 'portfolio_image_id':
+			case 'testimonials_background_image_id':
+			case 'team_background_image_id':
+			case 'cta_background_image_id':
+			case 'contact_background_image_id':
+				$output[ $key ] = nexa_pro_sanitize_image_attachment_id( $value );
 				break;
 
 			case 'display_brand_text':

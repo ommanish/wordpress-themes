@@ -25,6 +25,10 @@ function nexa_pro_get_admin_tabs() {
 		'features'  => __( 'Features', 'nexa-pro' ),
 		'process'   => __( 'Process', 'nexa-pro' ),
 		'why'       => __( 'Why Choose Us', 'nexa-pro' ),
+		'portfolio' => __( 'Portfolio', 'nexa-pro' ),
+		'testimonials' => __( 'Testimonials', 'nexa-pro' ),
+		'team'      => __( 'Team', 'nexa-pro' ),
+		'contact'   => __( 'Contact', 'nexa-pro' ),
 		'cta'       => __( 'CTA', 'nexa-pro' ),
 		'homepage-order' => __( 'Homepage Order', 'nexa-pro' ),
 	);

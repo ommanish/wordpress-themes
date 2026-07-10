@@ -16,6 +16,12 @@ if ( empty( $section['id'] ) || empty( $section['heading'] ) || empty( $section[
 	<div class="nexa-pro-container">
 		<?php nexa_pro_homepage_section_heading( $section ); ?>
 
+		<?php
+		if ( ! empty( $section['image'] ) ) {
+			nexa_pro_homepage_image( $section['image'], 'homepage-media' );
+		}
+		?>
+
 		<div class="homepage-grid homepage-grid--three">
 			<?php foreach ( $section['items'] as $item ) : ?>
 				<?php if ( empty( $item['title'] ) || empty( $item['text'] ) ) : ?>
@@ -30,4 +36,3 @@ if ( empty( $section['id'] ) || empty( $section['heading'] ) || empty( $section[
 		</div>
 	</div>
 </section>
-
