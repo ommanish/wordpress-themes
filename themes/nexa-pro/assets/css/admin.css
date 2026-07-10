@@ -34,9 +34,19 @@
 .nexa-pro-admin input[type="url"],
 .nexa-pro-admin input[type="text"],
 .nexa-pro-admin input[type="number"],
+.nexa-pro-admin input[type="file"],
 .nexa-pro-admin select,
 .nexa-pro-admin textarea {
+	width: 100%;
 	max-width: 620px;
+}
+
+.nexa-pro-admin .description,
+.nexa-pro-admin td,
+.nexa-pro-admin th,
+.nexa-pro-tools-summary,
+.nexa-pro-tools-meta {
+	overflow-wrap: anywhere;
 }
 
 .nexa-pro-admin-field-group td {
@@ -140,6 +150,12 @@
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.35rem;
+}
+
+.nexa-pro-repeater__actions .button,
+.nexa-pro-homepage-order__actions .button {
+	min-height: 2.5rem;
+	white-space: normal;
 }
 
 .nexa-pro-repeater__field label {
@@ -275,12 +291,43 @@
 }
 
 @media (max-width: 600px) {
-	.nexa-pro-homepage-order__item-inner {
-		align-items: flex-start;
+	.nexa-pro-admin__panel,
+	.nexa-pro-admin__form {
+		padding: 1rem;
 	}
 
+	.nexa-pro-admin__save {
+		margin-right: -1rem;
+		margin-left: -1rem;
+		padding-right: 1rem;
+		padding-left: 1rem;
+	}
+
+	.nexa-pro-admin .form-table,
+	.nexa-pro-admin .form-table tbody,
+	.nexa-pro-admin .form-table tr,
+	.nexa-pro-admin .form-table th,
+	.nexa-pro-admin .form-table td {
+		display: block;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.nexa-pro-admin .form-table th {
+		padding-bottom: 0.25rem;
+	}
+
+	.nexa-pro-admin .form-table td {
+		padding-top: 0;
+	}
+
+	.nexa-pro-repeater__actions,
 	.nexa-pro-homepage-order__actions {
 		width: 100%;
+	}
+
+	.nexa-pro-homepage-order__item-inner {
+		align-items: flex-start;
 	}
 
 	.nexa-pro-tools__panel {

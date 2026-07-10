@@ -280,6 +280,10 @@
 	margin-top: var(--nexa-pro-space-xl);
 }
 
+.section-actions > * {
+	min-width: 0;
+}
+
 .button--secondary {
 	border: var(--nexa-pro-border-width) var(--nexa-pro-border-style) var(--nexa-pro-color-button-secondary-border);
 	background: var(--nexa-pro-color-button-secondary-background);
@@ -451,6 +455,7 @@ input[type="submit"] {
 	text-align: center;
 	text-decoration: none;
 	overflow-wrap: anywhere;
+	word-break: break-word;
 	cursor: pointer;
 	transition: background-color var(--nexa-pro-transition), color var(--nexa-pro-transition);
 }
@@ -494,6 +499,9 @@ input[type="submit"]:hover {
 .nexa-pro-modal__dialog {
 	position: relative;
 	width: min(100%, 34rem);
+	max-height: calc(100vh - var(--nexa-pro-space-xl));
+	max-height: calc(100dvh - var(--nexa-pro-space-xl));
+	overflow: auto;
 	padding: var(--nexa-pro-space-xl);
 	border: var(--nexa-pro-border);
 	border-radius: var(--nexa-pro-radius-lg);
@@ -519,7 +527,8 @@ input[type="submit"]:hover {
 }
 
 .nexa-pro-modal__content {
-	padding-right: var(--nexa-pro-space-lg);
+	padding-right: var(--nexa-pro-space-xl);
+	overflow-wrap: anywhere;
 }
 
 .nexa-pro-modal__content > *:first-child {

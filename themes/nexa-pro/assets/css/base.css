@@ -5,7 +5,7 @@
 }
 
 html {
-	scroll-behavior: smooth;
+	scroll-behavior: auto;
 	text-size-adjust: 100%;
 }
 
@@ -54,7 +54,6 @@ a {
 	color: var(--nexa-pro-color-link);
 	text-decoration-thickness: 0.08em;
 	text-underline-offset: 0.18em;
-	transition: color var(--nexa-pro-transition);
 }
 
 a:hover {
@@ -70,6 +69,23 @@ summary:focus-visible,
 [tabindex]:focus-visible {
 	outline: 3px solid var(--nexa-pro-color-focus);
 	outline-offset: 3px;
+}
+
+.site-main:focus {
+	outline: none;
+}
+
+@supports not selector(:focus-visible) {
+	a:focus,
+	button:focus,
+	input:focus,
+	textarea:focus,
+	select:focus,
+	summary:focus,
+	[tabindex]:focus {
+		outline: 3px solid var(--nexa-pro-color-focus);
+		outline-offset: 3px;
+	}
 }
 
 button,
@@ -144,18 +160,4 @@ code {
 	border-radius: var(--nexa-pro-radius-md);
 	box-shadow: var(--nexa-pro-shadow-md);
 	white-space: normal;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	html {
-		scroll-behavior: auto;
-	}
-
-	*,
-	*::before,
-	*::after {
-		transition-duration: 0.01ms;
-		animation-duration: 0.01ms;
-		animation-iteration-count: 1;
-	}
 }
