@@ -10,6 +10,7 @@
 	--nexa-pro-color-border-strong: #b9c3cf;
 	--nexa-pro-color-primary: #2563eb;
 	--nexa-pro-color-primary-dark: #1d4ed8;
+	--nexa-pro-color-secondary: #1d4ed8;
 	--nexa-pro-color-primary-soft: #eff6ff;
 	--nexa-pro-color-accent: #0f766e;
 	--nexa-pro-color-accent-soft: #ecfdf5;
@@ -21,10 +22,19 @@
 	--nexa-pro-color-dark-border: #394150;
 	--nexa-pro-color-background: var(--nexa-pro-color-canvas);
 	--nexa-pro-color-text: var(--nexa-pro-color-ink);
+	--nexa-pro-color-heading: var(--nexa-pro-color-ink);
 	--nexa-pro-color-link: var(--nexa-pro-color-primary);
 	--nexa-pro-color-link-hover: var(--nexa-pro-color-primary-dark);
+	--nexa-pro-color-button-primary-background: var(--nexa-pro-color-primary);
+	--nexa-pro-color-button-primary-text: var(--nexa-pro-color-canvas);
+	--nexa-pro-color-button-primary-hover: var(--nexa-pro-color-primary-dark);
+	--nexa-pro-color-button-secondary-background: var(--nexa-pro-color-canvas);
+	--nexa-pro-color-button-secondary-text: var(--nexa-pro-color-ink);
+	--nexa-pro-color-button-secondary-border: var(--nexa-pro-color-border);
 
-	--nexa-pro-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	--nexa-pro-font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	--nexa-pro-font-heading: var(--nexa-pro-font-body);
+	--nexa-pro-font-sans: var(--nexa-pro-font-body);
 	--nexa-pro-font-size-xs: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
 	--nexa-pro-font-size-sm: clamp(0.875rem, 0.84rem + 0.18vw, 0.9375rem);
 	--nexa-pro-font-size-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
@@ -38,6 +48,8 @@
 	--nexa-pro-font-weight-normal: 400;
 	--nexa-pro-font-weight-medium: 600;
 	--nexa-pro-font-weight-bold: 700;
+	--nexa-pro-font-weight-heading: var(--nexa-pro-font-weight-bold);
+	--nexa-pro-font-weight-button: var(--nexa-pro-font-weight-bold);
 
 	--nexa-pro-space-2xs: 0.25rem;
 	--nexa-pro-space-xs: 0.5rem;

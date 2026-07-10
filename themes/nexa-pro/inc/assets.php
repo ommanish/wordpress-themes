@@ -22,20 +22,10 @@ function nexa_pro_enqueue_assets() {
 		NEXA_PRO_VERSION
 	);
 
-	$primary_color = nexa_pro_get_option( 'primary_color' );
-	$accent_color  = nexa_pro_get_option( 'accent_color' );
-	$custom_css    = '';
-
-	if ( $primary_color && sanitize_hex_color( $primary_color ) === $primary_color ) {
-		$custom_css .= '--nexa-pro-color-primary:' . $primary_color . ';--nexa-pro-color-primary-dark:' . $primary_color . ';';
-	}
-
-	if ( $accent_color && sanitize_hex_color( $accent_color ) === $accent_color ) {
-		$custom_css .= '--nexa-pro-color-accent:' . $accent_color . ';--nexa-pro-color-focus:' . $accent_color . ';';
-	}
+	$custom_css = nexa_pro_get_global_design_css();
 
 	if ( $custom_css ) {
-		wp_add_inline_style( 'nexa-pro-theme', 'body{' . $custom_css . '}' );
+		wp_add_inline_style( 'nexa-pro-theme', $custom_css );
 	}
 
 	wp_enqueue_script(
@@ -47,6 +37,30 @@ function nexa_pro_enqueue_assets() {
 	);
 }
 add_action( 'wp_enqueue_scripts', 'nexa_pro_enqueue_assets' );
+
+/**
+ * Enqueue dynamic editor design styles.
+ *
+ * @return void
+ */
+function nexa_pro_enqueue_editor_design_assets() {
+	$custom_css = nexa_pro_get_global_design_css( '.editor-styles-wrapper' );
+
+	if ( ! $custom_css ) {
+		return;
+	}
+
+	wp_register_style(
+		'nexa-pro-editor-design',
+		false,
+		array(),
+		NEXA_PRO_VERSION
+	);
+
+	wp_enqueue_style( 'nexa-pro-editor-design' );
+	wp_add_inline_style( 'nexa-pro-editor-design', $custom_css );
+}
+add_action( 'enqueue_block_editor_assets', 'nexa_pro_enqueue_editor_design_assets' );
 
 /**
  * Enqueue admin assets for the Nexa Pro settings page.
@@ -62,7 +76,7 @@ function nexa_pro_enqueue_admin_assets( $hook_suffix ) {
 	wp_enqueue_style(
 		'nexa-pro-admin',
 		NEXA_PRO_URI . '/assets/css/admin.css',
-		array(),
+		array( 'wp-color-picker' ),
 		NEXA_PRO_VERSION
 	);
 
@@ -71,7 +85,7 @@ function nexa_pro_enqueue_admin_assets( $hook_suffix ) {
 	wp_enqueue_script(
 		'nexa-pro-admin',
 		NEXA_PRO_URI . '/assets/js/admin.js',
-		array(),
+		array( 'wp-color-picker' ),
 		NEXA_PRO_VERSION,
 		true
 	);

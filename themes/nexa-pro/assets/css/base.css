@@ -16,7 +16,7 @@ body {
 	overflow-x: clip;
 	background: var(--nexa-pro-color-background);
 	color: var(--nexa-pro-color-text);
-	font-family: var(--nexa-pro-font-sans);
+	font-family: var(--nexa-pro-font-body);
 	font-size: var(--nexa-pro-font-size-base);
 	line-height: var(--nexa-pro-line-height-base);
 	text-rendering: optimizeLegibility;
@@ -27,7 +27,7 @@ button,
 input,
 textarea,
 select {
-	font-family: var(--nexa-pro-font-sans);
+	font-family: var(--nexa-pro-font-body);
 }
 
 h1,
@@ -36,8 +36,9 @@ h3,
 h4,
 h5,
 h6 {
-	color: var(--nexa-pro-color-ink);
-	font-weight: var(--nexa-pro-font-weight-bold);
+	color: var(--nexa-pro-color-heading);
+	font-family: var(--nexa-pro-font-heading);
+	font-weight: var(--nexa-pro-font-weight-heading);
 	line-height: var(--nexa-pro-line-height-heading);
 	overflow-wrap: anywhere;
 }

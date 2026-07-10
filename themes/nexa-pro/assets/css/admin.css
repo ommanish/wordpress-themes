@@ -33,8 +33,41 @@
 
 .nexa-pro-admin input[type="url"],
 .nexa-pro-admin input[type="text"],
+.nexa-pro-admin input[type="number"],
+.nexa-pro-admin select,
 .nexa-pro-admin textarea {
 	max-width: 620px;
+}
+
+.nexa-pro-admin-field-group td {
+	padding-top: 2rem;
+	padding-bottom: 0.5rem;
+}
+
+.nexa-pro-admin-field-group h2 {
+	margin: 0 0 0.35rem;
+	font-size: 1.15rem;
+}
+
+.nexa-pro-admin .nexa-pro-color-field {
+	width: 7rem;
+	max-width: 100%;
+}
+
+.nexa-pro-admin .wp-picker-container {
+	display: inline-block;
+	margin-right: 0.5rem;
+	vertical-align: middle;
+}
+
+.nexa-pro-admin [data-nexa-pro-field-reset] {
+	margin-left: 0.35rem;
+}
+
+.nexa-pro-admin-global-reset th,
+.nexa-pro-admin-global-reset td {
+	padding-top: 1.5rem;
+	border-top: 1px solid #dcdcde;
 }
 
 .nexa-pro-admin-media {
