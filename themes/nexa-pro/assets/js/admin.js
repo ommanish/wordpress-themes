@@ -318,7 +318,168 @@
 		updateRows();
 	}
 
+	function initHomepageOrder(orderControl) {
+		var list = orderControl.querySelector('[data-nexa-pro-homepage-order-list]');
+		var status = orderControl.querySelector('[data-nexa-pro-homepage-order-status]');
+		var resetInput = orderControl.querySelector('[data-nexa-pro-homepage-order-reset]');
+		var resetButton = orderControl.querySelector('[data-nexa-pro-homepage-order-reset-button]');
+		var defaultOrder = (orderControl.getAttribute('data-nexa-pro-default-order') || '').split(',').filter(Boolean);
+
+		if (!list) {
+			return;
+		}
+
+		function announce(message) {
+			if (status) {
+				status.textContent = message;
+			}
+		}
+
+		function getRows() {
+			return Array.prototype.slice.call(list.querySelectorAll('[data-nexa-pro-homepage-order-row]'));
+		}
+
+		function getRowLabel(row) {
+			var label = row.querySelector('[data-nexa-pro-homepage-order-label]');
+
+			return label ? label.textContent.trim() : 'Section';
+		}
+
+		function getMoveButton(row, direction) {
+			return row.querySelector('[data-nexa-pro-homepage-order-move="' + direction + '"]');
+		}
+
+		function updateControls() {
+			var rows = getRows();
+
+			rows.forEach(function (row, index) {
+				var label = getRowLabel(row);
+				var moveUp = getMoveButton(row, 'up');
+				var moveDown = getMoveButton(row, 'down');
+
+				if (moveUp) {
+					moveUp.hidden = false;
+					moveUp.disabled = index === 0;
+					moveUp.setAttribute('aria-label', 'Move ' + label + ' up');
+				}
+
+				if (moveDown) {
+					moveDown.hidden = false;
+					moveDown.disabled = index === rows.length - 1;
+					moveDown.setAttribute('aria-label', 'Move ' + label + ' down');
+				}
+			});
+
+			if (resetButton) {
+				resetButton.hidden = false;
+			}
+		}
+
+		function focusMovedButton(row, direction) {
+			var button = getMoveButton(row, direction);
+			var fallbackDirection = direction === 'up' ? 'down' : 'up';
+			var fallbackButton = getMoveButton(row, fallbackDirection);
+
+			if (button && !button.disabled) {
+				button.focus();
+				return;
+			}
+
+			if (fallbackButton && !fallbackButton.disabled) {
+				fallbackButton.focus();
+			}
+		}
+
+		function moveRow(row, direction) {
+			var rows = getRows();
+			var index = rows.indexOf(row);
+			var target = direction === 'up' ? rows[index - 1] : rows[index + 1];
+			var label = getRowLabel(row);
+
+			if (!target) {
+				return;
+			}
+
+			if (direction === 'up') {
+				list.insertBefore(row, target);
+			} else {
+				list.insertBefore(target, row);
+			}
+
+			if (resetInput) {
+				resetInput.value = '0';
+			}
+
+			updateControls();
+			announce(label + ' moved ' + direction + '.');
+			focusMovedButton(row, direction);
+		}
+
+		function resetOrder() {
+			var confirmation = resetButton ? resetButton.getAttribute('data-nexa-pro-reset-confirm') : '';
+			var rows = getRows();
+			var rowsByKey = {};
+
+			if (confirmation && !window.confirm(confirmation)) {
+				return;
+			}
+
+			rows.forEach(function (row) {
+				var key = row.getAttribute('data-nexa-pro-section-key') || '';
+
+				if (key && !rowsByKey[key]) {
+					rowsByKey[key] = row;
+				}
+			});
+
+			defaultOrder.forEach(function (key) {
+				if (rowsByKey[key]) {
+					list.appendChild(rowsByKey[key]);
+					delete rowsByKey[key];
+				}
+			});
+
+			rows.forEach(function (row) {
+				var key = row.getAttribute('data-nexa-pro-section-key') || '';
+
+				if (rowsByKey[key]) {
+					list.appendChild(row);
+					delete rowsByKey[key];
+				}
+			});
+
+			if (resetInput) {
+				resetInput.value = '1';
+			}
+
+			updateControls();
+			announce('Homepage section order reset to default. Save settings to apply.');
+
+			if (resetButton) {
+				resetButton.focus();
+			}
+		}
+
+		orderControl.addEventListener('click', function (event) {
+			var moveButton = event.target.closest('[data-nexa-pro-homepage-order-move]');
+			var reset = event.target.closest('[data-nexa-pro-homepage-order-reset-button]');
+			var row = event.target.closest('[data-nexa-pro-homepage-order-row]');
+
+			if (moveButton && row && orderControl.contains(row)) {
+				moveRow(row, moveButton.getAttribute('data-nexa-pro-homepage-order-move'));
+				return;
+			}
+
+			if (reset && orderControl.contains(reset)) {
+				resetOrder();
+			}
+		});
+
+		updateControls();
+	}
+
 	initMediaFields();
 
 	admin.querySelectorAll('[data-nexa-pro-repeater]').forEach(initRepeater);
+	admin.querySelectorAll('[data-nexa-pro-homepage-order]').forEach(initHomepageOrder);
 })();

@@ -80,6 +80,57 @@ function nexa_pro_get_raw_option( $key, $fallback = null ) {
 }
 
 /**
+ * Normalize a homepage section order array.
+ *
+ * @param mixed $order Section order.
+ * @return array
+ */
+function nexa_pro_normalize_homepage_section_order( $order ) {
+	$default_order = nexa_pro_get_default_homepage_section_order();
+	$allowed       = array_fill_keys( $default_order, true );
+	$normalized    = array();
+	$used          = array();
+
+	if ( ! is_array( $order ) ) {
+		$order = $default_order;
+	}
+
+	foreach ( $order as $section ) {
+		if ( ! is_scalar( $section ) ) {
+			continue;
+		}
+
+		$section_key = sanitize_key( $section );
+
+		if ( ! isset( $allowed[ $section_key ] ) || isset( $used[ $section_key ] ) ) {
+			continue;
+		}
+
+		$normalized[]         = $section_key;
+		$used[ $section_key ] = true;
+	}
+
+	foreach ( $default_order as $section_key ) {
+		if ( ! isset( $used[ $section_key ] ) ) {
+			$normalized[] = $section_key;
+		}
+	}
+
+	return $normalized;
+}
+
+/**
+ * Get the normalized movable homepage section order.
+ *
+ * @return array
+ */
+function nexa_pro_get_homepage_section_order() {
+	return nexa_pro_normalize_homepage_section_order(
+		nexa_pro_get_raw_option( 'homepage_section_order', nexa_pro_get_default_homepage_section_order() )
+	);
+}
+
+/**
  * Normalize saved repeater items for read-only use.
  *
  * This defensively filters malformed rows, but does not generate IDs or repair

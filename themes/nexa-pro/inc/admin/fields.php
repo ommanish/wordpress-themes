@@ -576,6 +576,115 @@ function nexa_pro_admin_homepage_section_fields( $prefix, $label ) {
 }
 
 /**
+ * Get labels for movable homepage sections.
+ *
+ * @return array
+ */
+function nexa_pro_get_homepage_order_section_labels() {
+	return array(
+		'about'        => __( 'About', 'nexa-pro' ),
+		'services'     => __( 'Services', 'nexa-pro' ),
+		'features'     => __( 'Features', 'nexa-pro' ),
+		'process'      => __( 'Process', 'nexa-pro' ),
+		'why'          => __( 'Why Choose Us', 'nexa-pro' ),
+		'portfolio'    => __( 'Portfolio', 'nexa-pro' ),
+		'testimonials' => __( 'Testimonials', 'nexa-pro' ),
+		'team'         => __( 'Team', 'nexa-pro' ),
+		'faq'          => __( 'FAQ', 'nexa-pro' ),
+		'contact'      => __( 'Contact', 'nexa-pro' ),
+		'cta'          => __( 'CTA', 'nexa-pro' ),
+	);
+}
+
+/**
+ * Render homepage section order controls.
+ *
+ * @return void
+ */
+function nexa_pro_admin_homepage_order_field() {
+	$labels        = nexa_pro_get_homepage_order_section_labels();
+	$order         = nexa_pro_get_homepage_section_order();
+	$default_order = nexa_pro_get_default_homepage_section_order();
+	$order_count   = count( $order );
+	$row_index     = 0;
+
+	?>
+	<tr>
+		<td colspan="2">
+			<div
+				class="nexa-pro-homepage-order"
+				data-nexa-pro-homepage-order
+				data-nexa-pro-default-order="<?php echo esc_attr( implode( ',', $default_order ) ); ?>"
+			>
+				<h2><?php esc_html_e( 'Homepage Order', 'nexa-pro' ); ?></h2>
+				<p class="description">
+					<?php esc_html_e( 'Arrange the movable homepage sections. Hero and Trust always remain first, and hidden sections keep their saved position for when they are re-enabled.', 'nexa-pro' ); ?>
+				</p>
+				<input type="hidden" name="nexa_pro_options[homepage_section_order_reset]" value="0" data-nexa-pro-homepage-order-reset>
+				<div class="nexa-pro-homepage-order__status screen-reader-text" aria-live="polite" data-nexa-pro-homepage-order-status></div>
+				<ol class="nexa-pro-homepage-order__list" data-nexa-pro-homepage-order-list>
+					<?php foreach ( $order as $section_key ) : ?>
+						<?php
+						if ( ! isset( $labels[ $section_key ] ) ) {
+							continue;
+						}
+
+						$label    = $labels[ $section_key ];
+						$field_id = 'nexa-pro-homepage-order-' . $section_key;
+						$row_index++;
+						/* translators: %s: Homepage section label. */
+						$move_up_label = sprintf( __( 'Move %s up', 'nexa-pro' ), $label );
+						/* translators: %s: Homepage section label. */
+						$move_down_label = sprintf( __( 'Move %s down', 'nexa-pro' ), $label );
+						?>
+						<li class="nexa-pro-homepage-order__item" data-nexa-pro-homepage-order-row data-nexa-pro-section-key="<?php echo esc_attr( $section_key ); ?>">
+							<div class="nexa-pro-homepage-order__item-inner">
+								<span id="<?php echo esc_attr( $field_id ); ?>" class="nexa-pro-homepage-order__label" data-nexa-pro-homepage-order-label>
+									<?php echo esc_html( $label ); ?>
+								</span>
+								<input type="hidden" name="nexa_pro_options[homepage_section_order][]" value="<?php echo esc_attr( $section_key ); ?>">
+								<div class="nexa-pro-homepage-order__actions">
+									<button
+										type="button"
+										class="button"
+										data-nexa-pro-homepage-order-move="up"
+										aria-label="<?php echo esc_attr( $move_up_label ); ?>"
+										hidden
+										<?php disabled( 1 === $row_index ); ?>
+									>
+										<?php esc_html_e( 'Move up', 'nexa-pro' ); ?>
+									</button>
+									<button
+										type="button"
+										class="button"
+										data-nexa-pro-homepage-order-move="down"
+										aria-label="<?php echo esc_attr( $move_down_label ); ?>"
+										hidden
+										<?php disabled( $order_count === $row_index ); ?>
+									>
+										<?php esc_html_e( 'Move down', 'nexa-pro' ); ?>
+									</button>
+								</div>
+							</div>
+						</li>
+					<?php endforeach; ?>
+				</ol>
+				<button
+					type="button"
+					class="button button-secondary"
+					data-nexa-pro-homepage-order-reset-button
+					data-nexa-pro-reset-confirm="<?php esc_attr_e( 'Reset the homepage section order to the default order?', 'nexa-pro' ); ?>"
+					hidden
+				>
+					<?php esc_html_e( 'Reset to default', 'nexa-pro' ); ?>
+				</button>
+			</div>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
  * Render admin fields for a tab.
  *
  * @param string $tab Active tab.
@@ -689,6 +798,10 @@ function nexa_pro_render_admin_fields( $tab ) {
 
 				case 'cta':
 					nexa_pro_admin_homepage_section_fields( 'cta', __( 'CTA', 'nexa-pro' ) );
+					break;
+
+				case 'homepage-order':
+					nexa_pro_admin_homepage_order_field();
 					break;
 
 				case 'hero':
