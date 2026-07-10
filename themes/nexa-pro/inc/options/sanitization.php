@@ -293,21 +293,51 @@ function nexa_pro_sanitize_design_font_weight( $key, $value ) {
 }
 
 /**
- * Sanitize theme options for storage.
+ * Get option keys that store image attachment IDs.
  *
- * Missing or invalid submitted values preserve the existing saved value, falling
- * back to defaults when no saved value exists.
- *
- * @param mixed $input Raw submitted option value.
  * @return array
  */
-function nexa_pro_sanitize_options( $input ) {
+function nexa_pro_get_media_option_keys() {
+	return array(
+		'logo_attachment_id',
+		'mobile_logo_attachment_id',
+		'footer_logo_id',
+		'about_image_id',
+		'services_background_image_id',
+		'features_background_image_id',
+		'process_background_image_id',
+		'why_image_id',
+		'portfolio_image_id',
+		'testimonials_background_image_id',
+		'team_background_image_id',
+		'cta_background_image_id',
+		'contact_background_image_id',
+	);
+}
+
+/**
+ * Sanitize theme options against a caller-provided base option array.
+ *
+ * Missing or invalid submitted values preserve the existing saved value, falling
+ * back to defaults when no saved value exists. Full replacements rebuild from
+ * defaults and process known submitted repeaters without tab markers.
+ *
+ * @param mixed      $input Raw submitted option value.
+ * @param array      $base_options Existing option base.
+ * @param bool       $full_replacement Whether this is a full settings replacement.
+ * @param array|null $report Optional normalization report.
+ * @return array
+ */
+function nexa_pro_sanitize_options_with_base( $input, $base_options = array(), $full_replacement = false, &$report = null ) {
 	$defaults = nexa_pro_get_default_options();
-	$existing = get_option( 'nexa_pro_options', array() );
+	$existing = is_array( $base_options ) ? $base_options : array();
 	$schemas  = nexa_pro_get_repeater_schemas();
 
-	if ( ! is_array( $existing ) ) {
-		$existing = array();
+	if ( $full_replacement ) {
+		$report = array(
+			'media_references' => 0,
+			'media_cleared'    => 0,
+		);
 	}
 
 	$output = wp_parse_args( array_intersect_key( $existing, $defaults ), $defaults );
@@ -325,6 +355,8 @@ function nexa_pro_sanitize_options( $input ) {
 		$marker_key = $repeater_key . '_submitted';
 
 		if ( isset( $input[ $marker_key ] ) && '1' === (string) $input[ $marker_key ] ) {
+			$submitted_repeaters[ $repeater_key ] = $schema;
+		} elseif ( $full_replacement && array_key_exists( $repeater_key, $input ) ) {
 			$submitted_repeaters[ $repeater_key ] = $schema;
 		}
 	}
@@ -569,5 +601,61 @@ function nexa_pro_sanitize_options( $input ) {
 		}
 	}
 
+	if ( $full_replacement ) {
+		foreach ( nexa_pro_get_media_option_keys() as $media_key ) {
+			$raw_media_value = isset( $input[ $media_key ] ) && is_scalar( $input[ $media_key ] ) ? absint( $input[ $media_key ] ) : 0;
+
+			if ( $raw_media_value ) {
+				$report['media_references']++;
+			}
+
+			$stored_media_value = absint( isset( $output[ $media_key ] ) ? $output[ $media_key ] : 0 );
+			$output[ $media_key ] = nexa_pro_sanitize_image_attachment_id( $stored_media_value );
+
+			if ( $raw_media_value && ! $output[ $media_key ] ) {
+				$report['media_cleared']++;
+			}
+		}
+	}
+
 	return $output;
+}
+
+/**
+ * Sanitize theme options for normal Settings API storage.
+ *
+ * @param mixed $input Raw submitted option value.
+ * @return array
+ */
+function nexa_pro_sanitize_options( $input ) {
+	$existing = get_option( 'nexa_pro_options', array() );
+	$report   = null;
+
+	if ( ! is_array( $existing ) ) {
+		$existing = array();
+	}
+
+	return nexa_pro_sanitize_options_with_base( $input, $existing, false, $report );
+}
+
+/**
+ * Normalize a full settings payload for import, presets, reset, and rollback.
+ *
+ * @param mixed      $settings Raw settings payload.
+ * @param array|null $report Optional normalization report.
+ * @return array
+ */
+function nexa_pro_normalize_full_settings( $settings, &$report = null ) {
+	$defaults = nexa_pro_get_default_options();
+
+	if ( ! is_array( $settings ) ) {
+		$settings = array();
+	}
+
+	return nexa_pro_sanitize_options_with_base(
+		array_intersect_key( $settings, $defaults ),
+		$defaults,
+		true,
+		$report
+	);
 }

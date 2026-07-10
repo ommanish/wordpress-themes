@@ -33,6 +33,7 @@ function nexa_pro_get_admin_tabs() {
 		'cta'       => __( 'CTA', 'nexa-pro' ),
 		'contact-actions' => __( 'Contact Actions', 'nexa-pro' ),
 		'homepage-order' => __( 'Homepage Order', 'nexa-pro' ),
+		'tools'     => __( 'Tools', 'nexa-pro' ),
 	);
 }
 
@@ -99,6 +100,7 @@ function nexa_pro_render_dashboard_tab() {
 			<li><?php esc_html_e( 'Contact Actions: schedule modal text, email action, and calendar action.', 'nexa-pro' ); ?></li>
 			<li><?php esc_html_e( 'Hero: homepage hero text and button links.', 'nexa-pro' ); ?></li>
 			<li><?php esc_html_e( 'Homepage sections: visibility, labels, headings, descriptions, and CTA content.', 'nexa-pro' ); ?></li>
+			<li><?php esc_html_e( 'Tools: export, import, preview presets, reset settings, and restore the latest rollback snapshot.', 'nexa-pro' ); ?></li>
 		</ul>
 	</div>
 	<?php
@@ -124,6 +126,8 @@ function nexa_pro_render_admin_page() {
 
 		<?php if ( 'dashboard' === $active_tab ) : ?>
 			<?php nexa_pro_render_dashboard_tab(); ?>
+		<?php elseif ( 'tools' === $active_tab ) : ?>
+			<?php nexa_pro_render_tools_tab(); ?>
 		<?php else : ?>
 			<form method="post" action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" class="nexa-pro-admin__form">
 				<?php settings_fields( 'nexa_pro_options_group' ); ?>
