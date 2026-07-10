@@ -19,6 +19,7 @@ function nexa_pro_get_admin_tabs() {
 		'dashboard' => __( 'Dashboard', 'nexa-pro' ),
 		'global'    => __( 'Global', 'nexa-pro' ),
 		'header'    => __( 'Header', 'nexa-pro' ),
+		'footer'    => __( 'Footer', 'nexa-pro' ),
 		'hero'      => __( 'Hero', 'nexa-pro' ),
 		'about'     => __( 'About', 'nexa-pro' ),
 		'services'  => __( 'Services', 'nexa-pro' ),
@@ -30,6 +31,7 @@ function nexa_pro_get_admin_tabs() {
 		'team'      => __( 'Team', 'nexa-pro' ),
 		'contact'   => __( 'Contact', 'nexa-pro' ),
 		'cta'       => __( 'CTA', 'nexa-pro' ),
+		'contact-actions' => __( 'Contact Actions', 'nexa-pro' ),
 		'homepage-order' => __( 'Homepage Order', 'nexa-pro' ),
 	);
 }
@@ -89,10 +91,12 @@ function nexa_pro_render_dashboard_tab() {
 	?>
 	<div class="nexa-pro-admin__panel">
 		<h2><?php esc_html_e( 'Theme settings foundation', 'nexa-pro' ); ?></h2>
-		<p><?php esc_html_e( 'Use these settings to configure the global brand, header branding and navigation behavior, homepage hero content, and basic homepage section content. More controls will be added in later tickets.', 'nexa-pro' ); ?></p>
+		<p><?php esc_html_e( 'Use these settings to configure the global brand, header and footer branding, contact actions, homepage hero content, and homepage section content. More controls will be added in later tickets.', 'nexa-pro' ); ?></p>
 		<ul>
 			<li><?php esc_html_e( 'Global: brand labels and color tokens.', 'nexa-pro' ); ?></li>
 			<li><?php esc_html_e( 'Header: logos, brand text display, sticky or transparent state, layout, and call-to-action behavior.', 'nexa-pro' ); ?></li>
+			<li><?php esc_html_e( 'Footer: footer identity, navigation, legal links, contact details, and social profiles.', 'nexa-pro' ); ?></li>
+			<li><?php esc_html_e( 'Contact Actions: schedule modal text, email action, and calendar action.', 'nexa-pro' ); ?></li>
 			<li><?php esc_html_e( 'Hero: homepage hero text and button links.', 'nexa-pro' ); ?></li>
 			<li><?php esc_html_e( 'Homepage sections: visibility, labels, headings, descriptions, and CTA content.', 'nexa-pro' ); ?></li>
 		</ul>

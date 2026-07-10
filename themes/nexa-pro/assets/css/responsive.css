@@ -123,10 +123,27 @@
 		display: none;
 	}
 
-	.site-footer__inner {
-		flex-direction: row;
+	.site-footer__main {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+		align-items: start;
+	}
+
+	.site-footer__sections {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.site-footer__bottom {
+		grid-template-columns: minmax(0, 1fr) auto;
 		align-items: center;
-		justify-content: space-between;
+	}
+
+	.site-footer__legal {
+		justify-self: end;
+		order: 2;
+	}
+
+	.site-footer__credit {
+		order: 1;
 	}
 
 	.post-navigation .nav-links {

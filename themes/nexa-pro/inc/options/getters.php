@@ -532,3 +532,320 @@ function nexa_pro_get_brand_name() {
 function nexa_pro_get_brand_tagline() {
 	return nexa_pro_get_option( 'brand_tagline', get_bloginfo( 'description', 'display' ) );
 }
+
+/**
+ * Determine whether a URL is an absolute HTTP/HTTPS URL.
+ *
+ * @param string $url URL value.
+ * @return bool
+ */
+function nexa_pro_is_absolute_http_url( $url ) {
+	$url = trim( (string) $url );
+
+	if ( '' === $url || '' === esc_url( $url, array( 'http', 'https' ) ) ) {
+		return false;
+	}
+
+	$parts = wp_parse_url( $url );
+
+	if ( empty( $parts['scheme'] ) || empty( $parts['host'] ) ) {
+		return false;
+	}
+
+	return in_array( strtolower( $parts['scheme'] ), array( 'http', 'https' ), true );
+}
+
+/**
+ * Get a valid absolute HTTP/HTTPS URL option.
+ *
+ * @param string $key Option key.
+ * @return string
+ */
+function nexa_pro_get_absolute_http_url_option( $key ) {
+	$url = (string) nexa_pro_get_raw_option( $key, '' );
+
+	return nexa_pro_is_absolute_http_url( $url ) ? $url : '';
+}
+
+/**
+ * Get a URL option that may be absolute, site-relative, or a same-page fragment.
+ *
+ * @param string $key Option key.
+ * @return string
+ */
+function nexa_pro_get_url_path_or_fragment_option( $key ) {
+	$url = (string) nexa_pro_get_raw_option( $key, '' );
+
+	if ( '' === $url ) {
+		return '';
+	}
+
+	if ( 1 === preg_match( '/^#[A-Za-z][A-Za-z0-9_-]*$/', $url ) ) {
+		return $url;
+	}
+
+	if ( 0 === strpos( $url, '/' ) && 0 !== strpos( $url, '//' ) && '' !== esc_url( $url ) ) {
+		return $url;
+	}
+
+	return nexa_pro_is_absolute_http_url( $url ) ? $url : '';
+}
+
+/**
+ * Get a renderable footer logo attachment ID.
+ *
+ * @return int
+ */
+function nexa_pro_get_footer_logo_id() {
+	$footer_logo_id = absint( nexa_pro_get_raw_option( 'footer_logo_id', 0 ) );
+	$native_logo_id = absint( get_theme_mod( 'custom_logo' ) );
+
+	foreach ( array( $footer_logo_id, $native_logo_id ) as $attachment_id ) {
+		if ( $attachment_id && wp_get_attachment_image( $attachment_id, 'full' ) ) {
+			return $attachment_id;
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * Get normalized footer identity data.
+ *
+ * @return array
+ */
+function nexa_pro_get_footer_identity() {
+	$logo_id     = nexa_pro_get_footer_logo_id();
+	$brand_text  = trim( (string) nexa_pro_get_raw_option( 'footer_brand_text', '' ) );
+	$description = trim( (string) nexa_pro_get_raw_option( 'footer_description', '' ) );
+
+	if ( '' === $brand_text ) {
+		$brand_text = nexa_pro_get_brand_name();
+	}
+
+	return array(
+		'logo_id'      => $logo_id,
+		'brand_text'   => $brand_text,
+		'description'  => $description,
+		'show_text'    => nexa_pro_is_option_enabled( 'footer_show_brand_text' ) || ! $logo_id,
+		'has_identity' => (bool) ( $logo_id || $brand_text ),
+	);
+}
+
+/**
+ * Get a verified contact email address.
+ *
+ * @return string
+ */
+function nexa_pro_get_contact_email() {
+	$email = sanitize_email( nexa_pro_get_raw_option( 'contact_email', '' ) );
+
+	return is_email( $email ) ? $email : '';
+}
+
+/**
+ * Get a usable tel: target from a displayed phone number.
+ *
+ * @return string
+ */
+function nexa_pro_get_contact_phone_href() {
+	$phone = (string) nexa_pro_get_raw_option( 'contact_phone', '' );
+	$tel   = preg_replace( '/[^0-9+]/', '', $phone );
+	$tel   = preg_replace( '/(?!^)\+/', '', $tel );
+
+	if ( ! preg_match( '/[0-9]/', $tel ) ) {
+		return '';
+	}
+
+	return 'tel:' . $tel;
+}
+
+/**
+ * Get configured contact details.
+ *
+ * @return array
+ */
+function nexa_pro_get_contact_details() {
+	return array(
+		'email'          => nexa_pro_get_contact_email(),
+		'phone'          => trim( (string) nexa_pro_get_raw_option( 'contact_phone', '' ) ),
+		'phone_href'     => nexa_pro_get_contact_phone_href(),
+		'address'        => trim( (string) nexa_pro_get_raw_option( 'contact_address', '' ) ),
+		'business_hours' => trim( (string) nexa_pro_get_raw_option( 'contact_business_hours', '' ) ),
+	);
+}
+
+/**
+ * Get configured social profile links.
+ *
+ * @return array
+ */
+function nexa_pro_get_social_links() {
+	$links = array(
+		'linkedin'  => array(
+			'label' => __( 'LinkedIn', 'nexa-pro' ),
+			'url'   => nexa_pro_get_absolute_http_url_option( 'social_linkedin_url' ),
+		),
+		'github'    => array(
+			'label' => __( 'GitHub', 'nexa-pro' ),
+			'url'   => nexa_pro_get_absolute_http_url_option( 'social_github_url' ),
+		),
+		'x'         => array(
+			'label' => __( 'X', 'nexa-pro' ),
+			'url'   => nexa_pro_get_absolute_http_url_option( 'social_x_url' ),
+		),
+		'facebook'  => array(
+			'label' => __( 'Facebook', 'nexa-pro' ),
+			'url'   => nexa_pro_get_absolute_http_url_option( 'social_facebook_url' ),
+		),
+		'instagram' => array(
+			'label' => __( 'Instagram', 'nexa-pro' ),
+			'url'   => nexa_pro_get_absolute_http_url_option( 'social_instagram_url' ),
+		),
+	);
+
+	return array_filter(
+		$links,
+		function ( $link ) {
+			return ! empty( $link['url'] );
+		}
+	);
+}
+
+/**
+ * Expand footer copyright placeholders.
+ *
+ * @return string
+ */
+function nexa_pro_expand_footer_copyright() {
+	$defaults  = nexa_pro_get_default_options();
+	$copyright = trim( (string) nexa_pro_get_raw_option( 'footer_copyright', '' ) );
+
+	if ( '' === $copyright ) {
+		$copyright = $defaults['footer_copyright'];
+	}
+
+	return strtr(
+		$copyright,
+		array(
+			'{year}'      => date_i18n( 'Y' ),
+			'{site_name}' => wp_strip_all_tags( nexa_pro_get_brand_name() ),
+		)
+	);
+}
+
+/**
+ * Get legal footer links.
+ *
+ * @return array
+ */
+function nexa_pro_get_footer_legal_links() {
+	$links = array(
+		array(
+			'label' => nexa_pro_get_option( 'footer_privacy_label', __( 'Privacy Policy', 'nexa-pro' ) ),
+			'url'   => nexa_pro_get_url_path_or_fragment_option( 'footer_privacy_url' ),
+		),
+		array(
+			'label' => nexa_pro_get_option( 'footer_terms_label', __( 'Terms', 'nexa-pro' ) ),
+			'url'   => nexa_pro_get_url_path_or_fragment_option( 'footer_terms_url' ),
+		),
+	);
+
+	return array_filter(
+		$links,
+		function ( $link ) {
+			return ! empty( $link['label'] ) && ! empty( $link['url'] );
+		}
+	);
+}
+
+/**
+ * Determine whether a URL explicitly targets the schedule modal.
+ *
+ * @param string $url URL value.
+ * @return bool
+ */
+function nexa_pro_is_schedule_modal_target( $url ) {
+	return '#nexa-pro-schedule' === trim( (string) $url );
+}
+
+/**
+ * Build a safe mailto URL for schedule actions.
+ *
+ * @param string $email Recipient email.
+ * @param string $subject Email subject.
+ * @param string $body Email body.
+ * @return string
+ */
+function nexa_pro_build_mailto_url( $email, $subject = '', $body = '' ) {
+	$email = sanitize_email( $email );
+
+	if ( ! is_email( $email ) ) {
+		return '';
+	}
+
+	$query = array();
+
+	if ( '' !== $subject ) {
+		$query['subject'] = $subject;
+	}
+
+	if ( '' !== $body ) {
+		$query['body'] = $body;
+	}
+
+	$query_string = $query ? http_build_query( $query, '', '&', PHP_QUERY_RFC3986 ) : '';
+
+	return 'mailto:' . $email . ( $query_string ? '?' . $query_string : '' );
+}
+
+/**
+ * Get normalized schedule modal data.
+ *
+ * @return array
+ */
+function nexa_pro_get_schedule_modal_data() {
+	$email        = nexa_pro_get_contact_email();
+	$calendar_url = nexa_pro_get_absolute_http_url_option( 'schedule_calendar_url' );
+	$actions      = array();
+	$mailto_url   = '';
+
+	if ( $email ) {
+		$mailto_url = nexa_pro_build_mailto_url(
+			$email,
+			(string) nexa_pro_get_option( 'schedule_email_subject', '' ),
+			(string) nexa_pro_get_option( 'schedule_email_body', '' )
+		);
+
+		if ( $mailto_url ) {
+			$actions['email'] = array(
+				'label' => nexa_pro_get_option( 'schedule_email_label', __( 'Email us', 'nexa-pro' ) ),
+				'url'   => $mailto_url,
+			);
+		}
+	}
+
+	if ( $calendar_url ) {
+		$actions['calendar'] = array(
+			'label' => nexa_pro_get_option( 'schedule_calendar_label', __( 'Book a time', 'nexa-pro' ) ),
+			'url'   => $calendar_url,
+		);
+	}
+
+	$fallback_url = '';
+
+	if ( ! empty( $actions['calendar']['url'] ) ) {
+		$fallback_url = $actions['calendar']['url'];
+	} elseif ( ! empty( $actions['email']['url'] ) ) {
+		$fallback_url = $actions['email']['url'];
+	}
+
+	return array(
+		'enabled'      => nexa_pro_is_option_enabled( 'schedule_modal_enabled' ),
+		'title'        => nexa_pro_get_option( 'schedule_modal_title', __( 'Schedule a Conversation', 'nexa-pro' ) ),
+		'text'         => nexa_pro_get_option( 'schedule_modal_text', '' ),
+		'actions'      => $actions,
+		'has_actions'  => ! empty( $actions ),
+		'fallback_url' => $fallback_url,
+	);
+}

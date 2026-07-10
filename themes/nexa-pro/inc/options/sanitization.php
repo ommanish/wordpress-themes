@@ -32,6 +32,62 @@ function nexa_pro_sanitize_url_or_fragment( $url ) {
 }
 
 /**
+ * Sanitize an absolute URL, site-relative path, or same-page fragment URL.
+ *
+ * @param string $url URL value.
+ * @return string|null
+ */
+function nexa_pro_sanitize_url_or_path_or_fragment( $url ) {
+	$url = trim( (string) $url );
+
+	if ( '' === $url ) {
+		return '';
+	}
+
+	if ( 1 === preg_match( '/^#[A-Za-z][A-Za-z0-9_-]*$/', $url ) ) {
+		return $url;
+	}
+
+	if ( 0 === strpos( $url, '/' ) && 0 !== strpos( $url, '//' ) ) {
+		$sanitized_path = esc_url_raw( $url );
+
+		return '' === $sanitized_path ? null : $sanitized_path;
+	}
+
+	$sanitized_url = esc_url_raw( $url, array( 'http', 'https' ) );
+
+	return '' === $sanitized_url ? null : $sanitized_url;
+}
+
+/**
+ * Sanitize an absolute HTTP/HTTPS URL.
+ *
+ * @param string $url URL value.
+ * @return string
+ */
+function nexa_pro_sanitize_absolute_http_url( $url ) {
+	$url = trim( (string) $url );
+
+	if ( '' === $url ) {
+		return '';
+	}
+
+	$sanitized_url = esc_url_raw( $url, array( 'http', 'https' ) );
+
+	if ( '' === $sanitized_url ) {
+		return '';
+	}
+
+	$parts = wp_parse_url( $sanitized_url );
+
+	if ( empty( $parts['scheme'] ) || empty( $parts['host'] ) ) {
+		return '';
+	}
+
+	return in_array( strtolower( $parts['scheme'] ), array( 'http', 'https' ), true ) ? $sanitized_url : '';
+}
+
+/**
  * Get schemas for homepage repeater options.
  *
  * @return array
@@ -300,12 +356,24 @@ function nexa_pro_sanitize_options( $input ) {
 			case 'hero_heading':
 			case 'hero_primary_cta_text':
 			case 'hero_secondary_cta_text':
+			case 'footer_brand_text':
+			case 'footer_privacy_label':
+			case 'footer_terms_label':
+			case 'contact_phone':
+			case 'schedule_modal_title':
+			case 'schedule_email_label':
+			case 'schedule_calendar_label':
+			case 'schedule_email_subject':
 				$output[ $key ] = sanitize_text_field( $value );
 				break;
 
 			case 'logo_attachment_id':
 			case 'mobile_logo_attachment_id':
 				$output[ $key ] = absint( $value );
+				break;
+
+			case 'footer_logo_id':
+				$output[ $key ] = nexa_pro_sanitize_image_attachment_id( $value );
 				break;
 
 			case 'about_image_id':
@@ -326,6 +394,9 @@ function nexa_pro_sanitize_options( $input ) {
 			case 'transparent_header':
 			case 'header_cta_enabled':
 			case 'mobile_cta_enabled':
+			case 'footer_show_brand_text':
+			case 'footer_menu_enabled':
+			case 'schedule_modal_enabled':
 			case 'about_show':
 			case 'services_show':
 			case 'features_show':
@@ -350,7 +421,18 @@ function nexa_pro_sanitize_options( $input ) {
 			case 'process_text':
 			case 'why_text':
 			case 'cta_text':
+			case 'footer_description':
+			case 'footer_copyright':
+			case 'contact_address':
+			case 'contact_business_hours':
+			case 'schedule_modal_text':
+			case 'schedule_email_body':
 				$output[ $key ] = sanitize_textarea_field( $value );
+				break;
+
+			case 'contact_email':
+				$email          = sanitize_email( $value );
+				$output[ $key ] = is_email( $email ) ? $email : '';
 				break;
 
 			case 'about_label':
@@ -447,6 +529,21 @@ function nexa_pro_sanitize_options( $input ) {
 				if ( null !== $url ) {
 					$output[ $key ] = $url;
 				}
+				break;
+
+			case 'footer_privacy_url':
+			case 'footer_terms_url':
+				$url            = nexa_pro_sanitize_url_or_path_or_fragment( $value );
+				$output[ $key ] = null === $url ? '' : $url;
+				break;
+
+			case 'social_linkedin_url':
+			case 'social_github_url':
+			case 'social_x_url':
+			case 'social_facebook_url':
+			case 'social_instagram_url':
+			case 'schedule_calendar_url':
+				$output[ $key ] = nexa_pro_sanitize_absolute_http_url( $value );
 				break;
 
 			case 'services_items':
