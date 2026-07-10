@@ -783,7 +783,7 @@ function nexa_pro_admin_homepage_section_fields( $prefix, $label ) {
 		nexa_pro_admin_text_field(
 			'cta_button_url',
 			__( 'Button URL', 'nexa-pro' ),
-			__( 'Use a full absolute URL or a same-page fragment such as #contact. Update links manually if their target section is disabled.', 'nexa-pro' )
+			__( 'Use a full absolute URL, a same-page fragment such as #contact, or #nexa-pro-schedule for the schedule modal. Update links manually if their target section or action is disabled.', 'nexa-pro' )
 		);
 	}
 
@@ -989,6 +989,198 @@ function nexa_pro_admin_font_weight_choices( $weights ) {
 	}
 
 	return $choices;
+}
+
+/**
+ * Render footer settings fields.
+ *
+ * @return void
+ */
+function nexa_pro_admin_footer_fields() {
+	nexa_pro_admin_field_group(
+		__( 'Footer branding', 'nexa-pro' ),
+		__( 'Controls the footer identity area. If no footer logo or text is available, the WordPress site title remains the fallback.', 'nexa-pro' )
+	);
+	nexa_pro_admin_media_field(
+		'footer_logo_id',
+		__( 'Footer logo attachment ID', 'nexa-pro' ),
+		__( 'Select an optional footer logo. Leave empty to use the native WordPress custom logo or brand text fallback.', 'nexa-pro' ),
+		true,
+		true
+	);
+	nexa_pro_admin_checkbox_field(
+		'footer_show_brand_text',
+		__( 'Show footer brand text', 'nexa-pro' ),
+		__( 'Shows footer brand text beside the logo. If disabled and no valid logo exists, brand text still displays so the footer identity is not empty.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'footer_brand_text',
+		__( 'Footer brand text', 'nexa-pro' ),
+		__( 'Optional footer-specific brand text. Leave blank to use the Global brand name or the WordPress site title.', 'nexa-pro' )
+	);
+	nexa_pro_admin_textarea_field(
+		'footer_description',
+		__( 'Footer description', 'nexa-pro' ),
+		__( 'Optional short description shown in the footer branding area.', 'nexa-pro' )
+	);
+
+	nexa_pro_admin_field_group(
+		__( 'Footer navigation', 'nexa-pro' ),
+		__( 'Uses the existing Footer menu location when a menu is assigned in Appearance > Menus.', 'nexa-pro' )
+	);
+	nexa_pro_admin_checkbox_field(
+		'footer_menu_enabled',
+		__( 'Show footer menu', 'nexa-pro' ),
+		__( 'Disables only the footer menu output. The registered WordPress menu location remains unchanged.', 'nexa-pro' )
+	);
+
+	nexa_pro_admin_field_group(
+		__( 'Legal and copyright', 'nexa-pro' ),
+		__( 'Legal links render only when both label and URL are provided. URLs may be absolute, site-relative paths, or same-page fragments.', 'nexa-pro' )
+	);
+	nexa_pro_admin_textarea_field(
+		'footer_copyright',
+		__( 'Copyright text', 'nexa-pro' ),
+		__( 'Supports {year} and {site_name}. Leave blank to use the default copyright text.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'footer_privacy_label',
+		__( 'Privacy link label', 'nexa-pro' ),
+		__( 'Appears in the footer legal links when a privacy URL is also provided.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'footer_privacy_url',
+		__( 'Privacy link URL', 'nexa-pro' ),
+		__( 'Use an absolute URL, a site-relative path such as /privacy-policy, or a same-page fragment.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'footer_terms_label',
+		__( 'Terms link label', 'nexa-pro' ),
+		__( 'Appears in the footer legal links when a terms URL is also provided.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'footer_terms_url',
+		__( 'Terms link URL', 'nexa-pro' ),
+		__( 'Use an absolute URL, a site-relative path such as /terms, or a same-page fragment.', 'nexa-pro' )
+	);
+
+	nexa_pro_admin_field_group(
+		__( 'Contact details', 'nexa-pro' ),
+		__( 'These details can appear in the footer and support the schedule modal email action.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'contact_email',
+		__( 'Contact email', 'nexa-pro' ),
+		__( 'Used for footer email links and the schedule modal email action. Invalid email addresses save as empty.', 'nexa-pro' ),
+		'email'
+	);
+	nexa_pro_admin_text_field(
+		'contact_phone',
+		__( 'Contact phone', 'nexa-pro' ),
+		__( 'Shown in the footer. A tel link is created only when usable digits are present.', 'nexa-pro' )
+	);
+	nexa_pro_admin_textarea_field(
+		'contact_address',
+		__( 'Contact address', 'nexa-pro' ),
+		__( 'Optional address or service-area text shown in the footer.', 'nexa-pro' )
+	);
+	nexa_pro_admin_textarea_field(
+		'contact_business_hours',
+		__( 'Business hours', 'nexa-pro' ),
+		__( 'Optional business-hours text shown in the footer.', 'nexa-pro' )
+	);
+
+	nexa_pro_admin_field_group(
+		__( 'Social profiles', 'nexa-pro' ),
+		__( 'Social links render only for valid absolute HTTP or HTTPS URLs.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'social_linkedin_url',
+		__( 'LinkedIn URL', 'nexa-pro' ),
+		__( 'Use a full LinkedIn profile or company URL.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'social_github_url',
+		__( 'GitHub URL', 'nexa-pro' ),
+		__( 'Use a full GitHub profile or organization URL.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'social_x_url',
+		__( 'X URL', 'nexa-pro' ),
+		__( 'Use a full X profile URL.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'social_facebook_url',
+		__( 'Facebook URL', 'nexa-pro' ),
+		__( 'Use a full Facebook page or profile URL.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'social_instagram_url',
+		__( 'Instagram URL', 'nexa-pro' ),
+		__( 'Use a full Instagram profile URL.', 'nexa-pro' )
+	);
+}
+
+/**
+ * Render contact action settings fields.
+ *
+ * @return void
+ */
+function nexa_pro_admin_contact_action_fields() {
+	nexa_pro_admin_field_group(
+		__( 'Schedule modal', 'nexa-pro' ),
+		__( 'Use #nexa-pro-schedule as a Header or CTA URL to make that button open the modal. If no valid email or calendar action exists, schedule triggers will not render.', 'nexa-pro' )
+	);
+	nexa_pro_admin_checkbox_field(
+		'schedule_modal_enabled',
+		__( 'Enable schedule modal', 'nexa-pro' ),
+		__( 'Shows schedule triggers only when at least one valid action is configured.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'schedule_modal_title',
+		__( 'Modal title', 'nexa-pro' ),
+		__( 'Appears as the accessible heading inside the schedule modal.', 'nexa-pro' )
+	);
+	nexa_pro_admin_textarea_field(
+		'schedule_modal_text',
+		__( 'Modal description', 'nexa-pro' ),
+		__( 'Optional supporting text shown before the modal actions.', 'nexa-pro' )
+	);
+
+	nexa_pro_admin_field_group(
+		__( 'Email action', 'nexa-pro' ),
+		__( 'Uses the Contact email from the Footer tab as the recipient. No email is sent by the theme; this creates a mailto link only.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'schedule_email_label',
+		__( 'Email action label', 'nexa-pro' ),
+		__( 'Shown on the modal email button when Contact email is valid.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'schedule_email_subject',
+		__( 'Email subject', 'nexa-pro' ),
+		__( 'Used as the subject in the generated mailto link.', 'nexa-pro' )
+	);
+	nexa_pro_admin_textarea_field(
+		'schedule_email_body',
+		__( 'Email body', 'nexa-pro' ),
+		__( 'Used as the body in the generated mailto link.', 'nexa-pro' )
+	);
+
+	nexa_pro_admin_field_group(
+		__( 'Calendar action', 'nexa-pro' ),
+		__( 'Use a valid absolute HTTP or HTTPS booking URL such as a calendar scheduling page. The theme does not connect to external booking APIs.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'schedule_calendar_label',
+		__( 'Calendar action label', 'nexa-pro' ),
+		__( 'Shown on the modal calendar button when the calendar URL is valid.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'schedule_calendar_url',
+		__( 'Calendar URL', 'nexa-pro' ),
+		__( 'Use a full absolute HTTP or HTTPS booking URL. Invalid URLs save as empty.', 'nexa-pro' )
+	);
 }
 
 /**
@@ -1218,13 +1410,17 @@ function nexa_pro_render_admin_fields( $tab ) {
 					nexa_pro_admin_text_field(
 						'header_cta_url',
 						__( 'Header CTA URL', 'nexa-pro' ),
-						__( 'Use a full absolute URL or a same-page fragment such as #contact.', 'nexa-pro' )
+						__( 'Use a full absolute URL, a same-page fragment such as #contact, or #nexa-pro-schedule for the schedule modal.', 'nexa-pro' )
 					);
 					nexa_pro_admin_checkbox_field(
 						'mobile_cta_enabled',
 						__( 'Mobile menu CTA', 'nexa-pro' ),
 						__( 'Shows the same CTA inside the mobile menu only when CTA text and URL are valid.', 'nexa-pro' )
 					);
+					break;
+
+				case 'footer':
+					nexa_pro_admin_footer_fields();
 					break;
 
 				case 'about':
@@ -1281,6 +1477,10 @@ function nexa_pro_render_admin_fields( $tab ) {
 
 				case 'cta':
 					nexa_pro_admin_homepage_section_fields( 'cta', __( 'CTA', 'nexa-pro' ) );
+					break;
+
+				case 'contact-actions':
+					nexa_pro_admin_contact_action_fields();
 					break;
 
 				case 'homepage-order':
