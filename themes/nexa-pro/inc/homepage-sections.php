@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return array
  */
 function nexa_pro_get_homepage_sections() {
-	return array(
+	$sections = array(
 		'hero'         => array(
 			'template' => 'hero',
 			'eyebrow'  => nexa_pro_get_option( 'hero_eyebrow' ),
@@ -51,9 +51,9 @@ function nexa_pro_get_homepage_sections() {
 		'about'        => array(
 			'template' => 'about',
 			'id'       => 'about',
-			'eyebrow'  => __( 'About the theme', 'nexa-pro' ),
-			'heading'  => __( 'Designed for teams that need clarity before decoration.', 'nexa-pro' ),
-			'text'     => __( 'Nexa Pro organizes core business content into readable sections, reusable cards, and focused calls to action so site owners can explain what they do without wrestling the layout.', 'nexa-pro' ),
+			'eyebrow'  => nexa_pro_get_raw_option( 'about_label' ),
+			'heading'  => nexa_pro_get_raw_option( 'about_heading' ),
+			'text'     => nexa_pro_get_raw_option( 'about_text' ),
 			'points'   => array(
 				__( 'Semantic templates for strong content hierarchy.', 'nexa-pro' ),
 				__( 'Design tokens shared across front end and editor.', 'nexa-pro' ),
@@ -68,9 +68,9 @@ function nexa_pro_get_homepage_sections() {
 		'services'     => array(
 			'template' => 'services',
 			'id'       => 'services',
-			'eyebrow'  => __( 'Services', 'nexa-pro' ),
-			'heading'  => __( 'Present services with concise, scannable cards.', 'nexa-pro' ),
-			'text'     => __( 'Use this area to introduce the main ways a business helps its customers.', 'nexa-pro' ),
+			'eyebrow'  => nexa_pro_get_raw_option( 'services_label' ),
+			'heading'  => nexa_pro_get_raw_option( 'services_heading' ),
+			'text'     => nexa_pro_get_raw_option( 'services_text' ),
 			'items'    => array(
 				array(
 					'title' => __( 'Advisory services', 'nexa-pro' ),
@@ -88,8 +88,9 @@ function nexa_pro_get_homepage_sections() {
 		),
 		'features'     => array(
 			'template' => 'features',
-			'eyebrow'  => __( 'Features', 'nexa-pro' ),
-			'heading'  => __( 'Reusable patterns for professional business pages.', 'nexa-pro' ),
+			'eyebrow'  => nexa_pro_get_raw_option( 'features_label' ),
+			'heading'  => nexa_pro_get_raw_option( 'features_heading' ),
+			'text'     => nexa_pro_get_raw_option( 'features_text' ),
 			'items'    => array(
 				array(
 					'title' => __( 'Structured sections', 'nexa-pro' ),
@@ -108,8 +109,9 @@ function nexa_pro_get_homepage_sections() {
 		'process'      => array(
 			'template' => 'process',
 			'id'       => 'process',
-			'eyebrow'  => __( 'Process', 'nexa-pro' ),
-			'heading'  => __( 'Show how work moves from first conversation to next step.', 'nexa-pro' ),
+			'eyebrow'  => nexa_pro_get_raw_option( 'process_label' ),
+			'heading'  => nexa_pro_get_raw_option( 'process_heading' ),
+			'text'     => nexa_pro_get_raw_option( 'process_text' ),
 			'items'    => array(
 				array(
 					'title' => __( 'Discover', 'nexa-pro' ),
@@ -128,8 +130,9 @@ function nexa_pro_get_homepage_sections() {
 		'why'          => array(
 			'template' => 'why',
 			'id'       => 'why',
-			'eyebrow'  => __( 'Why Nexa Pro', 'nexa-pro' ),
-			'heading'  => __( 'A calm foundation for serious business content.', 'nexa-pro' ),
+			'eyebrow'  => nexa_pro_get_raw_option( 'why_label' ),
+			'heading'  => nexa_pro_get_raw_option( 'why_heading' ),
+			'text'     => nexa_pro_get_raw_option( 'why_text' ),
 			'items'    => array(
 				__( 'Built with reusable WordPress template parts.', 'nexa-pro' ),
 				__( 'Prepared for future homepage settings without coupling content to templates.', 'nexa-pro' ),
@@ -217,14 +220,67 @@ function nexa_pro_get_homepage_sections() {
 		),
 		'cta'          => array(
 			'template' => 'cta',
-			'heading'  => __( 'Ready to shape the homepage around real content?', 'nexa-pro' ),
-			'text'     => __( 'Use this foundation as the starting point, then replace the temporary defaults with verified details from the business.', 'nexa-pro' ),
+			'heading'  => nexa_pro_get_raw_option( 'cta_heading' ),
+			'text'     => nexa_pro_get_raw_option( 'cta_text' ),
 			'action'   => array(
-				'label' => __( 'Start with contact details', 'nexa-pro' ),
-				'url'   => '#contact',
+				'label' => nexa_pro_get_raw_option( 'cta_button_text' ),
+				'url'   => nexa_pro_get_valid_homepage_url_option( 'cta_button_url' ),
 			),
 		),
 	);
+
+	return nexa_pro_filter_visible_homepage_sections( $sections );
+}
+
+/**
+ * Determine whether a homepage section is enabled.
+ *
+ * @param string $section Section key.
+ * @return bool
+ */
+function nexa_pro_homepage_section_is_enabled( $section ) {
+	$visibility_options = array(
+		'about'    => 'about_show',
+		'services' => 'services_show',
+		'features' => 'features_show',
+		'process'  => 'process_show',
+		'why'      => 'why_show',
+		'cta'      => 'cta_show',
+	);
+
+	if ( ! isset( $visibility_options[ $section ] ) ) {
+		return true;
+	}
+
+	return '1' === (string) nexa_pro_get_option( $visibility_options[ $section ], '1' );
+}
+
+/**
+ * Remove disabled homepage sections from the fixed render order.
+ *
+ * @param array $sections Homepage section data.
+ * @return array
+ */
+function nexa_pro_filter_visible_homepage_sections( $sections ) {
+	foreach ( array_keys( $sections ) as $section_key ) {
+		if ( ! nexa_pro_homepage_section_is_enabled( $section_key ) ) {
+			unset( $sections[ $section_key ] );
+		}
+	}
+
+	return $sections;
+}
+
+/**
+ * Get a homepage URL option only when it can render as a safe href.
+ *
+ * @param string $key Option key.
+ * @return string
+ */
+function nexa_pro_get_valid_homepage_url_option( $key ) {
+	$url = nexa_pro_get_raw_option( $key, '' );
+
+	return '' !== esc_url( $url ) ? $url : '';
 }
 
 /**

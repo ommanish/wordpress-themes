@@ -78,6 +78,12 @@ function nexa_pro_sanitize_options( $input ) {
 			case 'transparent_header':
 			case 'header_cta_enabled':
 			case 'mobile_cta_enabled':
+			case 'about_show':
+			case 'services_show':
+			case 'features_show':
+			case 'process_show':
+			case 'why_show':
+			case 'cta_show':
 				$output[ $key ] = '1' === (string) $value ? '1' : '0';
 				break;
 
@@ -90,7 +96,37 @@ function nexa_pro_sanitize_options( $input ) {
 				break;
 
 			case 'hero_text':
+			case 'about_text':
+			case 'services_text':
+			case 'features_text':
+			case 'process_text':
+			case 'why_text':
+			case 'cta_text':
 				$output[ $key ] = sanitize_textarea_field( $value );
+				break;
+
+			case 'about_label':
+			case 'services_label':
+			case 'features_label':
+			case 'process_label':
+			case 'why_label':
+			case 'cta_button_text':
+				$output[ $key ] = sanitize_text_field( $value );
+				break;
+
+			case 'about_heading':
+			case 'services_heading':
+			case 'features_heading':
+			case 'process_heading':
+			case 'why_heading':
+			case 'cta_heading':
+				$text = sanitize_text_field( $value );
+
+				if ( '' !== $text ) {
+					$output[ $key ] = $text;
+				} elseif ( empty( $output[ $key ] ) ) {
+					$output[ $key ] = $defaults[ $key ];
+				}
 				break;
 
 			case 'primary_color':
@@ -105,6 +141,7 @@ function nexa_pro_sanitize_options( $input ) {
 			case 'header_cta_url':
 			case 'hero_primary_cta_url':
 			case 'hero_secondary_cta_url':
+			case 'cta_button_url':
 				$url = nexa_pro_sanitize_url_or_fragment( $value );
 
 				if ( null !== $url ) {

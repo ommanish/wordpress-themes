@@ -51,6 +51,35 @@ function nexa_pro_get_option( $key, $fallback = null ) {
 }
 
 /**
+ * Get a known theme option without treating empty saved values as missing.
+ *
+ * @param string $key Option key.
+ * @param mixed  $fallback Optional fallback for unknown or unsaved keys.
+ * @return mixed
+ */
+function nexa_pro_get_raw_option( $key, $fallback = null ) {
+	$defaults = nexa_pro_get_default_options();
+
+	if ( ! array_key_exists( $key, $defaults ) ) {
+		return $fallback;
+	}
+
+	$saved = get_option( 'nexa_pro_options', array() );
+
+	if ( ! is_array( $saved ) ) {
+		$saved = array();
+	}
+
+	$known_saved = array_intersect_key( $saved, $defaults );
+
+	if ( array_key_exists( $key, $known_saved ) ) {
+		return $known_saved[ $key ];
+	}
+
+	return null !== $fallback ? $fallback : $defaults[ $key ];
+}
+
+/**
  * Get the configured brand name with WordPress site title fallback.
  *
  * @return string
@@ -67,4 +96,3 @@ function nexa_pro_get_brand_name() {
 function nexa_pro_get_brand_tagline() {
 	return nexa_pro_get_option( 'brand_tagline', get_bloginfo( 'description', 'display' ) );
 }
-

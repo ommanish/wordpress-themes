@@ -20,6 +20,12 @@ function nexa_pro_get_admin_tabs() {
 		'global'    => __( 'Global', 'nexa-pro' ),
 		'header'    => __( 'Header', 'nexa-pro' ),
 		'hero'      => __( 'Hero', 'nexa-pro' ),
+		'about'     => __( 'About', 'nexa-pro' ),
+		'services'  => __( 'Services', 'nexa-pro' ),
+		'features'  => __( 'Features', 'nexa-pro' ),
+		'process'   => __( 'Process', 'nexa-pro' ),
+		'why'       => __( 'Why Choose Us', 'nexa-pro' ),
+		'cta'       => __( 'CTA', 'nexa-pro' ),
 	);
 }
 
@@ -78,11 +84,12 @@ function nexa_pro_render_dashboard_tab() {
 	?>
 	<div class="nexa-pro-admin__panel">
 		<h2><?php esc_html_e( 'Theme settings foundation', 'nexa-pro' ); ?></h2>
-		<p><?php esc_html_e( 'Use these settings to configure the global brand, header branding and navigation behavior, and homepage hero content. More controls will be added in later tickets.', 'nexa-pro' ); ?></p>
+		<p><?php esc_html_e( 'Use these settings to configure the global brand, header branding and navigation behavior, homepage hero content, and basic homepage section content. More controls will be added in later tickets.', 'nexa-pro' ); ?></p>
 		<ul>
 			<li><?php esc_html_e( 'Global: brand labels and color tokens.', 'nexa-pro' ); ?></li>
 			<li><?php esc_html_e( 'Header: logos, brand text display, sticky or transparent state, layout, and call-to-action behavior.', 'nexa-pro' ); ?></li>
 			<li><?php esc_html_e( 'Hero: homepage hero text and button links.', 'nexa-pro' ); ?></li>
+			<li><?php esc_html_e( 'Homepage sections: visibility, labels, headings, descriptions, and CTA content.', 'nexa-pro' ); ?></li>
 		</ul>
 	</div>
 	<?php
