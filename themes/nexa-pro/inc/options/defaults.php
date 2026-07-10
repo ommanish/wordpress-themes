@@ -10,6 +10,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Get the default order for movable homepage sections.
+ *
+ * Hero and trust are fixed sections and intentionally excluded.
+ *
+ * @return array
+ */
+function nexa_pro_get_default_homepage_section_order() {
+	return array(
+		'about',
+		'services',
+		'features',
+		'process',
+		'why',
+		'portfolio',
+		'testimonials',
+		'team',
+		'faq',
+		'contact',
+		'cta',
+	);
+}
+
+/**
  * Get the default Nexa Pro options.
  *
  * @return array
@@ -136,5 +159,6 @@ function nexa_pro_get_default_options() {
 		'cta_text'                  => __( 'Use this foundation as the starting point, then replace the temporary defaults with verified details from the business.', 'nexa-pro' ),
 		'cta_button_text'           => __( 'Start with contact details', 'nexa-pro' ),
 		'cta_button_url'            => '#contact',
+		'homepage_section_order'    => nexa_pro_get_default_homepage_section_order(),
 	);
 }

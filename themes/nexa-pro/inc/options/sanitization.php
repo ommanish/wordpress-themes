@@ -173,6 +173,7 @@ function nexa_pro_sanitize_options( $input ) {
 	}
 
 	$submitted_repeaters = array();
+	$reset_homepage_order = isset( $input['homepage_section_order_reset'] ) && '1' === (string) $input['homepage_section_order_reset'];
 
 	foreach ( $schemas as $repeater_key => $schema ) {
 		$marker_key = $repeater_key . '_submitted';
@@ -180,6 +181,10 @@ function nexa_pro_sanitize_options( $input ) {
 		if ( isset( $input[ $marker_key ] ) && '1' === (string) $input[ $marker_key ] ) {
 			$submitted_repeaters[ $repeater_key ] = $schema;
 		}
+	}
+
+	if ( $reset_homepage_order ) {
+		$output['homepage_section_order'] = nexa_pro_get_default_homepage_section_order();
 	}
 
 	$input = array_intersect_key( $input, $defaults );
@@ -283,6 +288,12 @@ function nexa_pro_sanitize_options( $input ) {
 			case 'why_items':
 				if ( isset( $submitted_repeaters[ $key ] ) ) {
 					$output[ $key ] = nexa_pro_sanitize_repeater_items( $value, $submitted_repeaters[ $key ], $key );
+				}
+				break;
+
+			case 'homepage_section_order':
+				if ( ! $reset_homepage_order && is_array( $value ) ) {
+					$output[ $key ] = nexa_pro_normalize_homepage_section_order( $value );
 				}
 				break;
 		}

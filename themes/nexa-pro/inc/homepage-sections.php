@@ -186,7 +186,38 @@ function nexa_pro_get_homepage_sections() {
 		),
 	);
 
-	return nexa_pro_filter_visible_homepage_sections( $sections );
+	return nexa_pro_filter_visible_homepage_sections( nexa_pro_order_homepage_sections( $sections ) );
+}
+
+/**
+ * Order homepage sections while keeping hero and trust fixed.
+ *
+ * @param array $sections Homepage section data.
+ * @return array
+ */
+function nexa_pro_order_homepage_sections( $sections ) {
+	$ordered        = array();
+	$fixed_sections = array( 'hero', 'trust' );
+
+	foreach ( $fixed_sections as $section_key ) {
+		if ( isset( $sections[ $section_key ] ) ) {
+			$ordered[ $section_key ] = $sections[ $section_key ];
+		}
+	}
+
+	foreach ( nexa_pro_get_homepage_section_order() as $section_key ) {
+		if ( isset( $sections[ $section_key ] ) && ! isset( $ordered[ $section_key ] ) ) {
+			$ordered[ $section_key ] = $sections[ $section_key ];
+		}
+	}
+
+	foreach ( $sections as $section_key => $section ) {
+		if ( ! isset( $ordered[ $section_key ] ) ) {
+			$ordered[ $section_key ] = $section;
+		}
+	}
+
+	return $ordered;
 }
 
 /**
