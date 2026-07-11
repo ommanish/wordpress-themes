@@ -86,14 +86,28 @@
 		});
 	}
 
+	var mediaInitAttempts = 0;
+
 	function initMediaFields() {
 		if (!window.wp || !window.wp.media) {
+			mediaInitAttempts += 1;
+
+			if (mediaInitAttempts <= 50) {
+				window.setTimeout(initMediaFields, 100);
+			}
+
 			return;
 		}
+
+		mediaInitAttempts = 0;
 
 		var fields = admin.querySelectorAll('[data-nexa-pro-media-field]');
 
 		fields.forEach(function (field) {
+			if (field.getAttribute('data-nexa-pro-media-initialized') === '1') {
+				return;
+			}
+
 			var input = field.querySelector('[data-nexa-pro-media-input]');
 			var selectButton = field.querySelector('[data-nexa-pro-media-select]');
 			var removeButton = field.querySelector('[data-nexa-pro-media-remove]');
@@ -109,6 +123,8 @@
 			if (!input || !selectButton || !removeButton || !preview) {
 				return;
 			}
+
+			field.setAttribute('data-nexa-pro-media-initialized', '1');
 
 			function getAttachmentId() {
 				var attachmentId = parseInt(input.value, 10);
@@ -128,7 +144,15 @@
 				}
 			}
 
-			function getPreviewUrl(attachment) {
+			function getAttachmentValue(attachmentModel, attachment, key) {
+				if (attachment && attachment[key]) {
+					return attachment[key];
+				}
+
+				return attachmentModel && attachmentModel.get ? attachmentModel.get(key) : '';
+			}
+
+			function getPreviewUrl(attachmentModel, attachment) {
 				if (attachment.sizes && attachment.sizes.medium && attachment.sizes.medium.url) {
 					return attachment.sizes.medium.url;
 				}
@@ -137,12 +161,12 @@
 					return attachment.sizes.thumbnail.url;
 				}
 
-				return attachment.url || '';
+				return getAttachmentValue(attachmentModel, attachment, 'url') || '';
 			}
 
-			function renderPreview(attachment) {
-				var previewUrl = getPreviewUrl(attachment);
-				var alt = attachment.alt || attachment.title || '';
+			function renderPreview(attachmentModel, attachment) {
+				var previewUrl = getPreviewUrl(attachmentModel, attachment);
+				var alt = getAttachmentValue(attachmentModel, attachment, 'alt') || getAttachmentValue(attachmentModel, attachment, 'title') || '';
 
 				preview.textContent = '';
 
@@ -204,14 +228,14 @@
 					var selection = frame.state().get('selection');
 					var attachmentModel = selection ? selection.first() : null;
 					var attachment = attachmentModel ? attachmentModel.toJSON() : null;
-					var attachmentId = attachment && attachment.id ? parseInt(attachment.id, 10) : 0;
+					var attachmentId = attachmentModel ? parseInt(attachmentModel.get('id') || attachmentModel.id || (attachment ? attachment.id : 0), 10) : 0;
 
 					if (!attachment || !attachmentId) {
 						return;
 					}
 
 					setAttachmentId(attachmentId);
-					renderPreview(attachment);
+					renderPreview(attachmentModel, attachment);
 					updateMediaState();
 					setStatus(selectedStatus);
 					selectButton.focus();

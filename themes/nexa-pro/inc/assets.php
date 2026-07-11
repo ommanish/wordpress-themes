@@ -10,6 +10,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Get an asset version that changes when a local file changes.
+ *
+ * @param string $relative_path Asset path relative to the theme directory.
+ * @return string
+ */
+function nexa_pro_get_asset_version( $relative_path ) {
+	$relative_path = ltrim( (string) $relative_path, '/' );
+	$file_path     = NEXA_PRO_DIR . '/' . $relative_path;
+
+	return file_exists( $file_path ) ? (string) filemtime( $file_path ) : NEXA_PRO_VERSION;
+}
+
+/**
  * Enqueue front-end assets.
  *
  * @return void
@@ -77,7 +90,7 @@ function nexa_pro_enqueue_admin_assets( $hook_suffix ) {
 		'nexa-pro-admin',
 		NEXA_PRO_URI . '/assets/css/admin.css',
 		array( 'wp-color-picker' ),
-		NEXA_PRO_VERSION
+		nexa_pro_get_asset_version( 'assets/css/admin.css' )
 	);
 
 	wp_enqueue_media();
@@ -85,8 +98,8 @@ function nexa_pro_enqueue_admin_assets( $hook_suffix ) {
 	wp_enqueue_script(
 		'nexa-pro-admin',
 		NEXA_PRO_URI . '/assets/js/admin.js',
-		array( 'wp-color-picker' ),
-		NEXA_PRO_VERSION,
+		array( 'wp-color-picker', 'media-editor' ),
+		nexa_pro_get_asset_version( 'assets/js/admin.js' ),
 		true
 	);
 }
