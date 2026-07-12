@@ -360,6 +360,50 @@ function nexa_pro_admin_field_group( $heading, $description = '' ) {
 }
 
 /**
+ * Render the single-page navigation section link reference.
+ *
+ * @return void
+ */
+function nexa_pro_admin_navigation_links_help() {
+	$links = array(
+		'#about'        => __( 'About', 'nexa-pro' ),
+		'#services'     => __( 'Services', 'nexa-pro' ),
+		'#features'     => __( 'Features', 'nexa-pro' ),
+		'#process'      => __( 'Process', 'nexa-pro' ),
+		'#why'          => __( 'Why Choose Us', 'nexa-pro' ),
+		'#portfolio'    => __( 'Portfolio', 'nexa-pro' ),
+		'#testimonials' => __( 'Testimonials', 'nexa-pro' ),
+		'#team'         => __( 'Team', 'nexa-pro' ),
+		'#faq'          => __( 'FAQ', 'nexa-pro' ),
+		'#cta'          => __( 'CTA', 'nexa-pro' ),
+		'#contact'      => __( 'Contact', 'nexa-pro' ),
+	);
+	?>
+	<tr class="nexa-pro-admin-help-panel">
+		<th scope="row">
+			<?php esc_html_e( 'Available section links', 'nexa-pro' ); ?>
+		</th>
+		<td>
+			<p class="description">
+				<?php esc_html_e( 'Use these same-page links in WordPress menus, header CTAs, hero buttons, and other button URL fields when their matching homepage sections are enabled.', 'nexa-pro' ); ?>
+			</p>
+			<ul>
+				<?php foreach ( $links as $url => $label ) : ?>
+					<li>
+						<code><?php echo esc_html( $url ); ?></code>
+						<?php echo esc_html( $label ); ?>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+			<p class="description">
+				<?php esc_html_e( 'If a linked section is disabled, update the related menu item or button manually.', 'nexa-pro' ); ?>
+			</p>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
  * Render a design select field with reset metadata.
  *
  * @param string $key Option key.
@@ -1596,6 +1640,7 @@ function nexa_pro_render_admin_fields( $tab ) {
 						'240',
 						'1'
 					);
+					nexa_pro_admin_navigation_links_help();
 
 					nexa_pro_admin_field_group(
 						__( 'Brand colors', 'nexa-pro' ),

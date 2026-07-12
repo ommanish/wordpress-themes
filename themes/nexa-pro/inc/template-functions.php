@@ -619,7 +619,7 @@ function nexa_pro_render_schedule_modal() {
 	}
 
 	?>
-	<dialog id="nexa-pro-schedule" class="nexa-pro-modal" aria-labelledby="nexa-pro-schedule-title" aria-hidden="true" tabindex="-1" data-nexa-pro-modal>
+	<dialog id="nexa-pro-schedule" class="nexa-pro-modal" role="dialog" aria-modal="true" aria-labelledby="nexa-pro-schedule-title" aria-hidden="true" tabindex="-1" data-nexa-pro-modal>
 		<div class="nexa-pro-modal__dialog" role="document">
 			<button type="button" class="nexa-pro-modal__close" data-nexa-pro-modal-close aria-label="<?php esc_attr_e( 'Close schedule dialog', 'nexa-pro' ); ?>">
 				<span aria-hidden="true">&times;</span>
@@ -665,7 +665,7 @@ function nexa_pro_render_legal_modals() {
 
 		$title_id = $modal['id'] . '-title';
 		?>
-		<dialog id="<?php echo esc_attr( $modal['id'] ); ?>" class="nexa-pro-modal nexa-pro-modal--legal" aria-labelledby="<?php echo esc_attr( $title_id ); ?>" aria-hidden="true" tabindex="-1" data-nexa-pro-modal>
+		<dialog id="<?php echo esc_attr( $modal['id'] ); ?>" class="nexa-pro-modal nexa-pro-modal--legal" role="dialog" aria-modal="true" aria-labelledby="<?php echo esc_attr( $title_id ); ?>" aria-hidden="true" tabindex="-1" data-nexa-pro-modal>
 			<div class="nexa-pro-modal__dialog" role="document">
 				<button type="button" class="nexa-pro-modal__close" data-nexa-pro-modal-close aria-label="<?php echo esc_attr( sprintf( __( 'Close %s dialog', 'nexa-pro' ), $modal['label'] ) ); ?>">
 					<span aria-hidden="true">&times;</span>
