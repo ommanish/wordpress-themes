@@ -157,6 +157,117 @@ function nexa_pro_admin_color_field( $key, $label, $description = '' ) {
 }
 
 /**
+ * Get conditional admin row attributes.
+ *
+ * @param string $controller_key Controller option key.
+ * @param array  $values Values that should show the row.
+ * @return string
+ */
+function nexa_pro_admin_conditional_row_attributes( $controller_key, $values ) {
+	if ( '' === $controller_key || empty( $values ) ) {
+		return '';
+	}
+
+	return sprintf(
+		' class="nexa-pro-admin-conditional-row" data-nexa-pro-conditional-field data-nexa-pro-conditional-key="%1$s" data-nexa-pro-conditional-values="%2$s"',
+		esc_attr( $controller_key ),
+		esc_attr( implode( ',', array_map( 'sanitize_key', $values ) ) )
+	);
+}
+
+/**
+ * Render a strict hex color field for non-global design options.
+ *
+ * @param string $key Option key.
+ * @param string $label Field label.
+ * @param string $description Field description.
+ * @param string $controller_key Conditional controller option key.
+ * @param array  $controller_values Conditional controller values.
+ * @return void
+ */
+function nexa_pro_admin_option_color_field( $key, $label, $description = '', $controller_key = '', $controller_values = array() ) {
+	$defaults = nexa_pro_get_default_options();
+	$default  = isset( $defaults[ $key ] ) ? $defaults[ $key ] : '#ffffff';
+	$value    = sanitize_hex_color( nexa_pro_get_raw_option( $key, $default ) );
+	$value    = $value ? $value : $default;
+	$field_id = 'nexa-pro-' . str_replace( '_', '-', $key );
+	$row_attrs = nexa_pro_admin_conditional_row_attributes( $controller_key, $controller_values );
+
+	?>
+	<tr<?php echo $row_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+		<th scope="row">
+			<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
+		</th>
+		<td>
+			<input
+				type="text"
+				id="<?php echo esc_attr( $field_id ); ?>"
+				name="nexa_pro_options[<?php echo esc_attr( $key ); ?>]"
+				value="<?php echo esc_attr( $value ); ?>"
+				class="regular-text nexa-pro-color-field"
+				data-nexa-pro-color-field
+				data-nexa-pro-design-default="<?php echo esc_attr( $default ); ?>"
+			>
+			<button type="button" class="button button-secondary" data-nexa-pro-field-reset>
+				<?php esc_html_e( 'Reset', 'nexa-pro' ); ?>
+			</button>
+			<?php if ( $description ) : ?>
+				<p class="description"><?php echo esc_html( $description ); ?></p>
+			<?php endif; ?>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
+ * Render a generic number field.
+ *
+ * @param string $key Option key.
+ * @param string $label Field label.
+ * @param string $description Field description.
+ * @param string $min Minimum value.
+ * @param string $max Maximum value.
+ * @param string $step Input step.
+ * @param string $controller_key Conditional controller option key.
+ * @param array  $controller_values Conditional controller values.
+ * @return void
+ */
+function nexa_pro_admin_number_field( $key, $label, $description, $min, $max, $step, $controller_key = '', $controller_values = array() ) {
+	$defaults  = nexa_pro_get_default_options();
+	$default   = isset( $defaults[ $key ] ) ? $defaults[ $key ] : 0;
+	$value     = nexa_pro_get_option( $key, $default );
+	$field_id  = 'nexa-pro-' . str_replace( '_', '-', $key );
+	$row_attrs = nexa_pro_admin_conditional_row_attributes( $controller_key, $controller_values );
+
+	?>
+	<tr<?php echo $row_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+		<th scope="row">
+			<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
+		</th>
+		<td>
+			<input
+				type="number"
+				id="<?php echo esc_attr( $field_id ); ?>"
+				name="nexa_pro_options[<?php echo esc_attr( $key ); ?>]"
+				value="<?php echo esc_attr( $value ); ?>"
+				min="<?php echo esc_attr( $min ); ?>"
+				max="<?php echo esc_attr( $max ); ?>"
+				step="<?php echo esc_attr( $step ); ?>"
+				class="small-text"
+				data-nexa-pro-design-default="<?php echo esc_attr( $default ); ?>"
+			>
+			<button type="button" class="button button-secondary" data-nexa-pro-field-reset>
+				<?php esc_html_e( 'Reset', 'nexa-pro' ); ?>
+			</button>
+			<?php if ( $description ) : ?>
+				<p class="description"><?php echo esc_html( $description ); ?></p>
+			<?php endif; ?>
+		</td>
+	</tr>
+	<?php
+}
+
+/**
  * Render a checkbox admin field.
  *
  * @param string $key Option key.
@@ -198,14 +309,17 @@ function nexa_pro_admin_checkbox_field( $key, $label, $description = '' ) {
  * @param string $label Field label.
  * @param array  $choices Select choices.
  * @param string $description Field description.
+ * @param string $controller_key Conditional controller option key.
+ * @param array  $controller_values Conditional controller values.
  * @return void
  */
-function nexa_pro_admin_select_field( $key, $label, $choices, $description = '' ) {
-	$value    = nexa_pro_get_option( $key, '' );
-	$field_id = 'nexa-pro-' . str_replace( '_', '-', $key );
+function nexa_pro_admin_select_field( $key, $label, $choices, $description = '', $controller_key = '', $controller_values = array() ) {
+	$value     = nexa_pro_get_option( $key, '' );
+	$field_id  = 'nexa-pro-' . str_replace( '_', '-', $key );
+	$row_attrs = nexa_pro_admin_conditional_row_attributes( $controller_key, $controller_values );
 
 	?>
-	<tr>
+	<tr<?php echo $row_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 		<th scope="row">
 			<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
 		</th>
@@ -359,9 +473,10 @@ function nexa_pro_admin_design_number_field( $key, $label, $description, $min, $
  * @param string $description Field description.
  * @param bool   $show_id_input Whether to show a numeric attachment ID input.
  * @param bool   $validate_image Whether to validate the value as an image attachment.
+ * @param string $row_attributes Optional escaped row attributes.
  * @return void
  */
-function nexa_pro_admin_media_field( $key, $label, $description = '', $show_id_input = true, $validate_image = false ) {
+function nexa_pro_admin_media_field( $key, $label, $description = '', $show_id_input = true, $validate_image = false, $row_attributes = '' ) {
 	$value       = $validate_image ? nexa_pro_get_image_attachment_id( $key ) : absint( nexa_pro_get_option( $key, 0 ) );
 	$field_id    = 'nexa-pro-' . str_replace( '_', '-', $key );
 	$wrapper_id  = $field_id . '-media-field';
@@ -384,7 +499,7 @@ function nexa_pro_admin_media_field( $key, $label, $description = '', $show_id_i
 	$removed_status = sprintf( __( 'Image removed for %s.', 'nexa-pro' ), $label );
 
 	?>
-	<tr>
+	<tr<?php echo $row_attributes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 		<th scope="row">
 			<label for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $label ); ?></label>
 		</th>
@@ -744,7 +859,8 @@ function nexa_pro_admin_homepage_section_fields( $prefix, $label ) {
 				__( 'Services background image', 'nexa-pro' ),
 				__( 'Select an optional decorative background image for the Services section.', 'nexa-pro' ),
 				false,
-				true
+				true,
+				nexa_pro_admin_conditional_row_attributes( 'services_background_type', array( 'image' ) )
 			);
 			break;
 
@@ -754,7 +870,8 @@ function nexa_pro_admin_homepage_section_fields( $prefix, $label ) {
 				__( 'Features background image', 'nexa-pro' ),
 				__( 'Select an optional decorative background image for the Features section.', 'nexa-pro' ),
 				false,
-				true
+				true,
+				nexa_pro_admin_conditional_row_attributes( 'features_background_type', array( 'image' ) )
 			);
 			break;
 
@@ -764,7 +881,8 @@ function nexa_pro_admin_homepage_section_fields( $prefix, $label ) {
 				__( 'Process background image', 'nexa-pro' ),
 				__( 'Select an optional decorative background image for the Process section.', 'nexa-pro' ),
 				false,
-				true
+				true,
+				nexa_pro_admin_conditional_row_attributes( 'process_background_type', array( 'image' ) )
 			);
 			break;
 
@@ -784,7 +902,8 @@ function nexa_pro_admin_homepage_section_fields( $prefix, $label ) {
 				__( 'CTA background image', 'nexa-pro' ),
 				__( 'Select an optional decorative background image for the CTA section.', 'nexa-pro' ),
 				false,
-				true
+				true,
+				nexa_pro_admin_conditional_row_attributes( 'cta_background_type', array( 'image' ) )
 			);
 			break;
 	}
@@ -859,6 +978,12 @@ function nexa_pro_admin_homepage_section_fields( $prefix, $label ) {
 			);
 			break;
 	}
+
+	nexa_pro_admin_section_design_fields(
+		$prefix,
+		$label,
+		! in_array( $prefix, array( 'services', 'features', 'process', 'cta' ), true )
+	);
 }
 
 /**
@@ -867,10 +992,168 @@ function nexa_pro_admin_homepage_section_fields( $prefix, $label ) {
  * @param string $key Option key.
  * @param string $label Field label.
  * @param string $description Field description.
+ * @param string $row_attributes Optional escaped row attributes.
  * @return void
  */
-function nexa_pro_admin_homepage_media_only_fields( $key, $label, $description ) {
-	nexa_pro_admin_media_field( $key, $label, $description, false, true );
+function nexa_pro_admin_homepage_media_only_fields( $key, $label, $description, $row_attributes = '' ) {
+	nexa_pro_admin_media_field( $key, $label, $description, false, true, $row_attributes );
+}
+
+/**
+ * Get background type choices.
+ *
+ * @return array
+ */
+function nexa_pro_admin_background_type_choices() {
+	return array(
+		'default'  => __( 'Default theme surface', 'nexa-pro' ),
+		'solid'    => __( 'Solid color', 'nexa-pro' ),
+		'gradient' => __( 'Gradient', 'nexa-pro' ),
+		'image'    => __( 'Background image', 'nexa-pro' ),
+	);
+}
+
+/**
+ * Get gradient direction choices.
+ *
+ * @return array
+ */
+function nexa_pro_admin_gradient_direction_choices() {
+	return array(
+		'to-bottom'       => __( 'Top to bottom', 'nexa-pro' ),
+		'to-top'          => __( 'Bottom to top', 'nexa-pro' ),
+		'to-right'        => __( 'Left to right', 'nexa-pro' ),
+		'to-left'         => __( 'Right to left', 'nexa-pro' ),
+		'to-bottom-right' => __( 'Top left to bottom right', 'nexa-pro' ),
+		'to-bottom-left'  => __( 'Top right to bottom left', 'nexa-pro' ),
+		'to-top-right'    => __( 'Bottom left to top right', 'nexa-pro' ),
+		'to-top-left'     => __( 'Bottom right to top left', 'nexa-pro' ),
+	);
+}
+
+/**
+ * Get text theme choices.
+ *
+ * @return array
+ */
+function nexa_pro_admin_text_theme_choices() {
+	return array(
+		'automatic' => __( 'Automatic', 'nexa-pro' ),
+		'dark'      => __( 'Dark text', 'nexa-pro' ),
+		'light'     => __( 'Light text', 'nexa-pro' ),
+	);
+}
+
+/**
+ * Render reusable section design controls.
+ *
+ * @param string $section Section key.
+ * @param string $label Section label.
+ * @param bool   $show_background_image_field Whether to render the section background image media field.
+ * @return void
+ */
+function nexa_pro_admin_section_design_fields( $section, $label, $show_background_image_field = true ) {
+	$section   = sanitize_key( $section );
+	$prefix    = $section . '_';
+	$image_key = nexa_pro_get_section_background_image_option_key( $section );
+	$types     = array( 'solid', 'image' );
+	$overlay_types = array( 'solid', 'gradient', 'image' );
+
+	if ( ! in_array( $section, nexa_pro_get_section_design_sections(), true ) ) {
+		return;
+	}
+
+	nexa_pro_admin_field_group(
+		sprintf(
+			/* translators: %s: Section label. */
+			__( '%s design', 'nexa-pro' ),
+			$label
+		),
+		__( 'Control this section surface without changing the section content. If JavaScript is disabled, all fields remain visible and save normally.', 'nexa-pro' )
+	);
+
+	nexa_pro_admin_select_field(
+		$prefix . 'background_type',
+		__( 'Background type', 'nexa-pro' ),
+		nexa_pro_admin_background_type_choices(),
+		__( 'Default keeps the current theme surface. Solid, gradient, and image modes use the fields below.', 'nexa-pro' )
+	);
+
+	nexa_pro_admin_option_color_field(
+		$prefix . 'background_color',
+		__( 'Background color', 'nexa-pro' ),
+		__( 'Used by solid background mode and as the fallback color behind background images.', 'nexa-pro' ),
+		$prefix . 'background_type',
+		$types
+	);
+
+	nexa_pro_admin_option_color_field(
+		$prefix . 'gradient_start',
+		__( 'Gradient start color', 'nexa-pro' ),
+		__( 'Used by gradient background mode.', 'nexa-pro' ),
+		$prefix . 'background_type',
+		array( 'gradient' )
+	);
+
+	nexa_pro_admin_option_color_field(
+		$prefix . 'gradient_end',
+		__( 'Gradient end color', 'nexa-pro' ),
+		__( 'Used by gradient background mode.', 'nexa-pro' ),
+		$prefix . 'background_type',
+		array( 'gradient' )
+	);
+
+	nexa_pro_admin_select_field(
+		$prefix . 'gradient_direction',
+		__( 'Gradient direction', 'nexa-pro' ),
+		nexa_pro_admin_gradient_direction_choices(),
+		__( 'Controls the gradient angle for this section.', 'nexa-pro' ),
+		$prefix . 'background_type',
+		array( 'gradient' )
+	);
+
+	if ( $show_background_image_field && $image_key ) {
+		nexa_pro_admin_media_field(
+			$image_key,
+			__( 'Background image', 'nexa-pro' ),
+			__( 'Used only when Background type is set to Background image. The attachment ID is stored, not the image URL.', 'nexa-pro' ),
+			false,
+			true,
+			nexa_pro_admin_conditional_row_attributes( $prefix . 'background_type', array( 'image' ) )
+		);
+	}
+
+	nexa_pro_admin_checkbox_field(
+		$prefix . 'overlay_enabled',
+		__( 'Background overlay', 'nexa-pro' ),
+		__( 'Adds a color overlay for readability on solid, gradient, and image backgrounds.', 'nexa-pro' )
+	);
+
+	nexa_pro_admin_option_color_field(
+		$prefix . 'overlay_color',
+		__( 'Overlay color', 'nexa-pro' ),
+		__( 'Used when Background overlay is enabled.', 'nexa-pro' ),
+		$prefix . 'background_type',
+		$overlay_types
+	);
+
+	nexa_pro_admin_number_field(
+		$prefix . 'overlay_opacity',
+		__( 'Overlay opacity', 'nexa-pro' ),
+		__( 'Percentage value from 0 to 90. Higher values make the overlay stronger.', 'nexa-pro' ),
+		'0',
+		'90',
+		'1',
+		$prefix . 'background_type',
+		$overlay_types
+	);
+
+	nexa_pro_admin_select_field(
+		$prefix . 'text_theme',
+		__( 'Text theme', 'nexa-pro' ),
+		nexa_pro_admin_text_theme_choices(),
+		__( 'Choose light or dark text manually when a custom background needs stronger contrast.', 'nexa-pro' )
+	);
 }
 
 /**
@@ -1071,7 +1354,7 @@ function nexa_pro_admin_footer_fields() {
 
 	nexa_pro_admin_field_group(
 		__( 'Legal and copyright', 'nexa-pro' ),
-		__( 'Legal links render only when both label and URL are provided. URLs may be absolute, site-relative paths, or same-page fragments.', 'nexa-pro' )
+		__( 'Legal items can link to pages, open theme modals, or stay hidden. Page URLs may be absolute, site-relative paths, or same-page fragments.', 'nexa-pro' )
 	);
 	nexa_pro_admin_textarea_field(
 		'footer_copyright',
@@ -1086,7 +1369,27 @@ function nexa_pro_admin_footer_fields() {
 	nexa_pro_admin_text_field(
 		'footer_privacy_url',
 		__( 'Privacy link URL', 'nexa-pro' ),
-		__( 'Use an absolute URL, a site-relative path such as /privacy-policy, or a same-page fragment.', 'nexa-pro' )
+		__( 'Use an absolute URL, a site-relative path such as /privacy-policy, or a same-page fragment. In modal mode, this becomes the no-JavaScript fallback when provided.', 'nexa-pro' )
+	);
+	nexa_pro_admin_select_field(
+		'footer_privacy_behavior',
+		__( 'Privacy behavior', 'nexa-pro' ),
+		array(
+			'link'   => __( 'Link to page', 'nexa-pro' ),
+			'modal'  => __( 'Open modal', 'nexa-pro' ),
+			'hidden' => __( 'Hidden', 'nexa-pro' ),
+		),
+		__( 'Choose whether the privacy item links to a page, opens a modal, or is hidden.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'footer_privacy_modal_title',
+		__( 'Privacy modal title', 'nexa-pro' ),
+		__( 'Used as the accessible heading when Privacy behavior is Open modal.', 'nexa-pro' )
+	);
+	nexa_pro_admin_raw_textarea_field(
+		'footer_privacy_modal_content',
+		__( 'Privacy modal content', 'nexa-pro' ),
+		__( 'Limited safe HTML is allowed. Add real legal copy before using modal behavior on a public site.', 'nexa-pro' )
 	);
 	nexa_pro_admin_text_field(
 		'footer_terms_label',
@@ -1096,7 +1399,27 @@ function nexa_pro_admin_footer_fields() {
 	nexa_pro_admin_text_field(
 		'footer_terms_url',
 		__( 'Terms link URL', 'nexa-pro' ),
-		__( 'Use an absolute URL, a site-relative path such as /terms, or a same-page fragment.', 'nexa-pro' )
+		__( 'Use an absolute URL, a site-relative path such as /terms, or a same-page fragment. In modal mode, this becomes the no-JavaScript fallback when provided.', 'nexa-pro' )
+	);
+	nexa_pro_admin_select_field(
+		'footer_terms_behavior',
+		__( 'Terms behavior', 'nexa-pro' ),
+		array(
+			'link'   => __( 'Link to page', 'nexa-pro' ),
+			'modal'  => __( 'Open modal', 'nexa-pro' ),
+			'hidden' => __( 'Hidden', 'nexa-pro' ),
+		),
+		__( 'Choose whether the terms item links to a page, opens a modal, or is hidden.', 'nexa-pro' )
+	);
+	nexa_pro_admin_text_field(
+		'footer_terms_modal_title',
+		__( 'Terms modal title', 'nexa-pro' ),
+		__( 'Used as the accessible heading when Terms behavior is Open modal.', 'nexa-pro' )
+	);
+	nexa_pro_admin_raw_textarea_field(
+		'footer_terms_modal_content',
+		__( 'Terms modal content', 'nexa-pro' ),
+		__( 'Limited safe HTML is allowed. Add real legal copy before using modal behavior on a public site.', 'nexa-pro' )
 	);
 
 	nexa_pro_admin_field_group(
@@ -1240,6 +1563,38 @@ function nexa_pro_render_admin_fields( $tab ) {
 						'brand_tagline',
 						__( 'Brand tagline', 'nexa-pro' ),
 						__( 'Appears in theme-controlled brand areas when intentionally populated. Falls back to the WordPress tagline.', 'nexa-pro' )
+					);
+
+					nexa_pro_admin_field_group(
+						__( 'Navigation behavior', 'nexa-pro' ),
+						__( 'Single-page mode enhances same-page section links on the front page. Multipage mode keeps navigation links fully native.', 'nexa-pro' )
+					);
+					nexa_pro_admin_select_field(
+						'navigation_mode',
+						__( 'Navigation mode', 'nexa-pro' ),
+						array(
+							'multipage'   => __( 'Multipage', 'nexa-pro' ),
+							'single-page' => __( 'Single-page homepage', 'nexa-pro' ),
+						),
+						__( 'Single-page mode scrolls to visible homepage section anchors when the target exists on the current page.', 'nexa-pro' )
+					);
+					nexa_pro_admin_checkbox_field(
+						'single_page_smooth_scroll',
+						__( 'Smooth scroll', 'nexa-pro' ),
+						__( 'Enhances same-page navigation with smooth scrolling unless the visitor prefers reduced motion.', 'nexa-pro' )
+					);
+					nexa_pro_admin_checkbox_field(
+						'single_page_active_state',
+						__( 'Active section state', 'nexa-pro' ),
+						__( 'Updates aria-current on navigation links while visitors move through homepage sections.', 'nexa-pro' )
+					);
+					nexa_pro_admin_number_field(
+						'single_page_scroll_offset',
+						__( 'Additional scroll offset', 'nexa-pro' ),
+						__( 'Optional pixel offset added to the sticky header height for single-page scrolling.', 'nexa-pro' ),
+						'0',
+						'240',
+						'1'
 					);
 
 					nexa_pro_admin_field_group(
@@ -1484,30 +1839,41 @@ function nexa_pro_render_admin_fields( $tab ) {
 						__( 'Portfolio image', 'nexa-pro' ),
 						__( 'Select an optional image displayed with the Portfolio section.', 'nexa-pro' )
 					);
+					nexa_pro_admin_section_design_fields( 'portfolio', __( 'Portfolio', 'nexa-pro' ) );
 					break;
 
 				case 'testimonials':
 					nexa_pro_admin_homepage_media_only_fields(
 						'testimonials_background_image_id',
 						__( 'Testimonials background image', 'nexa-pro' ),
-						__( 'Select an optional decorative background image for the Testimonials section.', 'nexa-pro' )
+						__( 'Select an optional decorative background image for the Testimonials section.', 'nexa-pro' ),
+						nexa_pro_admin_conditional_row_attributes( 'testimonials_background_type', array( 'image' ) )
 					);
+					nexa_pro_admin_section_design_fields( 'testimonials', __( 'Testimonials', 'nexa-pro' ), false );
 					break;
 
 				case 'team':
 					nexa_pro_admin_homepage_media_only_fields(
 						'team_background_image_id',
 						__( 'Team background image', 'nexa-pro' ),
-						__( 'Select an optional decorative background image for the Team section.', 'nexa-pro' )
+						__( 'Select an optional decorative background image for the Team section.', 'nexa-pro' ),
+						nexa_pro_admin_conditional_row_attributes( 'team_background_type', array( 'image' ) )
 					);
+					nexa_pro_admin_section_design_fields( 'team', __( 'Team', 'nexa-pro' ), false );
+					break;
+
+				case 'faq':
+					nexa_pro_admin_section_design_fields( 'faq', __( 'FAQ', 'nexa-pro' ) );
 					break;
 
 				case 'contact':
 					nexa_pro_admin_homepage_media_only_fields(
 						'contact_background_image_id',
 						__( 'Contact background image', 'nexa-pro' ),
-						__( 'Select an optional decorative background image for the Contact section.', 'nexa-pro' )
+						__( 'Select an optional decorative background image for the Contact section.', 'nexa-pro' ),
+						nexa_pro_admin_conditional_row_attributes( 'contact_background_type', array( 'image' ) )
 					);
+					nexa_pro_admin_section_design_fields( 'contact', __( 'Contact', 'nexa-pro' ), false );
 					break;
 
 				case 'cta':
@@ -1523,6 +1889,10 @@ function nexa_pro_render_admin_fields( $tab ) {
 					break;
 
 				case 'hero':
+					nexa_pro_admin_field_group(
+						__( 'Hero content', 'nexa-pro' ),
+						__( 'The hero heading remains the only H1 on the homepage.', 'nexa-pro' )
+					);
 					nexa_pro_admin_text_field(
 						'hero_eyebrow',
 						__( 'Hero eyebrow', 'nexa-pro' ),
@@ -1556,8 +1926,86 @@ function nexa_pro_render_admin_fields( $tab ) {
 					nexa_pro_admin_text_field(
 						'hero_secondary_cta_url',
 						__( 'Secondary CTA URL', 'nexa-pro' ),
-						__( 'Use a full absolute URL or a same-page fragment such as #process.', 'nexa-pro' )
+						__( 'Use a full absolute URL, a same-page fragment such as #process, or #nexa-pro-schedule for the schedule modal.', 'nexa-pro' )
 					);
+
+					nexa_pro_admin_field_group(
+						__( 'Hero layout and images', 'nexa-pro' ),
+						__( 'Hero image controls use attachment IDs only. The mobile image falls back to the desktop image when left empty.', 'nexa-pro' )
+					);
+					nexa_pro_admin_select_field(
+						'hero_layout',
+						__( 'Hero layout', 'nexa-pro' ),
+						array(
+							'content-only'     => __( 'Content only', 'nexa-pro' ),
+							'image-left'       => __( 'Image left', 'nexa-pro' ),
+							'image-right'      => __( 'Image right', 'nexa-pro' ),
+							'background-image' => __( 'Background image', 'nexa-pro' ),
+						),
+						__( 'Content only preserves the current default. Image layouts render a foreground image; background image uses the desktop hero image behind the content.', 'nexa-pro' )
+					);
+					nexa_pro_admin_media_field(
+						'hero_image_id',
+						__( 'Desktop hero image', 'nexa-pro' ),
+						__( 'Used by image and background-image hero layouts.', 'nexa-pro' ),
+						false,
+						true
+					);
+					nexa_pro_admin_media_field(
+						'hero_mobile_image_id',
+						__( 'Mobile hero image', 'nexa-pro' ),
+						__( 'Optional mobile-specific hero image. Leave empty to use the desktop hero image.', 'nexa-pro' ),
+						false,
+						true
+					);
+					nexa_pro_admin_checkbox_field(
+						'hero_show_image_mobile',
+						__( 'Show hero image on mobile', 'nexa-pro' ),
+						__( 'Disable to hide the hero image or background image on narrow screens.', 'nexa-pro' )
+					);
+					nexa_pro_admin_select_field(
+						'hero_image_position',
+						__( 'Hero image position', 'nexa-pro' ),
+						array(
+							'left'   => __( 'Left', 'nexa-pro' ),
+							'center' => __( 'Center', 'nexa-pro' ),
+							'right'  => __( 'Right', 'nexa-pro' ),
+						),
+						__( 'Controls foreground image placement and background image emphasis.', 'nexa-pro' )
+					);
+					nexa_pro_admin_select_field(
+						'hero_image_object_position',
+						__( 'Image focal position', 'nexa-pro' ),
+						array(
+							'center center' => __( 'Center', 'nexa-pro' ),
+							'top center'    => __( 'Top', 'nexa-pro' ),
+							'bottom center' => __( 'Bottom', 'nexa-pro' ),
+							'left center'   => __( 'Left', 'nexa-pro' ),
+							'right center'  => __( 'Right', 'nexa-pro' ),
+						),
+						__( 'Controls how foreground hero images crop inside their frame.', 'nexa-pro' )
+					);
+					nexa_pro_admin_select_field(
+						'hero_content_alignment',
+						__( 'Hero content alignment', 'nexa-pro' ),
+						array(
+							'left'   => __( 'Left', 'nexa-pro' ),
+							'center' => __( 'Center', 'nexa-pro' ),
+							'right'  => __( 'Right', 'nexa-pro' ),
+						),
+						__( 'Aligns hero eyebrow, heading, text, and buttons.', 'nexa-pro' )
+					);
+					nexa_pro_admin_select_field(
+						'hero_content_width',
+						__( 'Hero content width', 'nexa-pro' ),
+						array(
+							'narrow'   => __( 'Narrow', 'nexa-pro' ),
+							'standard' => __( 'Standard', 'nexa-pro' ),
+							'wide'     => __( 'Wide', 'nexa-pro' ),
+						),
+						__( 'Controls the maximum width of hero copy in content-only and background-image layouts.', 'nexa-pro' )
+					);
+					nexa_pro_admin_section_design_fields( 'hero', __( 'Hero', 'nexa-pro' ), false );
 					break;
 			}
 			?>

@@ -20,6 +20,7 @@
 	</footer>
 
 	<?php nexa_pro_render_schedule_modal(); ?>
+	<?php nexa_pro_render_legal_modals(); ?>
 </div>
 
 <?php wp_footer(); ?>

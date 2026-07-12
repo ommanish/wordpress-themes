@@ -329,31 +329,56 @@
 	height: auto;
 }
 
-.homepage-section--has-background-image {
-	background-image:
-		linear-gradient(
-			color-mix(in srgb, var(--nexa-pro-color-canvas) 88%, transparent),
-			color-mix(in srgb, var(--nexa-pro-color-canvas) 88%, transparent)
-		),
-		var(--nexa-pro-section-background-image);
+.homepage-section--design-solid {
+	background: var(--nexa-pro-section-background-color, var(--nexa-pro-color-canvas));
+}
+
+.homepage-section--design-gradient {
+	background-image: linear-gradient(
+		var(--nexa-pro-section-gradient-direction, to bottom),
+		var(--nexa-pro-section-gradient-start, var(--nexa-pro-color-canvas)),
+		var(--nexa-pro-section-gradient-end, var(--nexa-pro-color-surface))
+	);
+}
+
+.homepage-section--design-image {
+	background-color: var(--nexa-pro-section-background-color, var(--nexa-pro-color-canvas));
+	background-image: var(--nexa-pro-section-background-image);
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
 }
 
-.homepage-section--alt.homepage-section--has-background-image {
-	background-image:
-		linear-gradient(
-			color-mix(in srgb, var(--nexa-pro-color-surface) 88%, transparent),
-			color-mix(in srgb, var(--nexa-pro-color-surface) 88%, transparent)
-		),
-		var(--nexa-pro-section-background-image);
+.homepage-section--has-overlay::before {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	background: var(--nexa-pro-section-overlay-color, rgba(21, 23, 26, 0.7));
+	content: "";
+	opacity: var(--nexa-pro-section-overlay-opacity, 0.45);
+	pointer-events: none;
 }
 
-.homepage-cta.homepage-section--has-background-image {
-	background-image:
-		linear-gradient(rgba(21, 23, 26, 0.78), rgba(21, 23, 26, 0.78)),
-		var(--nexa-pro-section-background-image);
+.homepage-hero--background-image.homepage-section--design-image {
+	min-height: min(760px, 88vh);
+	display: grid;
+	align-items: center;
+	background-position: var(--nexa-pro-hero-background-position, center);
+}
+
+.homepage-hero__media {
+	align-self: stretch;
+}
+
+.homepage-hero__image {
+	height: 100%;
+	min-height: 20rem;
+	object-fit: cover;
+	object-position: var(--nexa-pro-hero-image-position, center center);
+}
+
+.homepage-hero__image--mobile {
+	display: none;
 }
 
 .homepage-inline-list,

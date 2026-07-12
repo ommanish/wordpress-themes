@@ -7,20 +7,15 @@
 
 $section = isset( $args['section'] ) && is_array( $args['section'] ) ? $args['section'] : array();
 
-if ( empty( $section['heading'] ) ) {
+if ( empty( $section['id'] ) || empty( $section['heading'] ) ) {
 	return;
 }
 
 $items = isset( $section['items'] ) && is_array( $section['items'] ) ? $section['items'] : array();
-$background_style = nexa_pro_homepage_background_image_style( $section );
-$section_class    = 'homepage-section';
-
-if ( $background_style ) {
-	$section_class .= ' homepage-section--has-background-image';
-}
+$section_attrs = nexa_pro_homepage_section_attributes( $section, 'homepage-section' );
 ?>
 
-<section class="<?php echo esc_attr( $section_class ); ?>"<?php echo $background_style ? ' style="' . esc_attr( $background_style ) . '"' : ''; ?>>
+<section<?php echo $section_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<div class="nexa-pro-container">
 		<?php nexa_pro_homepage_section_heading( $section ); ?>
 

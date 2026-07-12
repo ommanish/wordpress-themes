@@ -11,12 +11,7 @@ if ( empty( $section['heading'] ) || empty( $section['text'] ) ) {
 	return;
 }
 
-$background_style = nexa_pro_homepage_background_image_style( $section );
-$section_class    = 'homepage-section homepage-cta has-nexa-pro-dark-surface';
-
-if ( $background_style ) {
-	$section_class .= ' homepage-section--has-background-image';
-}
+$section_attrs = nexa_pro_homepage_section_attributes( $section, 'homepage-section homepage-cta has-nexa-pro-dark-surface' );
 
 $action_attrs = '';
 
@@ -30,7 +25,7 @@ if ( ! empty( $section['action']['label'] ) && ! empty( $section['action']['url'
 }
 ?>
 
-<section class="<?php echo esc_attr( $section_class ); ?>"<?php echo $background_style ? ' style="' . esc_attr( $background_style ) . '"' : ''; ?>>
+<section<?php echo $section_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<div class="nexa-pro-container homepage-cta__inner">
 		<div class="section-heading">
 			<h2><?php echo esc_html( $section['heading'] ); ?></h2>

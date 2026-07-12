@@ -148,7 +148,10 @@
 }
 
 .homepage-section {
+	position: relative;
+	isolation: isolate;
 	padding-block: var(--nexa-pro-space-section);
+	scroll-margin-top: calc(5rem + var(--nexa-pro-space-md));
 }
 
 .homepage-section--compact {
@@ -159,11 +162,51 @@
 	background: var(--nexa-pro-color-surface);
 }
 
+.homepage-section > .nexa-pro-container {
+	position: relative;
+	z-index: 1;
+}
+
 .homepage-hero__inner,
 .homepage-split {
 	display: grid;
 	gap: var(--nexa-pro-space-2xl);
 	align-items: center;
+}
+
+.homepage-hero--content-only .homepage-hero__inner,
+.homepage-hero--background-image .homepage-hero__inner {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+.homepage-hero--align-center .homepage-hero__content {
+	margin-inline: auto;
+	text-align: center;
+}
+
+.homepage-hero--align-center .section-actions {
+	justify-content: center;
+}
+
+.homepage-hero--align-right .homepage-hero__content {
+	margin-left: auto;
+	text-align: right;
+}
+
+.homepage-hero--align-right .section-actions {
+	justify-content: flex-end;
+}
+
+.homepage-hero--width-narrow .homepage-hero__content {
+	max-width: 42rem;
+}
+
+.homepage-hero--width-standard .homepage-hero__content {
+	max-width: var(--nexa-pro-width-content);
+}
+
+.homepage-hero--width-wide .homepage-hero__content {
+	max-width: 64rem;
 }
 
 .homepage-grid {
@@ -296,4 +339,35 @@
 
 .has-nexa-pro-dark-surface a {
 	color: var(--nexa-pro-color-dark-text);
+}
+
+.has-nexa-pro-light-text {
+	color: var(--nexa-pro-color-dark-text);
+}
+
+.has-nexa-pro-light-text .section-heading p,
+.has-nexa-pro-light-text .homepage-card p,
+.has-nexa-pro-light-text .homepage-note p,
+.has-nexa-pro-light-text .homepage-faq p,
+.has-nexa-pro-light-text .homepage-hero__content p,
+.has-nexa-pro-light-text .homepage-check-list li,
+.has-nexa-pro-light-text .homepage-inline-list li {
+	color: var(--nexa-pro-color-dark-muted);
+}
+
+.has-nexa-pro-light-text h1,
+.has-nexa-pro-light-text h2,
+.has-nexa-pro-light-text h3,
+.has-nexa-pro-light-text a {
+	color: var(--nexa-pro-color-dark-text);
+}
+
+.has-nexa-pro-dark-text {
+	color: var(--nexa-pro-color-ink);
+}
+
+.has-nexa-pro-dark-text h1,
+.has-nexa-pro-dark-text h2,
+.has-nexa-pro-dark-text h3 {
+	color: var(--nexa-pro-color-heading);
 }

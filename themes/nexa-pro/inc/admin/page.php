@@ -29,6 +29,7 @@ function nexa_pro_get_admin_tabs() {
 		'portfolio' => __( 'Portfolio', 'nexa-pro' ),
 		'testimonials' => __( 'Testimonials', 'nexa-pro' ),
 		'team'      => __( 'Team', 'nexa-pro' ),
+		'faq'       => __( 'FAQ', 'nexa-pro' ),
 		'contact'   => __( 'Contact', 'nexa-pro' ),
 		'cta'       => __( 'CTA', 'nexa-pro' ),
 		'contact-actions' => __( 'Contact Actions', 'nexa-pro' ),
