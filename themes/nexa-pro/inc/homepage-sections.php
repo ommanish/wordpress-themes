@@ -34,7 +34,7 @@ function nexa_pro_get_homepage_sections() {
 				),
 			),
 			'image'    => array(
-				'id'  => nexa_pro_get_image_attachment_id( 'about_image_id' ),
+				'id'  => 0,
 				'url' => '',
 				'alt' => '',
 			),
@@ -60,7 +60,7 @@ function nexa_pro_get_homepage_sections() {
 				__( 'Flexible sections prepared for future settings controls.', 'nexa-pro' ),
 			),
 			'image'    => array(
-				'id'  => 0,
+				'id'  => nexa_pro_get_image_attachment_id( 'about_image_id' ),
 				'url' => '',
 				'alt' => '',
 			),

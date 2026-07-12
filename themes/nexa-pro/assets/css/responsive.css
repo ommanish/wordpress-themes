@@ -37,6 +37,18 @@
 		max-width: calc(100% - 7rem);
 	}
 
+	.site-branding__link {
+		gap: var(--nexa-pro-space-xs);
+	}
+
+	.site-title {
+		font-size: var(--nexa-pro-font-size-md);
+	}
+
+	.site-description {
+		display: none;
+	}
+
 	.site-branding--has-mobile-logo .site-branding__logo--desktop {
 		display: none;
 	}
@@ -55,6 +67,14 @@
 	}
 
 	.no-results {
+		padding: var(--nexa-pro-space-lg);
+	}
+
+	.nexa-pro-modal[open] {
+		padding: var(--nexa-pro-space-sm);
+	}
+
+	.nexa-pro-modal__dialog {
 		padding: var(--nexa-pro-space-lg);
 	}
 }
@@ -167,5 +187,23 @@
 	.nexa-pro-header--centered .primary-navigation__panel,
 	.nexa-pro-header--centered .primary-menu {
 		justify-content: center;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	/* Accessibility override: component selectors define transitions later and
+	   with higher specificity, so !important is used only in reduced-motion mode. */
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		animation-delay: 0ms !important;
+		transition-duration: 0.01ms !important;
+		transition-delay: 0ms !important;
 	}
 }
