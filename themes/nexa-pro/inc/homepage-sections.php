@@ -17,11 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 function nexa_pro_get_homepage_sections() {
 	$sections = array(
 		'hero'         => array(
-			'template' => 'hero',
-			'eyebrow'  => nexa_pro_get_option( 'hero_eyebrow' ),
-			'heading'  => nexa_pro_get_option( 'hero_heading' ),
-			'text'     => nexa_pro_get_option( 'hero_text' ),
-			'actions'  => array(
+			'template'    => 'hero',
+			'section_key' => 'hero',
+			'eyebrow'     => nexa_pro_get_option( 'hero_eyebrow' ),
+			'heading'     => nexa_pro_get_option( 'hero_heading' ),
+			'text'        => nexa_pro_get_option( 'hero_text' ),
+			'design'      => nexa_pro_get_hero_design(),
+			'actions'     => array(
 				array(
 					'label' => nexa_pro_get_option( 'hero_primary_cta_text' ),
 					'url'   => nexa_pro_get_option( 'hero_primary_cta_url' ),
@@ -33,28 +35,25 @@ function nexa_pro_get_homepage_sections() {
 					'style' => 'secondary',
 				),
 			),
-			'image'    => array(
-				'id'  => 0,
-				'url' => '',
-				'alt' => '',
-			),
 		),
 		'trust'        => array(
-			'template' => 'trust',
-			'heading'  => __( 'Built around practical publishing needs.', 'nexa-pro' ),
-			'items'    => array(
+			'template'    => 'trust',
+			'section_key' => 'trust',
+			'heading'     => __( 'Built around practical publishing needs.', 'nexa-pro' ),
+			'items'       => array(
 				__( 'Accessible structure from the first screen.', 'nexa-pro' ),
 				__( 'Responsive layouts for service-focused content.', 'nexa-pro' ),
 				__( 'Editor-aligned design tokens for consistent publishing.', 'nexa-pro' ),
 			),
 		),
 		'about'        => array(
-			'template' => 'about',
-			'id'       => 'about',
-			'eyebrow'  => nexa_pro_get_raw_option( 'about_label' ),
-			'heading'  => nexa_pro_get_raw_option( 'about_heading' ),
-			'text'     => nexa_pro_get_raw_option( 'about_text' ),
-			'points'   => array(
+			'template'    => 'about',
+			'section_key' => 'about',
+			'id'          => 'about',
+			'eyebrow'     => nexa_pro_get_raw_option( 'about_label' ),
+			'heading'     => nexa_pro_get_raw_option( 'about_heading' ),
+			'text'        => nexa_pro_get_raw_option( 'about_text' ),
+			'points'      => array(
 				__( 'Semantic templates for strong content hierarchy.', 'nexa-pro' ),
 				__( 'Design tokens shared across front end and editor.', 'nexa-pro' ),
 				__( 'Flexible sections prepared for future settings controls.', 'nexa-pro' ),
@@ -66,50 +65,56 @@ function nexa_pro_get_homepage_sections() {
 			),
 		),
 		'services'     => array(
-			'template' => 'services',
-			'id'       => 'services',
-			'eyebrow'  => nexa_pro_get_raw_option( 'services_label' ),
-			'heading'  => nexa_pro_get_raw_option( 'services_heading' ),
-			'text'     => nexa_pro_get_raw_option( 'services_text' ),
-			'items'    => nexa_pro_get_services_items(),
+			'template'    => 'services',
+			'section_key' => 'services',
+			'id'          => 'services',
+			'eyebrow'     => nexa_pro_get_raw_option( 'services_label' ),
+			'heading'     => nexa_pro_get_raw_option( 'services_heading' ),
+			'text'        => nexa_pro_get_raw_option( 'services_text' ),
+			'items'       => nexa_pro_get_services_items(),
 			'background_image_id' => nexa_pro_get_image_attachment_id( 'services_background_image_id' ),
 		),
 		'features'     => array(
-			'template' => 'features',
-			'eyebrow'  => nexa_pro_get_raw_option( 'features_label' ),
-			'heading'  => nexa_pro_get_raw_option( 'features_heading' ),
-			'text'     => nexa_pro_get_raw_option( 'features_text' ),
-			'items'    => nexa_pro_get_features_items(),
+			'template'    => 'features',
+			'section_key' => 'features',
+			'id'          => 'features',
+			'eyebrow'     => nexa_pro_get_raw_option( 'features_label' ),
+			'heading'     => nexa_pro_get_raw_option( 'features_heading' ),
+			'text'        => nexa_pro_get_raw_option( 'features_text' ),
+			'items'       => nexa_pro_get_features_items(),
 			'background_image_id' => nexa_pro_get_image_attachment_id( 'features_background_image_id' ),
 		),
 		'process'      => array(
-			'template' => 'process',
-			'id'       => 'process',
-			'eyebrow'  => nexa_pro_get_raw_option( 'process_label' ),
-			'heading'  => nexa_pro_get_raw_option( 'process_heading' ),
-			'text'     => nexa_pro_get_raw_option( 'process_text' ),
-			'items'    => nexa_pro_get_process_items(),
+			'template'    => 'process',
+			'section_key' => 'process',
+			'id'          => 'process',
+			'eyebrow'     => nexa_pro_get_raw_option( 'process_label' ),
+			'heading'     => nexa_pro_get_raw_option( 'process_heading' ),
+			'text'        => nexa_pro_get_raw_option( 'process_text' ),
+			'items'       => nexa_pro_get_process_items(),
 			'background_image_id' => nexa_pro_get_image_attachment_id( 'process_background_image_id' ),
 		),
 		'why'          => array(
-			'template' => 'why',
-			'id'       => 'why',
-			'eyebrow'  => nexa_pro_get_raw_option( 'why_label' ),
-			'heading'  => nexa_pro_get_raw_option( 'why_heading' ),
-			'text'     => nexa_pro_get_raw_option( 'why_text' ),
-			'items'    => nexa_pro_get_why_items(),
-			'image'    => array(
+			'template'    => 'why',
+			'section_key' => 'why',
+			'id'          => 'why',
+			'eyebrow'     => nexa_pro_get_raw_option( 'why_label' ),
+			'heading'     => nexa_pro_get_raw_option( 'why_heading' ),
+			'text'        => nexa_pro_get_raw_option( 'why_text' ),
+			'items'       => nexa_pro_get_why_items(),
+			'image'       => array(
 				'id'  => nexa_pro_get_image_attachment_id( 'why_image_id' ),
 				'url' => '',
 				'alt' => '',
 			),
 		),
 		'portfolio'    => array(
-			'template' => 'portfolio',
-			'id'       => 'portfolio',
-			'eyebrow'  => __( 'Portfolio', 'nexa-pro' ),
-			'heading'  => __( 'Frame example engagement types without implying client outcomes.', 'nexa-pro' ),
-			'items'    => array(
+			'template'    => 'portfolio',
+			'section_key' => 'portfolio',
+			'id'          => 'portfolio',
+			'eyebrow'     => __( 'Portfolio', 'nexa-pro' ),
+			'heading'     => __( 'Frame example engagement types without implying client outcomes.', 'nexa-pro' ),
+			'items'       => array(
 				array(
 					'title' => __( 'Strategy engagement', 'nexa-pro' ),
 					'text'  => __( 'A neutral example for planning, positioning, or operational strategy work.', 'nexa-pro' ),
@@ -123,26 +128,28 @@ function nexa_pro_get_homepage_sections() {
 					'text'  => __( 'A neutral example for ongoing campaigns, enablement, or improvement programs.', 'nexa-pro' ),
 				),
 			),
-			'image'    => array(
+			'image'       => array(
 				'id'  => nexa_pro_get_image_attachment_id( 'portfolio_image_id' ),
 				'url' => '',
 				'alt' => '',
 			),
 		),
 		'testimonials' => array(
-			'template' => 'testimonials',
-			'id'       => 'testimonials',
-			'eyebrow'  => __( 'Testimonials', 'nexa-pro' ),
-			'heading'  => __( 'Add real customer feedback when the site is ready.', 'nexa-pro' ),
-			'message'  => __( 'This section is prepared for testimonials. Replace this setup note with authentic customer feedback before launch.', 'nexa-pro' ),
+			'template'    => 'testimonials',
+			'section_key' => 'testimonials',
+			'id'          => 'testimonials',
+			'eyebrow'     => __( 'Testimonials', 'nexa-pro' ),
+			'heading'     => __( 'Add real customer feedback when the site is ready.', 'nexa-pro' ),
+			'message'     => __( 'This section is prepared for testimonials. Replace this setup note with authentic customer feedback before launch.', 'nexa-pro' ),
 			'background_image_id' => nexa_pro_get_image_attachment_id( 'testimonials_background_image_id' ),
 		),
 		'team'         => array(
-			'template' => 'team',
-			'id'       => 'team',
-			'eyebrow'  => __( 'Team', 'nexa-pro' ),
-			'heading'  => __( 'Introduce the people behind the work.', 'nexa-pro' ),
-			'items'    => array(
+			'template'    => 'team',
+			'section_key' => 'team',
+			'id'          => 'team',
+			'eyebrow'     => __( 'Team', 'nexa-pro' ),
+			'heading'     => __( 'Introduce the people behind the work.', 'nexa-pro' ),
+			'items'       => array(
 				array(
 					'title' => __( 'Leadership', 'nexa-pro' ),
 					'text'  => __( 'Use this card for the person responsible for direction and client relationships.', 'nexa-pro' ),
@@ -159,11 +166,12 @@ function nexa_pro_get_homepage_sections() {
 			'background_image_id' => nexa_pro_get_image_attachment_id( 'team_background_image_id' ),
 		),
 		'faq'          => array(
-			'template' => 'faq',
-			'id'       => 'faq',
-			'eyebrow'  => __( 'FAQ', 'nexa-pro' ),
-			'heading'  => __( 'Answer common questions before the first contact.', 'nexa-pro' ),
-			'items'    => array(
+			'template'    => 'faq',
+			'section_key' => 'faq',
+			'id'          => 'faq',
+			'eyebrow'     => __( 'FAQ', 'nexa-pro' ),
+			'heading'     => __( 'Answer common questions before the first contact.', 'nexa-pro' ),
+			'items'       => array(
 				array(
 					'question' => __( 'Can these sections be customized later?', 'nexa-pro' ),
 					'answer'   => __( 'Yes. This architecture keeps section data separate from templates so future settings can control content without rewriting markup.', 'nexa-pro' ),
@@ -179,12 +187,13 @@ function nexa_pro_get_homepage_sections() {
 			),
 		),
 		'contact'      => array(
-			'template' => 'contact',
-			'id'       => 'contact',
-			'eyebrow'  => __( 'Contact', 'nexa-pro' ),
-			'heading'  => __( 'Create a clear next step for qualified conversations.', 'nexa-pro' ),
-			'text'     => __( 'Use this section to describe how visitors should start a conversation. Replace the neutral contact details with accurate information before launch.', 'nexa-pro' ),
-			'items'    => array(
+			'template'    => 'contact',
+			'section_key' => 'contact',
+			'id'          => 'contact',
+			'eyebrow'     => __( 'Contact', 'nexa-pro' ),
+			'heading'     => __( 'Create a clear next step for qualified conversations.', 'nexa-pro' ),
+			'text'        => __( 'Use this section to describe how visitors should start a conversation. Replace the neutral contact details with accurate information before launch.', 'nexa-pro' ),
+			'items'       => array(
 				__( 'Response window: add your preferred timeframe.', 'nexa-pro' ),
 				__( 'Location: add your service area or office details.', 'nexa-pro' ),
 				__( 'Contact method: add a verified form, phone number, or email address.', 'nexa-pro' ),
@@ -192,10 +201,12 @@ function nexa_pro_get_homepage_sections() {
 			'background_image_id' => nexa_pro_get_image_attachment_id( 'contact_background_image_id' ),
 		),
 		'cta'          => array(
-			'template' => 'cta',
-			'heading'  => nexa_pro_get_raw_option( 'cta_heading' ),
-			'text'     => nexa_pro_get_raw_option( 'cta_text' ),
-			'action'   => array(
+			'template'    => 'cta',
+			'section_key' => 'cta',
+			'id'          => 'cta',
+			'heading'     => nexa_pro_get_raw_option( 'cta_heading' ),
+			'text'        => nexa_pro_get_raw_option( 'cta_text' ),
+			'action'      => array(
 				'label' => nexa_pro_get_raw_option( 'cta_button_text' ),
 				'url'   => nexa_pro_get_valid_homepage_url_option( 'cta_button_url' ),
 			),
@@ -286,6 +297,199 @@ function nexa_pro_get_valid_homepage_url_option( $key ) {
 	$url = nexa_pro_get_raw_option( $key, '' );
 
 	return '' !== esc_url( $url ) ? $url : '';
+}
+
+/**
+ * Convert a saved gradient direction token into CSS syntax.
+ *
+ * @param string $direction Direction token.
+ * @return string
+ */
+function nexa_pro_homepage_gradient_direction_css( $direction ) {
+	return str_replace( '-', ' ', sanitize_key( $direction ) );
+}
+
+/**
+ * Build homepage section classes from reusable design settings.
+ *
+ * @param array  $section Section data.
+ * @param string $base_class Base classes.
+ * @param bool   $force_image_background Whether to force image background mode.
+ * @return array
+ */
+function nexa_pro_homepage_section_classes( $section, $base_class = 'homepage-section', $force_image_background = false ) {
+	$classes     = preg_split( '/\s+/', trim( (string) $base_class ) );
+	$section_key = ! empty( $section['section_key'] ) ? sanitize_key( $section['section_key'] ) : '';
+
+	if ( '' === $section_key ) {
+		return array_filter( $classes );
+	}
+
+	$design = nexa_pro_get_section_design( $section_key );
+
+	if ( empty( $design ) ) {
+		return array_filter( $classes );
+	}
+
+	$background_type = $force_image_background && ! empty( $design['background_image_id'] ) ? 'image' : $design['background_type'];
+
+	if ( 'default' !== $background_type ) {
+		$classes[] = 'homepage-section--design-' . sanitize_html_class( $background_type );
+	}
+
+	if ( 'image' === $background_type && ! empty( $design['background_image_id'] ) ) {
+		$classes[] = 'homepage-section--has-background-image';
+	}
+
+	if ( ! empty( $design['overlay_enabled'] ) && in_array( $background_type, array( 'image', 'gradient', 'solid' ), true ) ) {
+		$classes[] = 'homepage-section--has-overlay';
+	}
+
+	if ( ! empty( $design['text_theme'] ) && 'automatic' !== $design['text_theme'] ) {
+		$classes[] = 'has-nexa-pro-' . sanitize_html_class( $design['text_theme'] ) . '-text';
+	}
+
+	return array_filter( $classes );
+}
+
+/**
+ * Build a safe inline custom-property style string for a homepage section.
+ *
+ * @param array $section Section data.
+ * @param bool  $force_image_background Whether to force image background mode.
+ * @return string
+ */
+function nexa_pro_homepage_section_style( $section, $force_image_background = false ) {
+	$section_key = ! empty( $section['section_key'] ) ? sanitize_key( $section['section_key'] ) : '';
+
+	if ( '' === $section_key ) {
+		return '';
+	}
+
+	$design = nexa_pro_get_section_design( $section_key );
+
+	if ( empty( $design ) ) {
+		return '';
+	}
+
+	$styles          = array();
+	$background_type = $force_image_background && ! empty( $design['background_image_id'] ) ? 'image' : $design['background_type'];
+
+	if ( 'solid' === $background_type || 'image' === $background_type ) {
+		$styles[] = '--nexa-pro-section-background-color:' . $design['background_color'];
+	}
+
+	if ( 'gradient' === $background_type ) {
+		$styles[] = '--nexa-pro-section-gradient-direction:' . nexa_pro_homepage_gradient_direction_css( $design['gradient_direction'] );
+		$styles[] = '--nexa-pro-section-gradient-start:' . $design['gradient_start'];
+		$styles[] = '--nexa-pro-section-gradient-end:' . $design['gradient_end'];
+	}
+
+	if ( 'image' === $background_type && ! empty( $design['background_image_id'] ) ) {
+		$image_url = wp_get_attachment_image_url( absint( $design['background_image_id'] ), 'large' );
+
+		if ( $image_url ) {
+			$styles[] = '--nexa-pro-section-background-image:url("' . esc_url( $image_url ) . '")';
+		}
+
+		if ( 'hero' === $section_key ) {
+			$hero_design = nexa_pro_get_hero_design();
+			$position    = ! empty( $hero_design['image_position'] ) ? $hero_design['image_position'] : 'center';
+			$styles[]    = '--nexa-pro-hero-background-position:' . str_replace( '-', ' ', sanitize_key( $position ) ) . ' center';
+		}
+	}
+
+	if ( ! empty( $design['overlay_enabled'] ) && in_array( $background_type, array( 'image', 'gradient', 'solid' ), true ) ) {
+		$styles[] = '--nexa-pro-section-overlay-color:' . $design['overlay_color'];
+		$styles[] = '--nexa-pro-section-overlay-opacity:' . rtrim( rtrim( sprintf( '%.2F', (float) $design['overlay_opacity'] / 100 ), '0' ), '.' );
+	}
+
+	return implode( ';', $styles );
+}
+
+/**
+ * Build escaped attributes for a homepage section wrapper.
+ *
+ * @param array  $section Section data.
+ * @param string $base_class Base classes.
+ * @param bool   $force_image_background Whether to force image background mode.
+ * @return string
+ */
+function nexa_pro_homepage_section_attributes( $section, $base_class = 'homepage-section', $force_image_background = false ) {
+	$attributes = array(
+		'class' => implode( ' ', array_map( 'sanitize_html_class', nexa_pro_homepage_section_classes( $section, $base_class, $force_image_background ) ) ),
+	);
+
+	if ( ! empty( $section['id'] ) ) {
+		$attributes['id'] = sanitize_html_class( $section['id'] );
+	}
+
+	$style = nexa_pro_homepage_section_style( $section, $force_image_background );
+
+	if ( '' !== $style ) {
+		$attributes['style'] = $style;
+	}
+
+	return nexa_pro_get_escaped_attributes( $attributes );
+}
+
+/**
+ * Render a foreground hero image with desktop/mobile fallback behavior.
+ *
+ * @param array $design Hero design values.
+ * @return void
+ */
+function nexa_pro_homepage_hero_image( $design ) {
+	$desktop_id = ! empty( $design['desktop_image_id'] ) ? absint( $design['desktop_image_id'] ) : 0;
+	$mobile_id  = ! empty( $design['mobile_image_id'] ) ? absint( $design['mobile_image_id'] ) : 0;
+
+	if ( ! $desktop_id && $mobile_id ) {
+		$desktop_id = $mobile_id;
+	}
+
+	if ( ! $mobile_id ) {
+		$mobile_id = $desktop_id;
+	}
+
+	if ( ! $desktop_id ) {
+		return;
+	}
+
+	$figure_classes = array( 'homepage-media', 'homepage-hero__media' );
+
+	if ( empty( $design['show_image_mobile'] ) ) {
+		$figure_classes[] = 'homepage-hero__media--hide-mobile';
+	}
+
+	$object_position = ! empty( $design['image_object_position'] ) ? $design['image_object_position'] : 'center center';
+	$style           = '--nexa-pro-hero-image-position:' . esc_attr( $object_position );
+	?>
+	<figure class="<?php echo esc_attr( implode( ' ', array_map( 'sanitize_html_class', $figure_classes ) ) ); ?>" style="<?php echo esc_attr( $style ); ?>">
+		<?php
+		echo wp_get_attachment_image(
+			$desktop_id,
+			'large',
+			false,
+			array(
+				'class'   => $mobile_id && $mobile_id !== $desktop_id ? 'homepage-media__image homepage-hero__image homepage-hero__image--desktop' : 'homepage-media__image homepage-hero__image',
+				'loading' => 'eager',
+			)
+		); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		if ( $mobile_id && $mobile_id !== $desktop_id ) {
+			echo wp_get_attachment_image(
+				$mobile_id,
+				'large',
+				false,
+				array(
+					'class'   => 'homepage-media__image homepage-hero__image homepage-hero__image--mobile',
+					'loading' => 'eager',
+				)
+			); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+		?>
+	</figure>
+	<?php
 }
 
 /**

@@ -221,6 +221,163 @@ function nexa_pro_sanitize_image_attachment_id( $attachment_id ) {
 }
 
 /**
+ * Sanitize a whitelisted choice.
+ *
+ * @param mixed $value Raw value.
+ * @param array $allowed Allowed values.
+ * @return string|null
+ */
+function nexa_pro_sanitize_choice( $value, $allowed ) {
+	if ( ! is_scalar( $value ) ) {
+		return null;
+	}
+
+	$value = sanitize_key( $value );
+
+	return in_array( $value, $allowed, true ) ? $value : null;
+}
+
+/**
+ * Sanitize a gradient direction token.
+ *
+ * @param mixed $value Raw value.
+ * @return string|null
+ */
+function nexa_pro_sanitize_gradient_direction( $value ) {
+	if ( ! is_scalar( $value ) ) {
+		return null;
+	}
+
+	$value   = strtolower( trim( (string) $value ) );
+	$allowed = array(
+		'to-top',
+		'to-right',
+		'to-bottom',
+		'to-left',
+		'to-top-right',
+		'to-bottom-right',
+		'to-bottom-left',
+		'to-top-left',
+	);
+
+	return in_array( $value, $allowed, true ) ? $value : null;
+}
+
+/**
+ * Sanitize a section overlay opacity.
+ *
+ * @param mixed $value Raw value.
+ * @return int|null
+ */
+function nexa_pro_sanitize_overlay_opacity( $value ) {
+	if ( ! is_numeric( $value ) ) {
+		return null;
+	}
+
+	return max( 0, min( 90, absint( $value ) ) );
+}
+
+/**
+ * Sanitize a scroll offset in pixels.
+ *
+ * @param mixed $value Raw value.
+ * @return int|null
+ */
+function nexa_pro_sanitize_scroll_offset( $value ) {
+	if ( ! is_numeric( $value ) ) {
+		return null;
+	}
+
+	return max( 0, min( 240, absint( $value ) ) );
+}
+
+/**
+ * Sanitize limited legal modal content.
+ *
+ * @param mixed $value Raw value.
+ * @return string
+ */
+function nexa_pro_sanitize_legal_modal_content( $value ) {
+	if ( ! is_scalar( $value ) ) {
+		return '';
+	}
+
+	return wp_kses_post( $value );
+}
+
+/**
+ * Sanitize dynamic reusable section design options.
+ *
+ * @param string $key Option key.
+ * @param mixed  $value Raw value.
+ * @param array  $output Current sanitized output.
+ * @return array|null Updated output when handled; null otherwise.
+ */
+function nexa_pro_sanitize_section_design_option( $key, $value, $output ) {
+	foreach ( nexa_pro_get_section_design_sections() as $section ) {
+		$prefix = $section . '_';
+
+		if ( $key === $prefix . 'background_type' ) {
+			$choice = nexa_pro_sanitize_choice( $value, array( 'default', 'solid', 'gradient', 'image' ) );
+
+			if ( null !== $choice ) {
+				$output[ $key ] = $choice;
+			}
+
+			return $output;
+		}
+
+		if ( in_array( $key, array( $prefix . 'background_color', $prefix . 'gradient_start', $prefix . 'gradient_end', $prefix . 'overlay_color' ), true ) ) {
+			$color = nexa_pro_sanitize_design_color( $value );
+
+			if ( null !== $color ) {
+				$output[ $key ] = $color;
+			}
+
+			return $output;
+		}
+
+		if ( $key === $prefix . 'gradient_direction' ) {
+			$direction = nexa_pro_sanitize_gradient_direction( $value );
+
+			if ( null !== $direction ) {
+				$output[ $key ] = $direction;
+			}
+
+			return $output;
+		}
+
+		if ( $key === $prefix . 'overlay_enabled' ) {
+			$output[ $key ] = '1' === (string) $value ? '1' : '0';
+
+			return $output;
+		}
+
+		if ( $key === $prefix . 'overlay_opacity' ) {
+			$opacity = nexa_pro_sanitize_overlay_opacity( $value );
+
+			if ( null !== $opacity ) {
+				$output[ $key ] = $opacity;
+			}
+
+			return $output;
+		}
+
+		if ( $key === $prefix . 'text_theme' ) {
+			$theme = nexa_pro_sanitize_choice( $value, array( 'automatic', 'light', 'dark' ) );
+
+			if ( null !== $theme ) {
+				$output[ $key ] = $theme;
+			}
+
+			return $output;
+		}
+	}
+
+	return null;
+}
+
+/**
  * Sanitize a design color value.
  *
  * @param mixed $value Color value.
@@ -298,20 +455,21 @@ function nexa_pro_sanitize_design_font_weight( $key, $value ) {
  * @return array
  */
 function nexa_pro_get_media_option_keys() {
-	return array(
-		'logo_attachment_id',
-		'mobile_logo_attachment_id',
-		'footer_logo_id',
-		'about_image_id',
-		'services_background_image_id',
-		'features_background_image_id',
-		'process_background_image_id',
-		'why_image_id',
-		'portfolio_image_id',
-		'testimonials_background_image_id',
-		'team_background_image_id',
-		'cta_background_image_id',
-		'contact_background_image_id',
+	return array_values(
+		array_unique(
+			array_merge(
+				array(
+					'logo_attachment_id',
+					'mobile_logo_attachment_id',
+					'footer_logo_id',
+					'about_image_id',
+					'why_image_id',
+					'portfolio_image_id',
+					'hero_mobile_image_id',
+				),
+				array_values( nexa_pro_get_section_background_image_option_keys() )
+			)
+		)
 	);
 }
 
@@ -380,6 +538,13 @@ function nexa_pro_sanitize_options_with_base( $input, $base_options = array(), $
 			continue;
 		}
 
+		$section_design_output = nexa_pro_sanitize_section_design_option( $key, $value, $output );
+
+		if ( null !== $section_design_output ) {
+			$output = $section_design_output;
+			continue;
+		}
+
 		switch ( $key ) {
 			case 'brand_name':
 			case 'brand_tagline':
@@ -396,6 +561,8 @@ function nexa_pro_sanitize_options_with_base( $input, $base_options = array(), $
 			case 'schedule_email_label':
 			case 'schedule_calendar_label':
 			case 'schedule_email_subject':
+			case 'footer_privacy_modal_title':
+			case 'footer_terms_modal_title':
 				$output[ $key ] = sanitize_text_field( $value );
 				break;
 
@@ -409,13 +576,19 @@ function nexa_pro_sanitize_options_with_base( $input, $base_options = array(), $
 				break;
 
 			case 'about_image_id':
+			case 'why_image_id':
+			case 'portfolio_image_id':
+			case 'hero_image_id':
+			case 'hero_mobile_image_id':
+			case 'about_background_image_id':
 			case 'services_background_image_id':
 			case 'features_background_image_id':
 			case 'process_background_image_id':
-			case 'why_image_id':
-			case 'portfolio_image_id':
+			case 'why_background_image_id':
+			case 'portfolio_background_image_id':
 			case 'testimonials_background_image_id':
 			case 'team_background_image_id':
+			case 'faq_background_image_id':
 			case 'cta_background_image_id':
 			case 'contact_background_image_id':
 				$output[ $key ] = nexa_pro_sanitize_image_attachment_id( $value );
@@ -429,6 +602,9 @@ function nexa_pro_sanitize_options_with_base( $input, $base_options = array(), $
 			case 'footer_show_brand_text':
 			case 'footer_menu_enabled':
 			case 'schedule_modal_enabled':
+			case 'hero_show_image_mobile':
+			case 'single_page_smooth_scroll':
+			case 'single_page_active_state':
 			case 'about_show':
 			case 'services_show':
 			case 'features_show':
@@ -446,6 +622,63 @@ function nexa_pro_sanitize_options_with_base( $input, $base_options = array(), $
 				}
 				break;
 
+			case 'hero_layout':
+				$layout = nexa_pro_sanitize_choice( $value, array( 'content-only', 'image-left', 'image-right', 'background-image' ) );
+
+				if ( null !== $layout ) {
+					$output[ $key ] = $layout;
+				}
+				break;
+
+			case 'hero_image_position':
+				$position = nexa_pro_sanitize_choice( $value, array( 'left', 'center', 'right' ) );
+
+				if ( null !== $position ) {
+					$output[ $key ] = $position;
+				}
+				break;
+
+			case 'hero_image_object_position':
+				$object_position = trim( strtolower( sanitize_text_field( $value ) ) );
+				$allowed         = array( 'center center', 'top center', 'bottom center', 'left center', 'right center' );
+
+				if ( in_array( $object_position, $allowed, true ) ) {
+					$output[ $key ] = $object_position;
+				}
+				break;
+
+			case 'hero_content_alignment':
+				$alignment = nexa_pro_sanitize_choice( $value, array( 'left', 'center', 'right' ) );
+
+				if ( null !== $alignment ) {
+					$output[ $key ] = $alignment;
+				}
+				break;
+
+			case 'hero_content_width':
+				$width = nexa_pro_sanitize_choice( $value, array( 'narrow', 'standard', 'wide' ) );
+
+				if ( null !== $width ) {
+					$output[ $key ] = $width;
+				}
+				break;
+
+			case 'navigation_mode':
+				$mode = nexa_pro_sanitize_choice( $value, array( 'multipage', 'single-page' ) );
+
+				if ( null !== $mode ) {
+					$output[ $key ] = $mode;
+				}
+				break;
+
+			case 'single_page_scroll_offset':
+				$offset = nexa_pro_sanitize_scroll_offset( $value );
+
+				if ( null !== $offset ) {
+					$output[ $key ] = $offset;
+				}
+				break;
+
 			case 'hero_text':
 			case 'about_text':
 			case 'services_text':
@@ -460,6 +693,11 @@ function nexa_pro_sanitize_options_with_base( $input, $base_options = array(), $
 			case 'schedule_modal_text':
 			case 'schedule_email_body':
 				$output[ $key ] = sanitize_textarea_field( $value );
+				break;
+
+			case 'footer_privacy_modal_content':
+			case 'footer_terms_modal_content':
+				$output[ $key ] = nexa_pro_sanitize_legal_modal_content( $value );
 				break;
 
 			case 'contact_email':
@@ -567,6 +805,15 @@ function nexa_pro_sanitize_options_with_base( $input, $base_options = array(), $
 			case 'footer_terms_url':
 				$url            = nexa_pro_sanitize_url_or_path_or_fragment( $value );
 				$output[ $key ] = null === $url ? '' : $url;
+				break;
+
+			case 'footer_privacy_behavior':
+			case 'footer_terms_behavior':
+				$behavior = nexa_pro_sanitize_choice( $value, array( 'link', 'modal', 'hidden' ) );
+
+				if ( null !== $behavior ) {
+					$output[ $key ] = $behavior;
+				}
 				break;
 
 			case 'social_linkedin_url':

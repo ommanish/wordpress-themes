@@ -48,6 +48,20 @@ function nexa_pro_enqueue_assets() {
 		NEXA_PRO_VERSION,
 		true
 	);
+
+	$navigation_settings = nexa_pro_get_navigation_settings();
+
+	wp_localize_script(
+		'nexa-pro-theme',
+		'nexaProTheme',
+		array(
+			'navigationMode' => $navigation_settings['mode'],
+			'smoothScroll'  => $navigation_settings['smooth_scroll'],
+			'activeState'   => $navigation_settings['active_state'],
+			'scrollOffset'  => $navigation_settings['scroll_offset'],
+			'isFrontPage'   => is_front_page(),
+		)
+	);
 }
 add_action( 'wp_enqueue_scripts', 'nexa_pro_enqueue_assets' );
 

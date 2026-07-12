@@ -364,6 +364,145 @@ function nexa_pro_get_global_design_css( $selector = ':root' ) {
 }
 
 /**
+ * Get a section background image option key.
+ *
+ * @param string $section Section key.
+ * @return string
+ */
+function nexa_pro_get_section_background_image_option_key( $section ) {
+	$section = sanitize_key( $section );
+	$keys    = nexa_pro_get_section_background_image_option_keys();
+
+	return isset( $keys[ $section ] ) ? $keys[ $section ] : '';
+}
+
+/**
+ * Get a normalized reusable section design option array.
+ *
+ * @param string $section Section key.
+ * @return array
+ */
+function nexa_pro_get_section_design( $section ) {
+	$section = sanitize_key( $section );
+
+	if ( ! in_array( $section, nexa_pro_get_section_design_sections(), true ) ) {
+		return array();
+	}
+
+	$defaults           = nexa_pro_get_default_options();
+	$prefix             = $section . '_';
+	$image_key          = nexa_pro_get_section_background_image_option_key( $section );
+	$type               = nexa_pro_get_option( $prefix . 'background_type', $defaults[ $prefix . 'background_type' ] );
+	$direction          = nexa_pro_get_option( $prefix . 'gradient_direction', $defaults[ $prefix . 'gradient_direction' ] );
+	$text_theme         = nexa_pro_get_option( $prefix . 'text_theme', $defaults[ $prefix . 'text_theme' ] );
+	$opacity            = absint( nexa_pro_get_option( $prefix . 'overlay_opacity', $defaults[ $prefix . 'overlay_opacity' ] ) );
+	$allowed_types      = array( 'default', 'solid', 'gradient', 'image' );
+	$allowed_directions = array(
+		'to-top',
+		'to-right',
+		'to-bottom',
+		'to-left',
+		'to-top-right',
+		'to-bottom-right',
+		'to-bottom-left',
+		'to-top-left',
+	);
+
+	if ( ! in_array( $type, $allowed_types, true ) ) {
+		$type = $defaults[ $prefix . 'background_type' ];
+	}
+
+	if ( ! in_array( $direction, $allowed_directions, true ) ) {
+		$direction = $defaults[ $prefix . 'gradient_direction' ];
+	}
+
+	if ( ! in_array( $text_theme, array( 'automatic', 'light', 'dark' ), true ) ) {
+		$text_theme = $defaults[ $prefix . 'text_theme' ];
+	}
+
+	return array(
+		'section'             => $section,
+		'background_type'     => $type,
+		'background_color'    => sanitize_hex_color( nexa_pro_get_raw_option( $prefix . 'background_color', $defaults[ $prefix . 'background_color' ] ) ) ?: $defaults[ $prefix . 'background_color' ],
+		'gradient_start'      => sanitize_hex_color( nexa_pro_get_raw_option( $prefix . 'gradient_start', $defaults[ $prefix . 'gradient_start' ] ) ) ?: $defaults[ $prefix . 'gradient_start' ],
+		'gradient_end'        => sanitize_hex_color( nexa_pro_get_raw_option( $prefix . 'gradient_end', $defaults[ $prefix . 'gradient_end' ] ) ) ?: $defaults[ $prefix . 'gradient_end' ],
+		'gradient_direction'  => $direction,
+		'background_image_id' => $image_key ? nexa_pro_get_image_attachment_id( $image_key ) : 0,
+		'overlay_enabled'     => '1' === (string) nexa_pro_get_option( $prefix . 'overlay_enabled', '0' ),
+		'overlay_color'       => sanitize_hex_color( nexa_pro_get_raw_option( $prefix . 'overlay_color', $defaults[ $prefix . 'overlay_color' ] ) ) ?: $defaults[ $prefix . 'overlay_color' ],
+		'overlay_opacity'     => max( 0, min( 90, $opacity ) ),
+		'text_theme'          => $text_theme,
+	);
+}
+
+/**
+ * Get normalized hero design values.
+ *
+ * @return array
+ */
+function nexa_pro_get_hero_design() {
+	$defaults        = nexa_pro_get_default_options();
+	$layout          = nexa_pro_get_option( 'hero_layout', $defaults['hero_layout'] );
+	$image_position  = nexa_pro_get_option( 'hero_image_position', $defaults['hero_image_position'] );
+	$object_position = nexa_pro_get_option( 'hero_image_object_position', $defaults['hero_image_object_position'] );
+	$alignment       = nexa_pro_get_option( 'hero_content_alignment', $defaults['hero_content_alignment'] );
+	$content_width   = nexa_pro_get_option( 'hero_content_width', $defaults['hero_content_width'] );
+
+	if ( ! in_array( $layout, array( 'content-only', 'image-left', 'image-right', 'background-image' ), true ) ) {
+		$layout = $defaults['hero_layout'];
+	}
+
+	if ( ! in_array( $image_position, array( 'left', 'center', 'right' ), true ) ) {
+		$image_position = $defaults['hero_image_position'];
+	}
+
+	if ( ! in_array( $object_position, array( 'center center', 'top center', 'bottom center', 'left center', 'right center' ), true ) ) {
+		$object_position = $defaults['hero_image_object_position'];
+	}
+
+	if ( ! in_array( $alignment, array( 'left', 'center', 'right' ), true ) ) {
+		$alignment = $defaults['hero_content_alignment'];
+	}
+
+	if ( ! in_array( $content_width, array( 'narrow', 'standard', 'wide' ), true ) ) {
+		$content_width = $defaults['hero_content_width'];
+	}
+
+	return array(
+		'layout'                => $layout,
+		'desktop_image_id'      => nexa_pro_get_image_attachment_id( 'hero_image_id' ),
+		'mobile_image_id'       => nexa_pro_get_image_attachment_id( 'hero_mobile_image_id' ),
+		'image_position'        => $image_position,
+		'image_object_position' => $object_position,
+		'show_image_mobile'     => '1' === (string) nexa_pro_get_option( 'hero_show_image_mobile', '1' ),
+		'content_alignment'     => $alignment,
+		'content_width'         => $content_width,
+	);
+}
+
+/**
+ * Get single-page navigation settings.
+ *
+ * @return array
+ */
+function nexa_pro_get_navigation_settings() {
+	$defaults = nexa_pro_get_default_options();
+	$mode     = nexa_pro_get_option( 'navigation_mode', $defaults['navigation_mode'] );
+	$offset   = absint( nexa_pro_get_option( 'single_page_scroll_offset', $defaults['single_page_scroll_offset'] ) );
+
+	if ( ! in_array( $mode, array( 'multipage', 'single-page' ), true ) ) {
+		$mode = $defaults['navigation_mode'];
+	}
+
+	return array(
+		'mode'          => $mode,
+		'smooth_scroll' => '1' === (string) nexa_pro_get_option( 'single_page_smooth_scroll', '1' ),
+		'active_state'  => '1' === (string) nexa_pro_get_option( 'single_page_active_state', '1' ),
+		'scroll_offset' => max( 0, min( 240, $offset ) ),
+	);
+}
+
+/**
  * Normalize a homepage section order array.
  *
  * @param mixed $order Section order.
@@ -740,22 +879,115 @@ function nexa_pro_expand_footer_copyright() {
  * @return array
  */
 function nexa_pro_get_footer_legal_links() {
-	$links = array(
-		array(
-			'label' => nexa_pro_get_option( 'footer_privacy_label', __( 'Privacy Policy', 'nexa-pro' ) ),
-			'url'   => nexa_pro_get_url_path_or_fragment_option( 'footer_privacy_url' ),
+	$links = array();
+	$items = array(
+		'privacy' => array(
+			'label_key'    => 'footer_privacy_label',
+			'url_key'      => 'footer_privacy_url',
+			'behavior_key' => 'footer_privacy_behavior',
+			'modal_id'     => 'nexa-pro-privacy-modal',
 		),
-		array(
-			'label' => nexa_pro_get_option( 'footer_terms_label', __( 'Terms', 'nexa-pro' ) ),
-			'url'   => nexa_pro_get_url_path_or_fragment_option( 'footer_terms_url' ),
+		'terms'   => array(
+			'label_key'    => 'footer_terms_label',
+			'url_key'      => 'footer_terms_url',
+			'behavior_key' => 'footer_terms_behavior',
+			'modal_id'     => 'nexa-pro-terms-modal',
 		),
 	);
 
-	return array_filter(
-		$links,
-		function ( $link ) {
-			return ! empty( $link['label'] ) && ! empty( $link['url'] );
+	foreach ( $items as $type => $item ) {
+		$label    = trim( (string) nexa_pro_get_option( $item['label_key'], '' ) );
+		$url      = nexa_pro_get_url_path_or_fragment_option( $item['url_key'] );
+		$behavior = nexa_pro_get_option( $item['behavior_key'], 'link' );
+
+		if ( '' === $label || 'hidden' === $behavior ) {
+			continue;
 		}
+
+		if ( 'modal' === $behavior ) {
+			$modal = nexa_pro_get_legal_modal_data( $type );
+
+			if ( empty( $modal['enabled'] ) ) {
+				continue;
+			}
+
+			$links[] = array(
+				'label'    => $label,
+				'url'      => $modal['fallback_url'],
+				'behavior' => 'modal',
+				'modal_id' => $modal['id'],
+			);
+			continue;
+		}
+
+		if ( $url ) {
+			$links[] = array(
+				'label'    => $label,
+				'url'      => $url,
+				'behavior' => 'link',
+				'modal_id' => '',
+			);
+		}
+	}
+
+	return $links;
+}
+
+/**
+ * Get legal modal data for Privacy or Terms.
+ *
+ * @param string $type Legal modal type.
+ * @return array
+ */
+function nexa_pro_get_legal_modal_data( $type ) {
+	$type = sanitize_key( $type );
+
+	$map = array(
+		'privacy' => array(
+			'id'          => 'nexa-pro-privacy-modal',
+			'label_key'   => 'footer_privacy_label',
+			'title_key'   => 'footer_privacy_modal_title',
+			'content_key' => 'footer_privacy_modal_content',
+			'url_key'     => 'footer_privacy_url',
+			'behavior_key' => 'footer_privacy_behavior',
+		),
+		'terms'   => array(
+			'id'          => 'nexa-pro-terms-modal',
+			'label_key'   => 'footer_terms_label',
+			'title_key'   => 'footer_terms_modal_title',
+			'content_key' => 'footer_terms_modal_content',
+			'url_key'     => 'footer_terms_url',
+			'behavior_key' => 'footer_terms_behavior',
+		),
+	);
+
+	if ( ! isset( $map[ $type ] ) ) {
+		return array();
+	}
+
+	$item         = $map[ $type ];
+	$behavior     = nexa_pro_get_option( $item['behavior_key'], 'link' );
+	$label        = trim( (string) nexa_pro_get_option( $item['label_key'], '' ) );
+	$title        = trim( (string) nexa_pro_get_option( $item['title_key'], $label ) );
+	$content      = trim( (string) nexa_pro_get_raw_option( $item['content_key'], '' ) );
+	$fallback_url = nexa_pro_get_url_path_or_fragment_option( $item['url_key'] );
+
+	if ( '' === $title ) {
+		$title = $label;
+	}
+
+	if ( '' === $fallback_url ) {
+		$fallback_url = '#' . $item['id'];
+	}
+
+	return array(
+		'enabled'      => 'modal' === $behavior && '' !== $label && '' !== $title && '' !== $content,
+		'type'         => $type,
+		'id'           => $item['id'],
+		'label'        => $label,
+		'title'        => $title,
+		'content'      => $content,
+		'fallback_url' => $fallback_url,
 	);
 }
 

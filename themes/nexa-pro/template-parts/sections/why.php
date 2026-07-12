@@ -12,9 +12,10 @@ if ( empty( $section['id'] ) || empty( $section['heading'] ) ) {
 }
 
 $items = isset( $section['items'] ) && is_array( $section['items'] ) ? $section['items'] : array();
+$section_attrs = nexa_pro_homepage_section_attributes( $section, 'homepage-section' );
 ?>
 
-<section id="<?php echo esc_attr( $section['id'] ); ?>" class="homepage-section">
+<section<?php echo $section_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<div class="nexa-pro-container homepage-split">
 		<div>
 			<?php nexa_pro_homepage_section_heading( $section ); ?>

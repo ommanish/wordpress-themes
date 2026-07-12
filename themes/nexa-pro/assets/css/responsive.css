@@ -77,12 +77,48 @@
 	.nexa-pro-modal__dialog {
 		padding: var(--nexa-pro-space-lg);
 	}
+
+}
+
+@media (max-width: 779px) {
+	.homepage-hero--hide-image-mobile.homepage-hero--background-image {
+		background-image: none;
+	}
+
+	.homepage-hero__media--hide-mobile {
+		display: none;
+	}
+
+	.homepage-hero__image--desktop {
+		display: none;
+	}
+
+	.homepage-hero__image--mobile {
+		display: block;
+	}
 }
 
 @media (min-width: 780px) {
 	.homepage-hero__inner,
 	.homepage-split {
 		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	}
+
+	.homepage-hero--content-only .homepage-hero__inner,
+	.homepage-hero--background-image .homepage-hero__inner {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.homepage-hero--image-left .homepage-hero__media {
+		order: -1;
+	}
+
+	.homepage-hero__image--desktop {
+		display: block;
+	}
+
+	.homepage-hero__image--mobile {
+		display: none;
 	}
 
 	.homepage-grid--three {

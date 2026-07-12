@@ -74,6 +74,10 @@
 	margin-left: 0.35rem;
 }
 
+.nexa-pro-admin-conditional-row[hidden] {
+	display: none;
+}
+
 .nexa-pro-admin-global-reset th,
 .nexa-pro-admin-global-reset td {
 	padding-top: 1.5rem;

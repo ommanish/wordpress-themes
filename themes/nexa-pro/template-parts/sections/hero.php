@@ -10,9 +10,23 @@ $section = isset( $args['section'] ) && is_array( $args['section'] ) ? $args['se
 if ( empty( $section['heading'] ) || empty( $section['text'] ) ) {
 	return;
 }
+
+$design = isset( $section['design'] ) && is_array( $section['design'] ) ? $section['design'] : nexa_pro_get_hero_design();
+$layout = ! empty( $design['layout'] ) ? sanitize_html_class( $design['layout'] ) : 'content-only';
+$alignment = ! empty( $design['content_alignment'] ) ? sanitize_html_class( $design['content_alignment'] ) : 'left';
+$width = ! empty( $design['content_width'] ) ? sanitize_html_class( $design['content_width'] ) : 'standard';
+$image_position = ! empty( $design['image_position'] ) ? sanitize_html_class( $design['image_position'] ) : 'right';
+$base_class = 'homepage-section homepage-hero homepage-hero--' . $layout . ' homepage-hero--align-' . $alignment . ' homepage-hero--width-' . $width . ' homepage-hero--image-position-' . $image_position;
+
+if ( empty( $design['show_image_mobile'] ) ) {
+	$base_class .= ' homepage-hero--hide-image-mobile';
+}
+
+$section_attrs = nexa_pro_homepage_section_attributes( $section, $base_class, 'background-image' === $layout );
+$show_image = in_array( $layout, array( 'image-left', 'image-right' ), true ) && ( ! empty( $design['desktop_image_id'] ) || ! empty( $design['mobile_image_id'] ) );
 ?>
 
-<section class="homepage-section homepage-hero">
+<section<?php echo $section_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 	<div class="nexa-pro-container homepage-hero__inner">
 		<div class="homepage-hero__content">
 			<?php if ( ! empty( $section['eyebrow'] ) ) : ?>
@@ -31,8 +45,18 @@ if ( empty( $section['heading'] ) || empty( $section['text'] ) ) {
 						}
 
 						$button_class = ! empty( $action['style'] ) && 'secondary' === $action['style'] ? 'button button--secondary' : 'button';
+						$action_attrs = nexa_pro_get_action_link_attributes(
+							$action['url'],
+							array(
+								'class' => $button_class,
+							)
+						);
+
+						if ( '' === $action_attrs ) {
+							continue;
+						}
 						?>
-						<a class="<?php echo esc_attr( $button_class ); ?>" href="<?php echo esc_url( $action['url'] ); ?>">
+						<a<?php echo $action_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 							<?php echo esc_html( $action['label'] ); ?>
 						</a>
 					<?php endforeach; ?>
@@ -41,10 +65,9 @@ if ( empty( $section['heading'] ) || empty( $section['text'] ) ) {
 		</div>
 
 		<?php
-		if ( ! empty( $section['image'] ) ) {
-			nexa_pro_homepage_image( $section['image'], 'homepage-media', false );
+		if ( $show_image ) {
+			nexa_pro_homepage_hero_image( $design );
 		}
 		?>
 	</div>
 </section>
-

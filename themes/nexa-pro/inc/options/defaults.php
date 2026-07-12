@@ -33,6 +33,81 @@ function nexa_pro_get_default_homepage_section_order() {
 }
 
 /**
+ * Get sections that support reusable section design controls.
+ *
+ * @return array
+ */
+function nexa_pro_get_section_design_sections() {
+	return array(
+		'hero',
+		'about',
+		'services',
+		'features',
+		'process',
+		'why',
+		'portfolio',
+		'testimonials',
+		'team',
+		'faq',
+		'cta',
+		'contact',
+	);
+}
+
+/**
+ * Get section background image option keys.
+ *
+ * Existing background image keys are reused where they already exist.
+ *
+ * @return array
+ */
+function nexa_pro_get_section_background_image_option_keys() {
+	return array(
+		'hero'         => 'hero_image_id',
+		'about'        => 'about_background_image_id',
+		'services'     => 'services_background_image_id',
+		'features'     => 'features_background_image_id',
+		'process'      => 'process_background_image_id',
+		'why'          => 'why_background_image_id',
+		'portfolio'    => 'portfolio_background_image_id',
+		'testimonials' => 'testimonials_background_image_id',
+		'team'         => 'team_background_image_id',
+		'faq'          => 'faq_background_image_id',
+		'cta'          => 'cta_background_image_id',
+		'contact'      => 'contact_background_image_id',
+	);
+}
+
+/**
+ * Get default reusable section design options.
+ *
+ * @return array
+ */
+function nexa_pro_get_default_section_design_options() {
+	$defaults = array();
+
+	foreach ( nexa_pro_get_section_design_sections() as $section ) {
+		$defaults[ $section . '_background_type' ]        = 'default';
+		$defaults[ $section . '_background_color' ]       = '#ffffff';
+		$defaults[ $section . '_gradient_start' ]         = '#ffffff';
+		$defaults[ $section . '_gradient_end' ]           = '#f8fafc';
+		$defaults[ $section . '_gradient_direction' ]     = 'to-bottom';
+		$defaults[ $section . '_overlay_enabled' ]        = '0';
+		$defaults[ $section . '_overlay_color' ]          = '#15171a';
+		$defaults[ $section . '_overlay_opacity' ]        = 45;
+		$defaults[ $section . '_text_theme' ]             = 'automatic';
+	}
+
+	foreach ( nexa_pro_get_section_background_image_option_keys() as $image_key ) {
+		if ( ! isset( $defaults[ $image_key ] ) ) {
+			$defaults[ $image_key ] = 0;
+		}
+	}
+
+	return $defaults;
+}
+
+/**
  * Get global design color option keys.
  *
  * @return array
@@ -154,8 +229,14 @@ function nexa_pro_get_default_options() {
 		'footer_copyright'          => __( '© {year} {site_name}. All rights reserved.', 'nexa-pro' ),
 		'footer_privacy_label'      => __( 'Privacy Policy', 'nexa-pro' ),
 		'footer_privacy_url'        => '',
+		'footer_privacy_behavior'   => 'link',
+		'footer_privacy_modal_title' => __( 'Privacy Policy', 'nexa-pro' ),
+		'footer_privacy_modal_content' => '',
 		'footer_terms_label'        => __( 'Terms', 'nexa-pro' ),
 		'footer_terms_url'          => '',
+		'footer_terms_behavior'     => 'link',
+		'footer_terms_modal_title'  => __( 'Terms', 'nexa-pro' ),
+		'footer_terms_modal_content' => '',
 		'contact_email'             => '',
 		'contact_phone'             => '',
 		'contact_address'           => '',
@@ -180,6 +261,18 @@ function nexa_pro_get_default_options() {
 		'hero_primary_cta_url'      => '#services',
 		'hero_secondary_cta_text'   => __( 'View setup path', 'nexa-pro' ),
 		'hero_secondary_cta_url'    => '#process',
+		'hero_layout'               => 'content-only',
+		'hero_image_id'             => 0,
+		'hero_mobile_image_id'      => 0,
+		'hero_image_position'       => 'right',
+		'hero_image_object_position' => 'center center',
+		'hero_show_image_mobile'    => '1',
+		'hero_content_alignment'    => 'left',
+		'hero_content_width'        => 'standard',
+		'navigation_mode'           => 'multipage',
+		'single_page_smooth_scroll' => '1',
+		'single_page_active_state'  => '1',
+		'single_page_scroll_offset' => 0,
 		'about_show'                => '1',
 		'about_image_id'            => 0,
 		'about_label'               => __( 'About the theme', 'nexa-pro' ),
@@ -294,6 +387,7 @@ function nexa_pro_get_default_options() {
 
 	return array_merge(
 		$defaults,
-		nexa_pro_get_default_global_design_options()
+		nexa_pro_get_default_global_design_options(),
+		nexa_pro_get_default_section_design_options()
 	);
 }

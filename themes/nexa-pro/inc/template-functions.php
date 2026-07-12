@@ -28,6 +28,10 @@ function nexa_pro_body_classes( $classes ) {
 		$classes[] = 'nexa-pro-front-page';
 	}
 
+	if ( 'single-page' === nexa_pro_get_navigation_settings()['mode'] ) {
+		$classes[] = 'nexa-pro-single-page-navigation';
+	}
+
 	return $classes;
 }
 add_filter( 'body_class', 'nexa_pro_body_classes' );
@@ -224,6 +228,7 @@ function nexa_pro_get_action_link_attributes( $url, $attributes = array() ) {
 
 		$attributes['href']                        = $modal['fallback_url'];
 		$attributes['data-nexa-pro-modal-trigger'] = 'schedule';
+		$attributes['data-nexa-pro-modal-target']  = '#nexa-pro-schedule';
 		$attributes['aria-controls']               = 'nexa-pro-schedule';
 		$attributes['aria-haspopup']               = 'dialog';
 	} else {
@@ -545,8 +550,22 @@ function nexa_pro_render_footer_legal() {
 			<nav class="site-footer__legal" aria-label="<?php esc_attr_e( 'Legal links', 'nexa-pro' ); ?>">
 				<ul class="site-footer__legal-list">
 					<?php foreach ( $legal_links as $link ) : ?>
+						<?php
+						$link_attributes = array(
+							'href' => $link['url'],
+						);
+
+						if ( ! empty( $link['behavior'] ) && 'modal' === $link['behavior'] && ! empty( $link['modal_id'] ) ) {
+							$link_attributes['data-nexa-pro-modal-trigger'] = 'legal';
+							$link_attributes['data-nexa-pro-modal-target']  = '#' . $link['modal_id'];
+							$link_attributes['aria-controls']               = $link['modal_id'];
+							$link_attributes['aria-haspopup']               = 'dialog';
+						}
+						?>
 						<li>
-							<a href="<?php echo esc_url( $link['url'] ); ?>"><?php echo esc_html( $link['label'] ); ?></a>
+							<a<?php echo nexa_pro_get_escaped_attributes( $link_attributes ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+								<?php echo esc_html( $link['label'] ); ?>
+							</a>
 						</li>
 					<?php endforeach; ?>
 				</ul>
@@ -558,6 +577,33 @@ function nexa_pro_render_footer_legal() {
 		<?php endif; ?>
 	</div>
 	<?php
+}
+
+/**
+ * Get escaped HTML attributes.
+ *
+ * @param array $attributes Attribute map.
+ * @return string
+ */
+function nexa_pro_get_escaped_attributes( $attributes ) {
+	$markup = '';
+
+	foreach ( (array) $attributes as $name => $value ) {
+		if ( '' === (string) $value ) {
+			continue;
+		}
+
+		$name = sanitize_key( $name );
+
+		if ( '' === $name ) {
+			continue;
+		}
+
+		$escaped_value = 'href' === $name ? esc_url( $value ) : esc_attr( $value );
+		$markup       .= sprintf( ' %1$s="%2$s"', $name, $escaped_value );
+	}
+
+	return $markup;
 }
 
 /**
@@ -573,7 +619,7 @@ function nexa_pro_render_schedule_modal() {
 	}
 
 	?>
-	<dialog id="nexa-pro-schedule" class="nexa-pro-modal" aria-labelledby="nexa-pro-schedule-title" aria-hidden="true" tabindex="-1">
+	<dialog id="nexa-pro-schedule" class="nexa-pro-modal" role="dialog" aria-modal="true" aria-labelledby="nexa-pro-schedule-title" aria-hidden="true" tabindex="-1" data-nexa-pro-modal>
 		<div class="nexa-pro-modal__dialog" role="document">
 			<button type="button" class="nexa-pro-modal__close" data-nexa-pro-modal-close aria-label="<?php esc_attr_e( 'Close schedule dialog', 'nexa-pro' ); ?>">
 				<span aria-hidden="true">&times;</span>
@@ -602,6 +648,39 @@ function nexa_pro_render_schedule_modal() {
 		</div>
 	</dialog>
 	<?php
+}
+
+/**
+ * Render configured Privacy and Terms modals.
+ *
+ * @return void
+ */
+function nexa_pro_render_legal_modals() {
+	foreach ( array( 'privacy', 'terms' ) as $type ) {
+		$modal = nexa_pro_get_legal_modal_data( $type );
+
+		if ( empty( $modal['enabled'] ) ) {
+			continue;
+		}
+
+		$title_id = $modal['id'] . '-title';
+		?>
+		<dialog id="<?php echo esc_attr( $modal['id'] ); ?>" class="nexa-pro-modal nexa-pro-modal--legal" role="dialog" aria-modal="true" aria-labelledby="<?php echo esc_attr( $title_id ); ?>" aria-hidden="true" tabindex="-1" data-nexa-pro-modal>
+			<div class="nexa-pro-modal__dialog" role="document">
+				<button type="button" class="nexa-pro-modal__close" data-nexa-pro-modal-close aria-label="<?php echo esc_attr( sprintf( __( 'Close %s dialog', 'nexa-pro' ), $modal['label'] ) ); ?>">
+					<span aria-hidden="true">&times;</span>
+				</button>
+
+				<div class="nexa-pro-modal__content">
+					<h2 id="<?php echo esc_attr( $title_id ); ?>"><?php echo esc_html( $modal['title'] ); ?></h2>
+					<div class="nexa-pro-modal__legal-content">
+						<?php echo wp_kses_post( wpautop( $modal['content'] ) ); ?>
+					</div>
+				</div>
+			</div>
+		</dialog>
+		<?php
+	}
 }
 
 /**

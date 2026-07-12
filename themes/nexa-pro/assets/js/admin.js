@@ -86,6 +86,55 @@
 		});
 	}
 
+	function initConditionalFields() {
+		var rows = Array.prototype.slice.call(admin.querySelectorAll('[data-nexa-pro-conditional-field]'));
+		var controllers = [];
+
+		if (!rows.length) {
+			return;
+		}
+
+		function getController(key) {
+			var fieldId = 'nexa-pro-' + String(key).replace(/_/g, '-');
+
+			return admin.querySelector('#' + fieldId);
+		}
+
+		function rowShouldShow(row) {
+			var key = row.getAttribute('data-nexa-pro-conditional-key') || '';
+			var values = (row.getAttribute('data-nexa-pro-conditional-values') || '').split(',').filter(Boolean);
+			var controller = getController(key);
+
+			if (!controller || !values.length) {
+				return true;
+			}
+
+			return values.indexOf(controller.value) !== -1;
+		}
+
+		function updateRows() {
+			rows.forEach(function (row) {
+				row.hidden = !rowShouldShow(row);
+			});
+		}
+
+		rows.forEach(function (row) {
+			var key = row.getAttribute('data-nexa-pro-conditional-key') || '';
+			var controller = getController(key);
+
+			if (controller && controllers.indexOf(controller) === -1) {
+				controllers.push(controller);
+			}
+		});
+
+		controllers.forEach(function (controller) {
+			controller.addEventListener('change', updateRows);
+			controller.addEventListener('input', updateRows);
+		});
+
+		updateRows();
+	}
+
 	var mediaInitAttempts = 0;
 
 	function initMediaFields() {
@@ -667,6 +716,7 @@
 	initColorFields();
 	initDesignFieldResets();
 	initGlobalDesignReset();
+	initConditionalFields();
 
 	admin.querySelectorAll('[data-nexa-pro-repeater]').forEach(initRepeater);
 	admin.querySelectorAll('[data-nexa-pro-homepage-order]').forEach(initHomepageOrder);
