@@ -15,7 +15,8 @@ Nexa Pro is a professional business theme foundation for agencies, consultants,
 SaaS teams, startups, recruiters, and service businesses. It currently includes
 a configurable parent theme with homepage sections, design tokens, header and
 footer settings, media controls, repeaters, presets, settings import/export,
-and rollback support.
+rollback support, and a companion plugin foundation for page component storage
+and builder administration.
 
 ## Development
 

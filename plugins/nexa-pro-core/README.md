@@ -1,23 +1,25 @@
 # Nexa Pro Core
 
-Nexa Pro Core is the companion plugin for Nexa Pro component storage.
+Nexa Pro Core is the companion plugin for Nexa Pro component storage and page
+component builder administration.
 
-Current plugin version: `0.1.0`
+Current plugin version: `0.2.0`
 
 Current schema version: `1`
 
 ## Purpose
 
-Phase 6B establishes persistent storage APIs for future Nexa Pro component
-composition. The plugin owns page-level component data and reusable component
-storage so that builder content can survive a theme switch.
+Nexa Pro Core owns persistent component composition data that should survive a
+theme switch. It stores page-level component instances, private reusable
+component records, and the builder administration workflow for composing real
+WordPress pages from component instances.
 
 The Nexa Pro theme remains responsible for presentation, templates, rendering,
 design capabilities, and legacy fixed-section compatibility.
 
 ## Current Scope
 
-Included in Phase 6B:
+Included through Phase 6C:
 
 - Plugin bootstrap and activation/deactivation hooks
 - Schema metadata
@@ -27,13 +29,20 @@ Included in Phase 6B:
 - Capability registration
 - Sanitization and validation
 - Helper APIs for storage operations
+- Read-side helpers for future rendering integration
+- Appearance > Nexa Pro Builder admin screen
+- Editable WordPress page list and filters
+- Add, edit, duplicate, enable, disable, reorder, move, delete, and undo actions
+- Component editor groups for Content, Layout, Design, Navigation, and Advanced
+- Plugin-scoped builder admin CSS and JavaScript
 - Conservative uninstall behavior
-- Standalone and WordPress-aware storage validation script
+- Standalone and WordPress-aware storage and builder validation scripts
 
-Not included in Phase 6B:
+Not included in Phase 6C:
 
-- Builder admin UI
 - Visible reusable component screens
+- Generated navigation
+- Reusable component management UI
 - Migration UI
 - Legacy settings migration
 - Frontend rendering changes
@@ -116,6 +125,8 @@ Page component helpers:
 - `nexa_pro_core_reorder_page_components( $page_id, array $ordered_ids )`
 - `nexa_pro_core_move_page_component( $source_page_id, $target_page_id, $instance_id )`
 - `nexa_pro_core_count_page_components( $page_id )`
+- `nexa_pro_core_get_renderable_page_components( $page_id )`
+- `nexa_pro_core_has_builder_components( $page_id )`
 
 Reusable component helpers:
 
@@ -142,10 +153,57 @@ Activation grants these capabilities to administrators only:
 Write helpers verify the appropriate capability. Controlled tests may pass an
 explicit bypass only when `NEXA_PRO_CORE_TESTING` is defined.
 
+## Builder Admin
+
+The Phase 6C builder screen is available at:
+
+```text
+Appearance > Nexa Pro Builder
+```
+
+The screen is provided by Nexa Pro Core and uses the
+`manage_nexa_pro_components` capability. It lists editable WordPress pages,
+filters by search/status/configuration, shows component counts, and provides
+edit and preview links for the selected page.
+
+For the selected page, administrators can:
+
+- Add a component from the theme registry or safe fallback registry.
+- Edit component content, layout, design, navigation, and advanced fields.
+- Duplicate a component with a new instance ID and unique anchor.
+- Enable or disable a component without deleting it.
+- Move components up or down without JavaScript.
+- Drag components to reorder when JavaScript is available, then explicitly save order.
+- Move a component to another editable page.
+- Delete a component after checking a confirmation box.
+- Undo the most recent deletion through a short-lived user-scoped transient.
+
+All write actions use authenticated `admin-post.php` handlers, capability
+checks, nonces, sanitized request data, and PRG redirects. Builder JavaScript is
+progressive enhancement only; core add, edit, save, enable/disable, move,
+delete, and undo paths remain available without JavaScript.
+
+The builder does not overwrite `post_content`, does not create pages
+automatically, and does not automatically switch the theme frontend from legacy
+rendering to builder rendering.
+
+## Component Editor Groups
+
+The builder editor groups fields into:
+
+- Content: admin title, enabled state, common text, CTA, and attachment-ID fields.
+- Layout: layout variation, alignment, media position, width, columns, and spacing.
+- Design: preset, background, gradient, overlay, text-theme, card, radius, and shadow controls.
+- Navigation: future generated-navigation values such as label, anchor, CTA highlight, and mobile visibility.
+- Advanced: sanitized class tokens, ARIA label, semantic element, device visibility, and animation preset.
+
+The editor uses typed controls rather than arbitrary JSON, CSS, JavaScript, or
+PHP input.
+
 ## Reusable Component Behavior
 
 Reusable components are private records with no public URLs, rewrite rules,
-REST exposure, or visible admin screens in Phase 6B.
+REST exposure, or visible management screens in Phase 6C.
 
 Page instances support two inheritance modes:
 
@@ -153,7 +211,9 @@ Page instances support two inheritance modes:
 - `linked`: content, design, layout, and advanced settings resolve from the
   reusable component while page placement and navigation remain local.
 
-Recursive and self-referential reusable links are rejected.
+Recursive and self-referential reusable links are rejected. Phase 6C may display
+linked-instance storage relationships on page components, but reusable component
+management screens remain reserved for a later phase.
 
 ## Uninstall And Data Preservation
 
@@ -168,20 +228,22 @@ Run standalone validation from the repository root:
 
 ```sh
 php plugins/nexa-pro-core/tests/validate-storage.php
+php plugins/nexa-pro-core/tests/validate-builder-admin.php
 ```
 
 Run against a LocalWP installation by passing `wp-load.php`:
 
 ```sh
 php plugins/nexa-pro-core/tests/validate-storage.php --wp-load="/path/to/site/app/public/wp-load.php"
+php plugins/nexa-pro-core/tests/validate-builder-admin.php --wp-load="/path/to/site/app/public/wp-load.php"
 ```
 
-The validation script creates temporary storage test pages and removes them when
-the run completes.
+The validation scripts create temporary storage and builder test pages and remove
+them when the run completes.
 
 ## Next Phase
 
-The next scoped phase is Phase 6C: Builder admin.
+The next scoped phase is Phase 6D: Navigation and reusable components.
 
-Phase 6C may add visible composition screens on top of these APIs. Phase 6B does
-not include that UI.
+Phase 6D may add generated navigation and reusable component management
+workflows on top of the Phase 6B storage APIs and Phase 6C builder screen.

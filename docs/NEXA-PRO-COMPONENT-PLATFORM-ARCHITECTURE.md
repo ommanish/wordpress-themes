@@ -278,6 +278,134 @@ Acceptance criteria:
 - Component editors are organized as Content, Layout, Design, Navigation, and
   Advanced.
 
+Phase 6C builder details:
+
+- Plugin version: `0.2.0`.
+- Schema version remains `1`.
+- Builder menu location: `Appearance > Nexa Pro Builder`.
+- Builder menu capability: `manage_nexa_pro_components`.
+- Builder screen slug: `nexa-pro-builder`.
+- Builder data remains in page meta under `_nexa_pro_components`.
+- Theme rendering remains in legacy/fixed-section mode unless a later explicit
+  builder-rendering mode is added.
+
+The builder screen is intentionally owned by Nexa Pro Core instead of being
+embedded into the theme settings page. This avoids fragile coupling to the
+theme options UI while still placing the screen under Appearance where site
+composition settings naturally live.
+
+Phase 6C request handlers:
+
+- `admin_post_nexa_pro_core_builder_save_component`.
+- `admin_post_nexa_pro_core_builder_duplicate_component`.
+- `admin_post_nexa_pro_core_builder_toggle_component`.
+- `admin_post_nexa_pro_core_builder_move_order`.
+- `admin_post_nexa_pro_core_builder_save_order`.
+- `admin_post_nexa_pro_core_builder_move_page`.
+- `admin_post_nexa_pro_core_builder_delete_component`.
+- `admin_post_nexa_pro_core_builder_undo_delete`.
+
+All handlers use authenticated `admin-post.php` requests, capability checks,
+page edit checks, nonces scoped to the operation and page, sanitized request
+data, and PRG redirects back to the builder screen. Trashed pages are not
+editable from the builder. Failed editor submissions can be retained briefly in
+a user-scoped transient so the administrator does not lose entered values after
+a validation error.
+
+No-JavaScript fallback:
+
+- Page selection uses normal `themes.php?page=nexa-pro-builder` links.
+- Add and edit forms submit through regular POST requests.
+- Enable/disable uses a visible submit button.
+- Move up/down uses server-rendered forms and does not require drag-and-drop.
+- Delete uses a required confirmation checkbox and submit button.
+- Undo delete uses a server-rendered form and user-scoped transient.
+
+JavaScript is limited to progressive enhancement:
+
+- Drag-and-drop ordering.
+- Hidden order input synchronization.
+- Accessible `aria-live` announcements.
+- Unsaved-change warning for the editor form.
+
+Component editor groups:
+
+- Content: admin title, enabled state, common text fields, CTA fields, and image
+  attachment-ID fields.
+- Layout: layout variation, alignment, media position, container width, column
+  count, and section spacing.
+- Design: preset, background, gradient, background image ID, overlay, text
+  theme, card style, radius, and shadow.
+- Navigation: stored future navigation values such as label, anchor,
+  highlight-as-CTA, mobile visibility, and order override.
+- Advanced: sanitized CSS class tokens, ARIA label, semantic element, device
+  visibility, and animation preset.
+
+The editor uses typed controls and allowlists. It does not expose arbitrary
+JSON, CSS, JavaScript, or PHP input.
+
+Delete and undo behavior:
+
+- Delete requires a checked confirmation control.
+- The deleted component, source page, and original index are stored in a
+  short-lived transient keyed to the current user.
+- Undo restores the deleted component to its original page and closest
+  available order position.
+- Undo data expires safely and is never shared across users.
+
+Reorder behavior:
+
+- Components remain stored while disabled and can still be reordered.
+- Move up/down is the keyboard and no-JavaScript path.
+- Drag-and-drop only changes the visible order until the user submits Save
+  order.
+- Save order must include each stored instance ID exactly once.
+- Storage normalizes numeric `order` values after save.
+
+Move-to-page behavior:
+
+- The target page must be an editable WordPress page.
+- The target write happens before source removal.
+- If the target page already has the same instance ID, a new stable ID is
+  generated.
+- If the target page already has the same anchor, a unique anchor variant is
+  generated.
+- If source removal fails after target write, the target page is rolled back to
+  its previous component collection where possible.
+
+Read-side integration:
+
+- `nexa_pro_core_get_renderable_page_components( $page_id )` returns enabled,
+  reusable-resolved components in normalized order.
+- `nexa_pro_core_has_builder_components( $page_id )` reports whether builder
+  components are stored for a page.
+- These helpers are intentionally read-only and do not switch theme rendering.
+
+Accessibility approach:
+
+- The screen uses semantic headings, labelled form controls, real buttons and
+  links, focus-visible styling, status notices, and `aria-live` announcements.
+- Details/summary controls group the editor without hiding fields from
+  keyboard users.
+- Drag-and-drop has Move up/down alternatives.
+- Destructive actions require visible confirmation.
+- Narrow admin layouts collapse to a single column and keep controls visible.
+
+Phase 6C exit criteria:
+
+- Administrators can compose component instances on real editable WordPress
+  pages.
+- Add, edit, duplicate, enable/disable, reorder, move, delete, and undo actions
+  are covered by storage APIs.
+- Builder admin assets enqueue only on the builder screen.
+- The theme registry is used when available, with a clear fallback notice when
+  unavailable.
+- No builder data is stored in theme options.
+- No page `post_content` is overwritten.
+- No generated navigation or reusable component management UI is introduced.
+- Theme frontend output remains unchanged by default.
+- Standalone and WordPress-aware validation cover the builder workflows.
+
 ### Phase 6D - Navigation And Reusable Components
 
 Scope:
