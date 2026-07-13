@@ -127,7 +127,7 @@ $page_a = nexa_pro_core_storage_create_test_page( 'Nexa Storage Test A' );
 $page_b = nexa_pro_core_storage_create_test_page( 'Nexa Storage Test B' );
 
 nexa_pro_core_storage_assert( function_exists( 'nexa_pro_core_get_page_components' ), 'Plugin bootstrap should load helper APIs.' );
-nexa_pro_core_storage_assert( '0.2.0' === NEXA_PRO_CORE_VERSION, 'Plugin version should be 0.2.0.' );
+nexa_pro_core_storage_assert( '0.3.0' === NEXA_PRO_CORE_VERSION, 'Plugin version should be 0.3.0.' );
 nexa_pro_core_storage_assert( 1 === NEXA_PRO_CORE_SCHEMA_VERSION, 'Schema version should be 1.' );
 nexa_pro_core_storage_assert( '_nexa_pro_components' === NEXA_PRO_CORE_PAGE_META_KEY, 'Page meta key should match the contract.' );
 nexa_pro_core_storage_assert( in_array( 'manage_nexa_pro_components', nexa_pro_core_get_capabilities(), true ), 'Required component capability should be registered.' );

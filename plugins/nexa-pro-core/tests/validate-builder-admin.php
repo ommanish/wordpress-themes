@@ -201,7 +201,7 @@ function nexa_pro_core_builder_post_action( $operation, $page_id, array $extra =
 
 do_action( 'admin_menu' );
 
-nexa_pro_core_builder_assert( '0.2.0' === NEXA_PRO_CORE_VERSION, 'Plugin version should be 0.2.0.' );
+nexa_pro_core_builder_assert( '0.3.0' === NEXA_PRO_CORE_VERSION, 'Plugin version should be 0.3.0.' );
 nexa_pro_core_builder_assert( function_exists( 'nexa_pro_core_get_renderable_page_components' ), 'Renderable page component helper should exist.' );
 nexa_pro_core_builder_assert( function_exists( 'nexa_pro_core_has_builder_components' ), 'Builder component presence helper should exist.' );
 
@@ -543,11 +543,21 @@ function nexa_pro_core_builder_validation_bootstrap_standalone_wordpress( $plugi
 		'esc_url' => function ( $url ) {
 			return esc_attr( $url );
 		},
-		'add_action' => function ( $hook, $callback, $priority = 10 ) {
-			$GLOBALS['nexa_pro_core_builder_test_hooks'][ $hook ][ $priority ][] = $callback;
+		'add_action' => function ( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
+			$GLOBALS['nexa_pro_core_builder_test_hooks'][ $hook ][ $priority ][] = array(
+				'callback'      => $callback,
+				'accepted_args' => absint( $accepted_args ),
+			);
 			return true;
 		},
-		'apply_filters' => function ( $hook, $value ) {
+		'add_filter' => function ( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
+			$GLOBALS['nexa_pro_core_builder_test_hooks'][ $hook ][ $priority ][] = array(
+				'callback'      => $callback,
+				'accepted_args' => absint( $accepted_args ),
+			);
+			return true;
+		},
+		'apply_filters' => function ( $hook, $value, ...$args ) {
 			if ( empty( $GLOBALS['nexa_pro_core_builder_test_hooks'][ $hook ] ) ) {
 				return $value;
 			}
@@ -555,14 +565,16 @@ function nexa_pro_core_builder_validation_bootstrap_standalone_wordpress( $plugi
 			ksort( $GLOBALS['nexa_pro_core_builder_test_hooks'][ $hook ] );
 
 			foreach ( $GLOBALS['nexa_pro_core_builder_test_hooks'][ $hook ] as $callbacks ) {
-				foreach ( $callbacks as $callback ) {
-					$value = call_user_func( $callback, $value );
+				foreach ( $callbacks as $callback_data ) {
+					$accepted_args = max( 1, $callback_data['accepted_args'] );
+					$filter_args   = array_slice( array_merge( array( $value ), $args ), 0, $accepted_args );
+					$value         = call_user_func_array( $callback_data['callback'], $filter_args );
 				}
 			}
 
 			return $value;
 		},
-		'do_action' => function ( $hook ) {
+		'do_action' => function ( $hook, ...$args ) {
 			if ( empty( $GLOBALS['nexa_pro_core_builder_test_hooks'][ $hook ] ) ) {
 				return;
 			}
@@ -570,8 +582,9 @@ function nexa_pro_core_builder_validation_bootstrap_standalone_wordpress( $plugi
 			ksort( $GLOBALS['nexa_pro_core_builder_test_hooks'][ $hook ] );
 
 			foreach ( $GLOBALS['nexa_pro_core_builder_test_hooks'][ $hook ] as $callbacks ) {
-				foreach ( $callbacks as $callback ) {
-					call_user_func( $callback );
+				foreach ( $callbacks as $callback_data ) {
+					$accepted_args = max( 0, $callback_data['accepted_args'] );
+					call_user_func_array( $callback_data['callback'], array_slice( $args, 0, $accepted_args ) );
 				}
 			}
 		},
