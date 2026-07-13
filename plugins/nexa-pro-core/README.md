@@ -3,7 +3,7 @@
 Nexa Pro Core is the companion plugin for Nexa Pro component storage and page
 component builder administration.
 
-Current plugin version: `0.2.0`
+Current plugin version: `0.3.0`
 
 Current schema version: `1`
 
@@ -19,7 +19,7 @@ design capabilities, and legacy fixed-section compatibility.
 
 ## Current Scope
 
-Included through Phase 6C:
+Included through Phase 6D:
 
 - Plugin bootstrap and activation/deactivation hooks
 - Schema metadata
@@ -35,20 +35,27 @@ Included through Phase 6C:
 - Add, edit, duplicate, enable, disable, reorder, move, delete, and undo actions
 - Component editor groups for Content, Layout, Design, Navigation, and Advanced
 - Plugin-scoped builder admin CSS and JavaScript
+- Navigation settings stored in `nexa_pro_core_navigation`
+- WordPress, generated, and hybrid navigation modes
+- Generated navigation trees from page component metadata
+- Hybrid insertion before, after, or in place of a placeholder menu item
+- Reusable Components admin screen
+- Linked and local reusable insertion workflows
+- Reusable usage counts and affected page lists
+- Reusable detach, archive, restore, and safe delete behavior
 - Conservative uninstall behavior
-- Standalone and WordPress-aware storage and builder validation scripts
+- Standalone and WordPress-aware storage, builder, navigation, and reusable
+  validation scripts
 
-Not included in Phase 6C:
+Not included in Phase 6D:
 
-- Visible reusable component screens
-- Generated navigation
-- Reusable component management UI
 - Migration UI
 - Legacy settings migration
-- Frontend rendering changes
 - Import/export UI for component data
 - REST or AJAX write endpoints
 - Demo page creation
+- Layout variation expansion
+- Layout or design preset inheritance
 
 ## Installation
 
@@ -184,8 +191,7 @@ progressive enhancement only; core add, edit, save, enable/disable, move,
 delete, and undo paths remain available without JavaScript.
 
 The builder does not overwrite `post_content`, does not create pages
-automatically, and does not automatically switch the theme frontend from legacy
-rendering to builder rendering.
+automatically, and does not create WordPress menus automatically.
 
 ## Component Editor Groups
 
@@ -203,7 +209,27 @@ PHP input.
 ## Reusable Component Behavior
 
 Reusable components are private records with no public URLs, rewrite rules,
-REST exposure, or visible management screens in Phase 6C.
+REST exposure, or default WordPress management screens.
+
+The Reusable Components screen is available at:
+
+```text
+Appearance > Nexa Pro Builder > Reusable Components
+```
+
+The screen supports:
+
+- Create reusable component
+- Edit source content, layout, design, navigation defaults, and advanced fields
+- Duplicate
+- Archive
+- Restore
+- Delete when not linked
+- Detach all linked instances, then delete
+- View linked-use count
+- View affected pages
+- Insert into a page as linked or local
+- Create a reusable source from a page instance
 
 Page instances support two inheritance modes:
 
@@ -211,9 +237,64 @@ Page instances support two inheritance modes:
 - `linked`: content, design, layout, and advanced settings resolve from the
   reusable component while page placement and navigation remain local.
 
-Recursive and self-referential reusable links are rejected. Phase 6C may display
-linked-instance storage relationships on page components, but reusable component
-management screens remain reserved for a later phase.
+Recursive and self-referential reusable links are rejected. The builder displays
+visible badges and actions for local instances, linked instances, missing
+sources, and archived sources.
+
+Linked instances resolve content, layout, design, and advanced data from the
+reusable source. Page-local navigation and placement remain on the page
+instance. Local copies store complete data and do not receive future source
+updates.
+
+If a source is missing, the builder does not fatal. Administrators can detach the
+page instance to a local copy using its stored page data.
+
+## Navigation
+
+Navigation settings are available at:
+
+```text
+Appearance > Nexa Pro Builder > Navigation
+```
+
+Settings are stored in:
+
+```text
+nexa_pro_core_navigation
+```
+
+Navigation source modes:
+
+- `wordpress`: preserves the assigned WordPress Primary Menu. No generated
+  items are injected.
+- `generated`: renders menu items from configured pages and eligible component
+  navigation metadata.
+- `hybrid`: combines WordPress Primary Menu items with generated items.
+
+Generated navigation can use:
+
+- A primary single-page page.
+- A configured multipage list.
+- Eligible page component instances.
+- Component labels, anchors, parent relationships, order overrides, CTA
+  highlighting, and mobile visibility.
+
+Hybrid insertion can place generated items:
+
+- Before WordPress menu items.
+- After WordPress menu items.
+- In place of a placeholder URL such as `#nexa-generated-navigation`.
+
+The plugin exposes:
+
+- `nexa_pro_core_get_navigation_settings()`
+- `nexa_pro_core_get_navigation_defaults()`
+- `nexa_pro_core_get_generated_navigation()`
+- `nexa_pro_core_get_page_navigation_items()`
+- `nexa_pro_core_validate_navigation_tree()`
+
+The Nexa Pro theme owns frontend navigation markup and presentation. WordPress
+menus are not overwritten or automatically created.
 
 ## Uninstall And Data Preservation
 
@@ -229,6 +310,8 @@ Run standalone validation from the repository root:
 ```sh
 php plugins/nexa-pro-core/tests/validate-storage.php
 php plugins/nexa-pro-core/tests/validate-builder-admin.php
+php plugins/nexa-pro-core/tests/validate-navigation.php --wp-load="/path/to/site/app/public/wp-load.php"
+php plugins/nexa-pro-core/tests/validate-reusable.php --wp-load="/path/to/site/app/public/wp-load.php"
 ```
 
 Run against a LocalWP installation by passing `wp-load.php`:
@@ -236,6 +319,8 @@ Run against a LocalWP installation by passing `wp-load.php`:
 ```sh
 php plugins/nexa-pro-core/tests/validate-storage.php --wp-load="/path/to/site/app/public/wp-load.php"
 php plugins/nexa-pro-core/tests/validate-builder-admin.php --wp-load="/path/to/site/app/public/wp-load.php"
+php plugins/nexa-pro-core/tests/validate-navigation.php --wp-load="/path/to/site/app/public/wp-load.php"
+php plugins/nexa-pro-core/tests/validate-reusable.php --wp-load="/path/to/site/app/public/wp-load.php"
 ```
 
 The validation scripts create temporary storage and builder test pages and remove
@@ -243,7 +328,8 @@ them when the run completes.
 
 ## Next Phase
 
-The next scoped phase is Phase 6D: Navigation and reusable components.
+The next scoped phase is Phase 6E: Layout variations and design presets.
 
-Phase 6D may add generated navigation and reusable component management
-workflows on top of the Phase 6B storage APIs and Phase 6C builder screen.
+Phase 6E may expand layout choices and design presets on top of the Phase 6D
+navigation and reusable component APIs. It should not require moving plugin-owned
+builder data into theme options.

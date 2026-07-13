@@ -423,6 +423,120 @@ Acceptance criteria:
 - Linked instances and local copies are clearly distinguished.
 - Recursive reusable references are prevented.
 
+Phase 6D navigation details:
+
+- Plugin version: `0.3.0`.
+- Schema version remains `1`.
+- Navigation settings option: `nexa_pro_core_navigation`.
+- Builder screen location: `Appearance > Nexa Pro Builder > Navigation`.
+- Navigation source modes:
+  - `wordpress`: preserves the assigned WordPress Primary Menu and injects no
+    generated items.
+  - `generated`: renders a normalized tree from configured pages and eligible
+    component navigation metadata.
+  - `hybrid`: preserves WordPress menu order and inserts generated items before,
+    after, or in place of a safe placeholder URL.
+
+Generated tree model:
+
+- Configured published pages become page nodes.
+- Eligible enabled components become component nodes.
+- Single-page mode flattens the selected primary page's eligible component
+  nodes into top-level same-page anchor links.
+- Multipage mode renders page links with optional component child links.
+- Component links use `#anchor` for same-page navigation and
+  `/page-slug/#anchor` for cross-page navigation.
+- Component order follows stored component order unless
+  `navigation.order_override` is set.
+- Disabled components, components hidden from navigation, missing anchors, and
+  unpublished pages are excluded by default.
+- Duplicate item IDs and duplicate URLs are reported by the validation API.
+
+Hybrid insertion:
+
+- WordPress menu records are never rewritten.
+- Generated items can be inserted before or after the WordPress Primary Menu
+  items.
+- Placeholder replacement looks for a WordPress menu URL such as
+  `#nexa-generated-navigation` and replaces that item only at render time.
+- Duplicate generated URLs already present in the WordPress menu are skipped.
+- External and custom WordPress menu items remain unchanged.
+
+Component navigation metadata:
+
+- `show_in_navigation` controls generated eligibility.
+- `navigation_label` is used for link text with safe fallbacks to registry
+  defaults or the component title.
+- `anchor_id` defines the link target.
+- `parent_instance_id` can create nested generated items when the parent is
+  valid and non-circular.
+- `order_override` controls generated item order without changing component
+  placement.
+- `highlight_as_cta` adds a presentation class only.
+- `mobile_visibility` is preserved in normalized tree output.
+
+Phase 6D reusable details:
+
+- Reusable admin location:
+  `Appearance > Nexa Pro Builder > Reusable Components`.
+- The private reusable CPT remains `nexa_component` with no public URLs,
+  queries, REST exposure, or default WordPress admin screen.
+- The reusable admin lists title, component type, status, linked-use count,
+  pages using the source, updated date, and actions.
+- Reusable records can be created from an empty definition, duplicated, archived,
+  restored, deleted when safe, inserted into pages, and created from page
+  instances.
+
+Linked/local inheritance:
+
+- Linked page instances store `inheritance_mode=linked` and a
+  `reusable_component_id`.
+- Linked instances resolve content, layout, design, and advanced data from the
+  reusable source at read time.
+- Page-local navigation and placement remain stored on the page instance.
+- Local copies store complete component data and are unaffected by future source
+  updates.
+- Resolving linked instances does not mutate stored page data.
+- A request-level reusable payload cache avoids repeated database reads.
+
+Detach behavior:
+
+- Detaching resolves the effective linked payload first, then saves a local
+  component with `inheritance_mode=local` and no reusable ID.
+- Page-local navigation and placement are preserved.
+- If a source is missing, the stored page instance is retained and converted to
+  local so administrators can recover without a fatal error.
+
+Delete/archive rules:
+
+- Reusable sources with linked instances cannot be silently deleted.
+- The admin lists affected pages before deletion.
+- Administrators can archive the source, restore it, or explicitly detach all
+  linked instances before deleting.
+- Self-references and circular reusable references are rejected by storage
+  helpers.
+
+Theme integration:
+
+- The theme owns header navigation markup, active-state styling, mobile menu
+  behavior, and frontend component rendering.
+- The plugin exposes normalized settings and tree APIs.
+- The theme uses WordPress menu rendering in `wordpress` mode and generated tree
+  rendering in `generated` or `hybrid` mode.
+- Pages with stored renderable builder components can render known theme
+  component templates; pages without builder data keep legacy output.
+
+Phase 6D exit criteria:
+
+- WordPress menu mode preserves existing header behavior.
+- Generated and hybrid modes render accessible menu/list markup without inline
+  JavaScript.
+- Navigation settings save and reset without JavaScript.
+- Reusable create, edit, duplicate, archive, restore, insert, detach, and safe
+  delete workflows are available through authenticated admin-post actions.
+- Linked and local instances are visibly distinguished in the builder.
+- Storage, builder, navigation, and reusable validation scripts pass.
+
 ### Phase 6E - Layout Variations And Design Presets
 
 Scope:
