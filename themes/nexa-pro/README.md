@@ -98,11 +98,11 @@ The theme includes:
 Manual keyboard, screen-reader smoke, color contrast, and responsive checks are
 still required before a final release.
 
-## Known Release Blockers
+## Screenshot
 
-- `screenshot.png` is not present yet. A release-ready screenshot should be
-  added at `themes/nexa-pro/screenshot.png` with recommended dimensions
-  `1200 x 900`, using only approved theme content and imagery.
+Nexa Pro includes `screenshot.png` at `themes/nexa-pro/screenshot.png`.
+The screenshot is `1200 x 900` and is included in the Nexa Pro 1.0.0
+release package.
 
 ## Development Commands
 
