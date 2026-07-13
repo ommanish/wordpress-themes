@@ -531,6 +531,25 @@ function nexa_pro_render_homepage_sections() {
 			continue;
 		}
 
+		$component_type = '';
+
+		if ( ! empty( $section['section_key'] ) && function_exists( 'nexa_pro_get_component_type_for_legacy_section' ) ) {
+			$component_type = nexa_pro_get_component_type_for_legacy_section( $section['section_key'] );
+		}
+
+		if ( '' !== $component_type && function_exists( 'nexa_pro_render_component' ) ) {
+			if ( nexa_pro_render_component(
+				$component_type,
+				$section,
+				array(
+					'source'             => 'homepage',
+					'legacy_section_key' => $section['section_key'],
+				)
+			) ) {
+				continue;
+			}
+		}
+
 		get_template_part(
 			'template-parts/sections/' . sanitize_key( $section['template'] ),
 			null,

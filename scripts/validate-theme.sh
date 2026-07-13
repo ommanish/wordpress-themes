@@ -92,6 +92,15 @@ if require_command php; then
 			fail "PHP syntax ${FILE#$ROOT_DIR/}"
 		fi
 	done
+
+	if [ -f "$ROOT_DIR/scripts/validate-component-registry.php" ]; then
+		if php "$ROOT_DIR/scripts/validate-component-registry.php" >/dev/null; then
+			pass "component registry validation"
+		else
+			php "$ROOT_DIR/scripts/validate-component-registry.php"
+			fail "component registry validation"
+		fi
+	fi
 fi
 
 if require_command node; then

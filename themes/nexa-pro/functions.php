@@ -21,6 +21,15 @@ require_once NEXA_PRO_DIR . '/inc/presets.php';
 require_once NEXA_PRO_DIR . '/inc/assets.php';
 require_once NEXA_PRO_DIR . '/inc/template-functions.php';
 require_once NEXA_PRO_DIR . '/inc/template-tags.php';
+if ( file_exists( NEXA_PRO_DIR . '/inc/components/registry.php' ) ) {
+	require_once NEXA_PRO_DIR . '/inc/components/registry.php';
+}
+if ( file_exists( NEXA_PRO_DIR . '/inc/components/render.php' ) ) {
+	require_once NEXA_PRO_DIR . '/inc/components/render.php';
+}
+if ( file_exists( NEXA_PRO_DIR . '/inc/components/compatibility.php' ) ) {
+	require_once NEXA_PRO_DIR . '/inc/components/compatibility.php';
+}
 require_once NEXA_PRO_DIR . '/inc/homepage-sections.php';
 require_once NEXA_PRO_DIR . '/inc/admin/fields.php';
 require_once NEXA_PRO_DIR . '/inc/admin/tools.php';
