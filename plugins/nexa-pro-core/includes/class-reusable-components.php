@@ -16,6 +16,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Reusable_Components {
 	/**
+	 * Request-level reusable payload cache.
+	 *
+	 * @var array
+	 */
+	private static $payload_cache = array();
+
+	/**
 	 * Register the private reusable component post type.
 	 *
 	 * @return void
@@ -121,7 +128,17 @@ final class Reusable_Components {
 			return new \WP_Error( 'nexa_pro_core_invalid_reusable_payload', \__( 'Reusable component payload is invalid.', 'nexa-pro-core' ) );
 		}
 
-		return Sanitizer::sanitize_component_instance( $component );
+		if ( isset( self::$payload_cache[ $post_id ] ) ) {
+			return self::$payload_cache[ $post_id ];
+		}
+
+		$component = Sanitizer::sanitize_component_instance( $component );
+
+		if ( ! \is_wp_error( $component ) ) {
+			self::$payload_cache[ $post_id ] = $component;
+		}
+
+		return $component;
 	}
 
 	/**
@@ -162,6 +179,7 @@ final class Reusable_Components {
 		}
 
 		\update_post_meta( $post_id, NEXA_PRO_CORE_REUSABLE_META_KEY, $updated );
+		unset( self::$payload_cache[ absint( $post_id ) ] );
 		\wp_update_post(
 			array(
 				'ID'         => absint( $post_id ),
@@ -220,6 +238,31 @@ final class Reusable_Components {
 	}
 
 	/**
+	 * Restore an archived reusable component.
+	 *
+	 * @param int   $post_id Reusable component ID.
+	 * @param array $args    Operation args.
+	 * @return true|\WP_Error
+	 */
+	public static function restore_reusable_component( $post_id, $args = array() ) {
+		$verified = Capabilities::verify_reusable_write( $args );
+
+		if ( \is_wp_error( $verified ) ) {
+			return $verified;
+		}
+
+		$result = \wp_update_post(
+			array(
+				'ID'          => absint( $post_id ),
+				'post_status' => 'private',
+			),
+			true
+		);
+
+		return \is_wp_error( $result ) ? $result : true;
+	}
+
+	/**
 	 * Delete a reusable component only when it is not linked.
 	 *
 	 * @param int   $post_id Reusable component ID.
@@ -240,6 +283,43 @@ final class Reusable_Components {
 		$deleted = \wp_delete_post( absint( $post_id ), true );
 
 		return $deleted ? true : new \WP_Error( 'nexa_pro_core_reusable_delete_failed', \__( 'Reusable component could not be deleted.', 'nexa-pro-core' ) );
+	}
+
+	/**
+	 * Detach all linked page instances for a reusable component.
+	 *
+	 * @param int   $post_id Reusable component ID.
+	 * @param array $args    Operation args.
+	 * @return int|\WP_Error
+	 */
+	public static function detach_all_linked_instances( $post_id, $args = array() ) {
+		$verified = Capabilities::verify_reusable_write( $args );
+
+		if ( \is_wp_error( $verified ) ) {
+			return $verified;
+		}
+
+		$usages   = self::list_linked_page_instances( $post_id );
+		$detached = 0;
+
+		foreach ( $usages as $usage ) {
+			$page_args = array_merge(
+				$args,
+				array(
+					'bypass_capability_check' => ! empty( $args['bypass_capability_check'] ),
+				)
+			);
+
+			$result = self::detach_reusable_component( $usage['page_id'], $usage['instance_id'], $page_args );
+
+			if ( \is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			$detached++;
+		}
+
+		return $detached;
 	}
 
 	/**
@@ -344,7 +424,7 @@ final class Reusable_Components {
 				$resolved = self::resolve_component_instance( $component );
 
 				if ( \is_wp_error( $resolved ) ) {
-					return $resolved;
+					$resolved = $component;
 				}
 
 				$resolved['inheritance_mode']      = 'local';
