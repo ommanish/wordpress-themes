@@ -66,6 +66,25 @@
 	background: var(--nexa-pro-color-surface);
 }
 
+.primary-menu .sub-menu {
+	display: grid;
+	gap: var(--nexa-pro-space-2xs);
+	margin: var(--nexa-pro-space-2xs) 0 0;
+	padding: 0 0 0 var(--nexa-pro-space-sm);
+	list-style: none;
+}
+
+.primary-menu .menu-item--cta > a {
+	background: var(--nexa-pro-color-button-primary-background);
+	color: var(--nexa-pro-color-button-primary-text);
+}
+
+.primary-menu .menu-item--cta > a:hover,
+.primary-menu .menu-item--cta > a:focus-visible {
+	background: var(--nexa-pro-color-button-primary-hover);
+	color: var(--nexa-pro-color-button-primary-text);
+}
+
 .site-footer__section-title {
 	margin: 0;
 	color: var(--nexa-pro-color-heading);

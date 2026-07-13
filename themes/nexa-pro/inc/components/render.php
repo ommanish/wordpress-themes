@@ -192,3 +192,106 @@ function nexa_pro_render_component( $type, array $data = array(), array $context
 
 	return true;
 }
+
+/**
+ * Determine whether a page has renderable Nexa Pro Core components.
+ *
+ * @param int $page_id Page ID.
+ * @return bool
+ */
+function nexa_pro_has_builder_page_components( $page_id ) {
+	return function_exists( 'nexa_pro_core_get_renderable_page_components' ) && ! empty( nexa_pro_get_builder_page_components( $page_id ) );
+}
+
+/**
+ * Get renderable builder components for a page.
+ *
+ * @param int $page_id Page ID.
+ * @return array
+ */
+function nexa_pro_get_builder_page_components( $page_id ) {
+	if ( ! function_exists( 'nexa_pro_core_get_renderable_page_components' ) ) {
+		return array();
+	}
+
+	$components = nexa_pro_core_get_renderable_page_components( absint( $page_id ) );
+
+	return is_array( $components ) ? $components : array();
+}
+
+/**
+ * Render builder components for a page.
+ *
+ * @param int $page_id Page ID.
+ * @return bool
+ */
+function nexa_pro_render_builder_page_components( $page_id ) {
+	$components = nexa_pro_get_builder_page_components( $page_id );
+
+	if ( empty( $components ) ) {
+		return false;
+	}
+
+	foreach ( $components as $component ) {
+		$type = isset( $component['component_type'] ) ? sanitize_key( $component['component_type'] ) : '';
+
+		if ( '' === $type ) {
+			continue;
+		}
+
+		nexa_pro_render_component(
+			$type,
+			nexa_pro_map_builder_component_to_section_data( $component ),
+			array(
+				'source'  => 'builder',
+				'page_id' => absint( $page_id ),
+			)
+		);
+	}
+
+	return true;
+}
+
+/**
+ * Map a stored component to existing section template data.
+ *
+ * @param array $component Component.
+ * @return array
+ */
+function nexa_pro_map_builder_component_to_section_data( array $component ) {
+	$type       = isset( $component['component_type'] ) ? sanitize_key( $component['component_type'] ) : '';
+	$content    = isset( $component['content'] ) && is_array( $component['content'] ) ? $component['content'] : array();
+	$navigation = isset( $component['navigation'] ) && is_array( $component['navigation'] ) ? $component['navigation'] : array();
+	$anchor_id  = ! empty( $navigation['anchor_id'] ) ? sanitize_title( $navigation['anchor_id'] ) : $type;
+	$heading    = ! empty( $content['heading'] ) ? wp_strip_all_tags( $content['heading'] ) : '';
+	$text       = ! empty( $content['body'] ) ? wp_strip_all_tags( $content['body'] ) : '';
+
+	if ( '' === $heading && ! empty( $component['admin_title'] ) ) {
+		$heading = wp_strip_all_tags( $component['admin_title'] );
+	}
+
+	$data = array(
+		'id'          => $anchor_id,
+		'section_key' => $type,
+		'label'       => ! empty( $content['eyebrow'] ) ? wp_strip_all_tags( $content['eyebrow'] ) : '',
+		'heading'     => $heading,
+		'text'        => $text,
+		'items'       => ! empty( $content['items'] ) && is_array( $content['items'] ) ? $content['items'] : array(),
+		'points'      => ! empty( $content['points'] ) && is_array( $content['points'] ) ? $content['points'] : array(),
+		'action'      => array(
+			'label' => ! empty( $content['primary_cta_label'] ) ? wp_strip_all_tags( $content['primary_cta_label'] ) : '',
+			'url'   => ! empty( $content['primary_cta_url'] ) ? esc_url_raw( $content['primary_cta_url'] ) : '',
+		),
+	);
+
+	$image_id = ! empty( $content['desktop_image_id'] ) ? absint( $content['desktop_image_id'] ) : 0;
+
+	if ( $image_id ) {
+		$data['image'] = array(
+			'id'  => $image_id,
+			'alt' => $heading,
+		);
+	}
+
+	return $data;
+}

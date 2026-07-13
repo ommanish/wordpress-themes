@@ -22,6 +22,11 @@
 	display: grid;
 }
 
+.nexa-pro-generated-menu--mobile-hidden,
+.primary-menu .menu-item--desktop-only {
+	display: none;
+}
+
 @media (max-width: 782px) {
 	.admin-bar .nexa-pro-header--sticky {
 		top: 46px;
@@ -161,6 +166,40 @@
 		border: 0;
 		border-radius: 0;
 		box-shadow: none;
+	}
+
+	.nexa-pro-generated-menu--mobile-hidden,
+	.primary-menu .menu-item--desktop-only {
+		display: flex;
+	}
+
+	.primary-menu .menu-item--mobile-only {
+		display: none;
+	}
+
+	.primary-menu .sub-menu {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		z-index: 30;
+		min-width: 12rem;
+		padding: var(--nexa-pro-space-xs);
+		border: var(--nexa-pro-border);
+		border-radius: var(--nexa-pro-radius-sm);
+		background: var(--nexa-pro-color-canvas);
+		box-shadow: var(--nexa-pro-shadow-md);
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.primary-menu .menu-item {
+		position: relative;
+	}
+
+	.primary-menu .menu-item:hover > .sub-menu,
+	.primary-menu .menu-item:focus-within > .sub-menu {
+		opacity: 1;
+		pointer-events: auto;
 	}
 
 	.nexa-pro-header--standard .primary-navigation__panel {

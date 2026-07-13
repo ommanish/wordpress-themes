@@ -18,8 +18,8 @@ final class Render_API {
 	/**
 	 * Get enabled, resolved components for a page.
 	 *
-	 * Phase 6C exposes this read API for future theme integration but does not
-	 * switch the theme from legacy rendering automatically.
+	 * The read API resolves enabled local and linked instances without mutating
+	 * page storage.
 	 *
 	 * @param int $page_id Page ID.
 	 * @return array|\WP_Error

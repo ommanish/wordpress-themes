@@ -52,6 +52,82 @@ final class Capabilities {
 	}
 
 	/**
+	 * Repair administrator capabilities after plugin updates.
+	 *
+	 * Existing beta installs may already be active when new capabilities are
+	 * introduced, so activation alone is not enough.
+	 *
+	 * @return void
+	 */
+	public static function maybe_grant_administrator_capabilities() {
+		$state = \get_option( NEXA_PRO_CORE_MIGRATION_STATE_OPTION, array() );
+
+		if ( ! is_array( $state ) ) {
+			$state = array();
+		}
+
+		if ( ! empty( $state['capabilities_version'] ) && NEXA_PRO_CORE_VERSION === $state['capabilities_version'] ) {
+			return;
+		}
+
+		self::grant_administrator_capabilities();
+
+		$state['capabilities_version']    = NEXA_PRO_CORE_VERSION;
+		$state['capabilities_updated_at'] = Sanitizer::current_timestamp();
+
+		\update_option( NEXA_PRO_CORE_MIGRATION_STATE_OPTION, $state, false );
+	}
+
+	/**
+	 * Map plugin capabilities to a core administrator capability fallback.
+	 *
+	 * @param array  $caps    Primitive capabilities required.
+	 * @param string $cap     Requested capability.
+	 * @param int    $user_id User ID.
+	 * @param array  $args    Capability args.
+	 * @return array
+	 */
+	public static function map_meta_cap( $caps, $cap, $user_id, $args ) {
+		if ( ! in_array( $cap, self::get_capabilities(), true ) ) {
+			return $caps;
+		}
+
+		$user    = \get_userdata( $user_id );
+		$allcaps = $user ? (array) $user->allcaps : array();
+
+		if ( ! empty( $allcaps[ $cap ] ) ) {
+			return array( $cap );
+		}
+
+		if ( self::MANAGE_REUSABLE_COMPONENTS === $cap && ! empty( $allcaps[ self::MANAGE_COMPONENTS ] ) ) {
+			return array( self::MANAGE_COMPONENTS );
+		}
+
+		return array( 'manage_options' );
+	}
+
+	/**
+	 * Check whether the current user can manage page components.
+	 *
+	 * @return bool
+	 */
+	public static function current_user_can_manage_components() {
+		return \current_user_can( self::MANAGE_COMPONENTS ) || \current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Check whether the current user can manage reusable components.
+	 *
+	 * Existing component managers can manage reusable components because the
+	 * reusable library is an extension of the page-component builder.
+	 *
+	 * @return bool
+	 */
+	public static function current_user_can_manage_reusable_components() {
+		return \current_user_can( self::MANAGE_REUSABLE_COMPONENTS ) || self::current_user_can_manage_components();
+	}
+
+	/**
 	 * Determine whether a testing bypass is explicitly allowed.
 	 *
 	 * @param array $args Operation args.
@@ -73,7 +149,11 @@ final class Capabilities {
 			return true;
 		}
 
-		if ( ! \current_user_can( $capability ) ) {
+		$allowed = self::MANAGE_REUSABLE_COMPONENTS === $capability
+			? self::current_user_can_manage_reusable_components()
+			: \current_user_can( $capability );
+
+		if ( ! $allowed ) {
 			return new \WP_Error(
 				'nexa_pro_core_forbidden',
 				\__( 'You do not have permission to manage Nexa Pro components.', 'nexa-pro-core' )

@@ -327,7 +327,7 @@
 		var targets = [];
 		var prefersReducedMotion = reducedMotionQuery && reducedMotionQuery.matches;
 
-		if (config.navigationMode !== 'single-page' || !config.isFrontPage) {
+		if (['single-page', 'generated', 'hybrid'].indexOf(config.navigationMode) === -1) {
 			return;
 		}
 

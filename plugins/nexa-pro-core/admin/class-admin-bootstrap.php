@@ -21,8 +21,21 @@ final class Admin_Bootstrap {
 	 * @return void
 	 */
 	public static function register() {
-		Builder_Admin::register();
-		Builder_Actions::register();
+		if ( class_exists( Builder_Admin::class ) ) {
+			Builder_Admin::register();
+		}
+
+		if ( class_exists( Builder_Actions::class ) ) {
+			Builder_Actions::register();
+		}
+
+		if ( class_exists( Navigation_Actions::class ) ) {
+			Navigation_Actions::register();
+		}
+
+		if ( class_exists( Reusable_Actions::class ) ) {
+			Reusable_Actions::register();
+		}
 
 		/**
 		 * Fires when the Nexa Pro Core admin bootstrap is loaded.

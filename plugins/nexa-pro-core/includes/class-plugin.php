@@ -43,8 +43,10 @@ final class Plugin {
 	public function register() {
 		\load_plugin_textdomain( 'nexa-pro-core', false, dirname( NEXA_PRO_CORE_BASENAME ) . '/languages' );
 
+		\add_filter( 'map_meta_cap', array( Capabilities::class, 'map_meta_cap' ), 10, 4 );
 		\add_action( 'init', array( Reusable_Components::class, 'register_post_type' ), 5 );
 		\add_action( 'init', array( Schema::class, 'maybe_initialize' ), 20 );
+		\add_action( 'admin_init', array( Capabilities::class, 'maybe_grant_administrator_capabilities' ), 5 );
 
 		Admin_Bootstrap::register();
 	}

@@ -10,6 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Nexa_Pro_Core\Capabilities;
+use Nexa_Pro_Core\Navigation_Settings;
+use Nexa_Pro_Core\Navigation_Tree;
 use Nexa_Pro_Core\Render_API;
 use Nexa_Pro_Core\Reusable_Components;
 use Nexa_Pro_Core\Schema;
@@ -198,6 +200,17 @@ function nexa_pro_core_archive_reusable_component( $post_id, $args = array() ) {
 }
 
 /**
+ * Restore a reusable component.
+ *
+ * @param int   $post_id Reusable component ID.
+ * @param array $args    Operation args.
+ * @return true|WP_Error
+ */
+function nexa_pro_core_restore_reusable_component( $post_id, $args = array() ) {
+	return Reusable_Components::restore_reusable_component( $post_id, $args );
+}
+
+/**
  * Delete a reusable component.
  *
  * @param int   $post_id Reusable component ID.
@@ -206,6 +219,17 @@ function nexa_pro_core_archive_reusable_component( $post_id, $args = array() ) {
  */
 function nexa_pro_core_delete_reusable_component( $post_id, $args = array() ) {
 	return Reusable_Components::delete_reusable_component( $post_id, $args );
+}
+
+/**
+ * Detach all linked instances for a reusable component.
+ *
+ * @param int   $post_id Reusable component ID.
+ * @param array $args    Operation args.
+ * @return int|WP_Error
+ */
+function nexa_pro_core_detach_all_reusable_instances( $post_id, $args = array() ) {
+	return Reusable_Components::detach_all_linked_instances( $post_id, $args );
 }
 
 /**
@@ -285,4 +309,53 @@ function nexa_pro_core_get_stored_schema_version() {
  */
 function nexa_pro_core_component_type_is_allowed( $type ) {
 	return Sanitizer::component_type_is_allowed( $type );
+}
+
+/**
+ * Get plugin-owned navigation settings.
+ *
+ * @return array
+ */
+function nexa_pro_core_get_navigation_settings() {
+	return Navigation_Settings::get_settings();
+}
+
+/**
+ * Get plugin-owned navigation defaults.
+ *
+ * @return array
+ */
+function nexa_pro_core_get_navigation_defaults() {
+	return Navigation_Settings::defaults();
+}
+
+/**
+ * Get generated navigation tree.
+ *
+ * @param array $settings Optional settings.
+ * @return array
+ */
+function nexa_pro_core_get_generated_navigation( $settings = array() ) {
+	return Navigation_Tree::get_generated_navigation( $settings );
+}
+
+/**
+ * Get generated navigation items for a page.
+ *
+ * @param int   $page_id Page ID.
+ * @param array $args    Arguments.
+ * @return array
+ */
+function nexa_pro_core_get_page_navigation_items( $page_id, $args = array() ) {
+	return Navigation_Tree::get_page_navigation_items( $page_id, $args );
+}
+
+/**
+ * Validate a generated navigation tree.
+ *
+ * @param array $items Items.
+ * @return array
+ */
+function nexa_pro_core_validate_navigation_tree( array $items ) {
+	return Navigation_Tree::validate_navigation_tree( $items );
 }

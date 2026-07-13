@@ -89,8 +89,40 @@ final class Builder_Admin {
 	 * @return void
 	 */
 	public static function render_screen() {
-		if ( ! \current_user_can( Capabilities::MANAGE_COMPONENTS ) ) {
+		$view = self::get_current_view();
+
+		if ( 'reusable' === $view && ! class_exists( Reusable_Admin::class ) ) {
+			$view = 'components';
+		}
+
+		if ( 'reusable' === $view && ! Capabilities::current_user_can_manage_reusable_components() ) {
+			\wp_die( \esc_html__( 'You do not have permission to manage reusable components.', 'nexa-pro-core' ) );
+		}
+
+		if ( 'reusable' !== $view && ! Capabilities::current_user_can_manage_components() ) {
 			\wp_die( \esc_html__( 'You do not have permission to manage Nexa Pro components.', 'nexa-pro-core' ) );
+		}
+
+		if ( 'navigation' === $view ) {
+			?>
+			<div class="wrap nexa-pro-core-builder">
+				<h1><?php esc_html_e( 'Nexa Pro Builder', 'nexa-pro-core' ); ?></h1>
+				<?php self::render_view_tabs( $view ); ?>
+				<?php Navigation_Admin::render(); ?>
+			</div>
+			<?php
+			return;
+		}
+
+		if ( 'reusable' === $view && class_exists( Reusable_Admin::class ) ) {
+			?>
+			<div class="wrap nexa-pro-core-builder">
+				<h1><?php esc_html_e( 'Nexa Pro Builder', 'nexa-pro-core' ); ?></h1>
+				<?php self::render_view_tabs( $view ); ?>
+				<?php Reusable_Admin::render(); ?>
+			</div>
+			<?php
+			return;
 		}
 
 		$filters       = self::get_filters();
@@ -106,6 +138,7 @@ final class Builder_Admin {
 		?>
 		<div class="wrap nexa-pro-core-builder">
 			<h1><?php esc_html_e( 'Nexa Pro Builder', 'nexa-pro-core' ); ?></h1>
+			<?php self::render_view_tabs( $view ); ?>
 			<p class="nexa-pro-core-builder__intro">
 				<?php esc_html_e( 'Provided by Nexa Pro Core. Compose page-level component instances without replacing page content or legacy theme rendering.', 'nexa-pro-core' ); ?>
 			</p>
@@ -138,6 +171,57 @@ final class Builder_Admin {
 				</aside>
 			</div>
 		</div>
+		<?php
+	}
+
+	/**
+	 * Get current builder view.
+	 *
+	 * @return string
+	 */
+	private static function get_current_view() {
+		$view = isset( $_GET['builder_view'] ) ? \sanitize_key( \wp_unslash( $_GET['builder_view'] ) ) : 'components';
+
+		return in_array( $view, array( 'components', 'navigation', 'reusable' ), true ) ? $view : 'components';
+	}
+
+	/**
+	 * Render view tabs.
+	 *
+	 * @param string $current Current view.
+	 * @return void
+	 */
+	private static function render_view_tabs( $current ) {
+		$tabs = array(
+			'components' => __( 'Pages & Components', 'nexa-pro-core' ),
+			'navigation' => __( 'Navigation', 'nexa-pro-core' ),
+			'reusable'   => __( 'Reusable Components', 'nexa-pro-core' ),
+		);
+		?>
+		<nav class="nav-tab-wrapper nexa-pro-core-builder__tabs" aria-label="<?php esc_attr_e( 'Nexa Pro Builder sections', 'nexa-pro-core' ); ?>">
+			<?php foreach ( $tabs as $view => $label ) : ?>
+				<?php
+				if ( 'reusable' === $view && ( ! class_exists( Reusable_Admin::class ) || ! Capabilities::current_user_can_manage_reusable_components() ) ) {
+					continue;
+				}
+
+				if ( 'reusable' !== $view && ! Capabilities::current_user_can_manage_components() ) {
+					continue;
+				}
+
+				$url = \add_query_arg(
+					array(
+						'page'         => self::PAGE_SLUG,
+						'builder_view' => $view,
+					),
+					\admin_url( 'themes.php' )
+				);
+				?>
+				<a class="nav-tab <?php echo $current === $view ? 'nav-tab-active' : ''; ?>" href="<?php echo esc_url( $url ); ?>" <?php echo $current === $view ? 'aria-current="page"' : ''; ?>>
+					<?php echo esc_html( $label ); ?>
+				</a>
+			<?php endforeach; ?>
+		</nav>
 		<?php
 	}
 
@@ -464,6 +548,7 @@ final class Builder_Admin {
 		$definition = isset( $registry[ $type ] ) ? $registry[ $type ] : array();
 		$title      = ! empty( $component['admin_title'] ) ? $component['admin_title'] : Sanitizer::default_admin_title( $type );
 		$is_enabled = ! empty( $component['enabled'] );
+		$status     = self::get_reusable_status( $component );
 		?>
 		<li class="nexa-pro-core-builder__card <?php echo $is_enabled ? '' : 'is-disabled'; ?>" data-component-card data-component-id="<?php echo esc_attr( $component['instance_id'] ); ?>" draggable="true">
 			<div class="nexa-pro-core-builder__card-main">
@@ -479,9 +564,7 @@ final class Builder_Admin {
 						<?php if ( ! empty( $component['navigation']['navigation_label'] ) ) : ?>
 							<span><?php echo esc_html( $component['navigation']['navigation_label'] ); ?></span>
 						<?php endif; ?>
-						<?php if ( ! empty( $component['reusable_component_id'] ) ) : ?>
-							<span><?php esc_html_e( 'Linked reusable', 'nexa-pro-core' ); ?></span>
-						<?php endif; ?>
+						<span class="nexa-pro-core-builder__status <?php echo esc_attr( $status['class'] ); ?>"><?php echo esc_html( $status['label'] ); ?></span>
 					</p>
 					<?php self::render_component_warnings( $component ); ?>
 				</div>
@@ -494,6 +577,9 @@ final class Builder_Admin {
 				<?php self::render_order_form( $page->ID, $component['instance_id'], 'up', 0 === $index ); ?>
 				<?php self::render_order_form( $page->ID, $component['instance_id'], 'down', $index >= $total - 1 ); ?>
 				<?php self::render_move_page_form( $page, $pages, $component ); ?>
+				<?php self::render_save_as_reusable_form( $page->ID, $component ); ?>
+				<?php self::render_detach_form( $page->ID, $component ); ?>
+				<?php self::render_open_source_link( $component ); ?>
 				<?php self::render_delete_form( $page->ID, $component ); ?>
 			</div>
 		</li>
@@ -882,6 +968,118 @@ final class Builder_Admin {
 			<button type="submit" class="button button-link-delete"><?php esc_html_e( 'Delete', 'nexa-pro-core' ); ?></button>
 		</form>
 		<?php
+	}
+
+	/**
+	 * Render save-as-reusable form.
+	 *
+	 * @param int   $page_id   Page ID.
+	 * @param array $component Component.
+	 * @return void
+	 */
+	private static function render_save_as_reusable_form( $page_id, array $component ) {
+		if ( ! class_exists( Reusable_Actions::class ) || ! Capabilities::current_user_can_manage_reusable_components() ) {
+			return;
+		}
+
+		?>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<input type="hidden" name="action" value="nexa_pro_core_reusable_save_from_instance">
+			<input type="hidden" name="builder_page_id" value="<?php echo esc_attr( $page_id ); ?>">
+			<input type="hidden" name="component_id" value="<?php echo esc_attr( $component['instance_id'] ); ?>">
+			<input type="hidden" name="save_mode" value="linked">
+			<?php wp_nonce_field( Reusable_Actions::nonce_action( 'save_from_instance', $page_id ) ); ?>
+			<button type="submit" class="button"><?php esc_html_e( 'Save as reusable', 'nexa-pro-core' ); ?></button>
+		</form>
+		<?php
+	}
+
+	/**
+	 * Render detach form for linked instances.
+	 *
+	 * @param int   $page_id   Page ID.
+	 * @param array $component Component.
+	 * @return void
+	 */
+	private static function render_detach_form( $page_id, array $component ) {
+		if ( ! class_exists( Reusable_Actions::class ) || 'linked' !== ( isset( $component['inheritance_mode'] ) ? $component['inheritance_mode'] : 'local' ) ) {
+			return;
+		}
+
+		?>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<input type="hidden" name="action" value="nexa_pro_core_reusable_detach_instance">
+			<input type="hidden" name="builder_page_id" value="<?php echo esc_attr( $page_id ); ?>">
+			<input type="hidden" name="component_id" value="<?php echo esc_attr( $component['instance_id'] ); ?>">
+			<?php wp_nonce_field( Reusable_Actions::nonce_action( 'detach_instance', $page_id ) ); ?>
+			<button type="submit" class="button"><?php esc_html_e( 'Detach to local', 'nexa-pro-core' ); ?></button>
+		</form>
+		<?php
+	}
+
+	/**
+	 * Render reusable source link.
+	 *
+	 * @param array $component Component.
+	 * @return void
+	 */
+	private static function render_open_source_link( array $component ) {
+		$post_id = ! empty( $component['reusable_component_id'] ) ? absint( $component['reusable_component_id'] ) : 0;
+
+		if ( ! $post_id ) {
+			return;
+		}
+
+		$url = \add_query_arg(
+			array(
+				'page'          => self::PAGE_SLUG,
+				'builder_view'  => 'reusable',
+				'reusable_mode' => 'edit',
+				'reusable_id'   => $post_id,
+			),
+			\admin_url( 'themes.php' )
+		);
+		?>
+		<a class="button" href="<?php echo esc_url( $url ); ?>#nexa-pro-core-reusable-editor"><?php esc_html_e( 'Open source', 'nexa-pro-core' ); ?></a>
+		<?php
+	}
+
+	/**
+	 * Get reusable display status.
+	 *
+	 * @param array $component Component.
+	 * @return array
+	 */
+	private static function get_reusable_status( array $component ) {
+		$post_id = ! empty( $component['reusable_component_id'] ) ? absint( $component['reusable_component_id'] ) : 0;
+
+		if ( 'linked' !== ( isset( $component['inheritance_mode'] ) ? $component['inheritance_mode'] : 'local' ) || ! $post_id ) {
+			return array(
+				'label' => __( 'Local', 'nexa-pro-core' ),
+				'class' => 'is-local',
+			);
+		}
+
+		$post = \get_post( $post_id );
+
+		if ( ! $post || NEXA_PRO_CORE_REUSABLE_POST_TYPE !== $post->post_type ) {
+			return array(
+				'label' => __( 'Reusable source missing', 'nexa-pro-core' ),
+				'class' => 'is-warning',
+			);
+		}
+
+		if ( 'draft' === $post->post_status ) {
+			return array(
+				'label' => __( 'Archived source', 'nexa-pro-core' ),
+				'class' => 'is-warning',
+			);
+		}
+
+		return array(
+			'label' => __( 'Linked', 'nexa-pro-core' ),
+			'class' => 'is-linked',
+		);
 	}
 
 	/**

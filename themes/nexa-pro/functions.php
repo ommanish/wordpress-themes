@@ -21,6 +21,7 @@ require_once NEXA_PRO_DIR . '/inc/presets.php';
 require_once NEXA_PRO_DIR . '/inc/assets.php';
 require_once NEXA_PRO_DIR . '/inc/template-functions.php';
 require_once NEXA_PRO_DIR . '/inc/template-tags.php';
+require_once NEXA_PRO_DIR . '/inc/navigation.php';
 if ( file_exists( NEXA_PRO_DIR . '/inc/components/registry.php' ) ) {
 	require_once NEXA_PRO_DIR . '/inc/components/registry.php';
 }
