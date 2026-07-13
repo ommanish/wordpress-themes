@@ -376,6 +376,10 @@ final class Sanitizer {
 
 		$value = (string) $value;
 
+		if ( self::content_key_is_attachment_id( $key_context ) ) {
+			return absint( $value );
+		}
+
 		if ( self::content_key_is_url( $key_context ) ) {
 			return \esc_url_raw( $value );
 		}
@@ -426,6 +430,18 @@ final class Sanitizer {
 			$sanitized['background_image_id'] = absint( $design['background_image_id'] );
 		}
 
+		if ( isset( $design['gradient_direction'] ) ) {
+			$gradient_direction = \sanitize_key( $design['gradient_direction'] );
+
+			if ( in_array( $gradient_direction, array( 'to-bottom', 'to-right', 'to-bottom-right', 'to-bottom-left' ), true ) ) {
+				$sanitized['gradient_direction'] = $gradient_direction;
+			}
+		}
+
+		if ( isset( $design['overlay_enabled'] ) ) {
+			$sanitized['overlay_enabled'] = self::sanitize_bool( $design['overlay_enabled'] );
+		}
+
 		if ( isset( $design['overlay_opacity'] ) ) {
 			$sanitized['overlay_opacity'] = self::bounded_float( $design['overlay_opacity'], 0, 100 );
 		}
@@ -438,7 +454,43 @@ final class Sanitizer {
 			}
 		}
 
-		foreach ( array( 'spacing', 'radius', 'shadow' ) as $token_key ) {
+		if ( isset( $design['content_alignment'] ) ) {
+			$content_alignment = \sanitize_key( $design['content_alignment'] );
+
+			if ( in_array( $content_alignment, array( 'left', 'center', 'right' ), true ) ) {
+				$sanitized['content_alignment'] = $content_alignment;
+			}
+		}
+
+		if ( isset( $design['media_position'] ) ) {
+			$media_position = \sanitize_key( $design['media_position'] );
+
+			if ( in_array( $media_position, array( 'left', 'right', 'top', 'bottom', 'background' ), true ) ) {
+				$sanitized['media_position'] = $media_position;
+			}
+		}
+
+		if ( isset( $design['container_width'] ) ) {
+			$container_width = \sanitize_key( $design['container_width'] );
+
+			if ( in_array( $container_width, array( 'default', 'narrow', 'wide', 'full' ), true ) ) {
+				$sanitized['container_width'] = $container_width;
+			}
+		}
+
+		if ( isset( $design['column_count'] ) ) {
+			$sanitized['column_count'] = max( 1, min( 6, absint( $design['column_count'] ) ) );
+		}
+
+		if ( isset( $design['card_style'] ) ) {
+			$card_style = \sanitize_key( $design['card_style'] );
+
+			if ( in_array( $card_style, array( 'default', 'bordered', 'elevated', 'plain' ), true ) ) {
+				$sanitized['card_style'] = $card_style;
+			}
+		}
+
+		foreach ( array( 'spacing', 'section_spacing', 'radius', 'shadow' ) as $token_key ) {
 			if ( isset( $design[ $token_key ] ) ) {
 				$sanitized[ $token_key ] = \sanitize_key( $design[ $token_key ] );
 			}
@@ -625,5 +677,15 @@ final class Sanitizer {
 	 */
 	public static function content_key_is_url( $key_context ) {
 		return 1 === preg_match( '/(^|_)(url|href|src)$/', (string) $key_context );
+	}
+
+	/**
+	 * Determine whether a content key should be treated as an attachment ID.
+	 *
+	 * @param string $key_context Content key.
+	 * @return bool
+	 */
+	public static function content_key_is_attachment_id( $key_context ) {
+		return 1 === preg_match( '/(^|_)(image_id|attachment_id)$/', (string) $key_context );
 	}
 }

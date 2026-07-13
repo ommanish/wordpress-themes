@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin bootstrap for future builder screens.
+ * Admin bootstrap for builder screens.
  *
  * @package Nexa_Pro_Core
  */
@@ -18,15 +18,16 @@ final class Admin_Bootstrap {
 	/**
 	 * Register admin hooks.
 	 *
-	 * Phase 6B intentionally exposes no visible builder UI.
-	 *
 	 * @return void
 	 */
 	public static function register() {
+		Builder_Admin::register();
+		Builder_Actions::register();
+
 		/**
-		 * Fires when the Phase 6B admin bootstrap is loaded.
+		 * Fires when the Nexa Pro Core admin bootstrap is loaded.
 		 *
-		 * No visible builder UI is registered in Phase 6B.
+		 * @since 0.1.0
 		 */
 		\do_action( 'nexa_pro_core_admin_bootstrap_loaded' );
 	}

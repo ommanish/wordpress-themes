@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Nexa_Pro_Core\Capabilities;
+use Nexa_Pro_Core\Render_API;
 use Nexa_Pro_Core\Reusable_Components;
 use Nexa_Pro_Core\Schema;
 use Nexa_Pro_Core\Sanitizer;
@@ -119,6 +120,26 @@ function nexa_pro_core_move_page_component( $source_page_id, $target_page_id, $i
  */
 function nexa_pro_core_count_page_components( $page_id ) {
 	return Storage::count_page_components( $page_id );
+}
+
+/**
+ * Get enabled, resolved page components for future rendering integration.
+ *
+ * @param int $page_id Page ID.
+ * @return array|WP_Error
+ */
+function nexa_pro_core_get_renderable_page_components( $page_id ) {
+	return Render_API::get_renderable_page_components( $page_id );
+}
+
+/**
+ * Determine whether a page has builder components.
+ *
+ * @param int $page_id Page ID.
+ * @return bool
+ */
+function nexa_pro_core_has_builder_components( $page_id ) {
+	return Render_API::has_builder_components( $page_id );
 }
 
 /**
