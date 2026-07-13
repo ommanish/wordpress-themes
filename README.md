@@ -6,7 +6,7 @@ Current product:
 
 - Theme: Nexa Pro
 - Theme path: `themes/nexa-pro`
-- Companion plugin path reserved for later work: `plugins/nexa-pro-core`
+- Companion plugin path: `plugins/nexa-pro-core`
 - Child theme path reserved for later work: `child-themes/nexa-pro-child`
 
 ## Nexa Pro
@@ -39,4 +39,5 @@ See:
 
 - `themes/nexa-pro/README.md`
 - `themes/nexa-pro/CHANGELOG.md`
+- `plugins/nexa-pro-core/README.md`
 - `docs/NEXA-PRO-RELEASE-CHECKLIST.md`

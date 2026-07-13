@@ -195,6 +195,7 @@ Scope:
 - Plugin structure.
 - Page component storage.
 - Component schema.
+- Private reusable component storage.
 - Capability and nonce rules.
 - No full admin builder yet.
 
@@ -205,7 +206,60 @@ Acceptance criteria:
 - Saves require proper capabilities and nonces.
 - The plugin can read the theme registry without requiring theme-owned content
   storage.
-- No reusable component custom post type is required until Phase 6D.
+- The private reusable component custom post type is registered without public
+  URLs, public queries, REST exposure, or visible admin screens.
+- Uninstall and deactivation preserve component data unless an explicit
+  deletion opt-in is provided.
+
+Phase 6B storage details:
+
+- Plugin directory: `plugins/nexa-pro-core`.
+- Plugin version: `0.1.0`.
+- Schema version: `1`.
+- Page component meta key: `_nexa_pro_components`.
+- Private reusable component post type: `nexa_component`.
+- Reusable component payload meta key: `_nexa_pro_core_component_payload`.
+- Migration-state option key: `nexa_pro_core_migration_state`.
+
+Phase 6B exposes helper APIs for page component storage:
+
+- `nexa_pro_core_get_page_components( $page_id )`.
+- `nexa_pro_core_save_page_components( $page_id, array $components )`.
+- `nexa_pro_core_add_page_component( $page_id, array $component )`.
+- `nexa_pro_core_update_page_component( $page_id, $instance_id, array $changes )`.
+- `nexa_pro_core_duplicate_page_component( $page_id, $instance_id )`.
+- `nexa_pro_core_remove_page_component( $page_id, $instance_id )`.
+- `nexa_pro_core_reorder_page_components( $page_id, array $ordered_ids )`.
+- `nexa_pro_core_move_page_component( $source_page_id, $target_page_id, $instance_id )`.
+
+Phase 6B exposes helper APIs for reusable component storage:
+
+- `nexa_pro_core_create_reusable_component( array $component )`.
+- `nexa_pro_core_get_reusable_component( $post_id )`.
+- `nexa_pro_core_update_reusable_component( $post_id, array $changes )`.
+- `nexa_pro_core_duplicate_reusable_component( $post_id )`.
+- `nexa_pro_core_archive_reusable_component( $post_id )`.
+- `nexa_pro_core_delete_reusable_component( $post_id )`.
+- `nexa_pro_core_resolve_component_instance( array $instance )`.
+- `nexa_pro_core_detach_reusable_component( $page_id, $instance_id )`.
+- `nexa_pro_core_get_reusable_usage_count( $post_id )`.
+
+Capability model:
+
+- `manage_nexa_pro_components` controls page component writes.
+- `manage_nexa_pro_reusable_components` controls reusable component writes.
+- `import_nexa_pro_components` is reserved for future import tools.
+- `export_nexa_pro_components` is reserved for future export tools.
+- Administrators receive these capabilities on activation.
+- Lower roles do not receive them automatically.
+
+Theme integration fallback:
+
+- When the Nexa Pro theme registry is available, the plugin validates component
+  types and layout support against the theme helpers.
+- When another theme is active, the plugin uses its internal safe allowlist so
+  stored data remains readable and editable.
+- No hard theme dependency is introduced.
 
 ### Phase 6C - Builder Admin
 
@@ -230,8 +284,8 @@ Scope:
 
 - Generated navigation.
 - Hybrid navigation.
-- Reusable component custom post type.
 - Linked and local reusable instances.
+- Reusable component management UI and workflows.
 
 Acceptance criteria:
 
