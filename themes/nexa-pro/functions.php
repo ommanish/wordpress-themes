@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NEXA_PRO_VERSION', '1.0.0-rc1' );
+define( 'NEXA_PRO_VERSION', '1.0.0' );
 define( 'NEXA_PRO_DIR', get_template_directory() );
 define( 'NEXA_PRO_URI', get_template_directory_uri() );
 

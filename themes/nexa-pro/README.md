@@ -4,7 +4,7 @@ Nexa Pro is a commercial-ready WordPress parent theme for professional service
 websites, agencies, consultants, SaaS teams, startups, recruiters, and similar
 businesses.
 
-Release-candidate version: `1.0.0-rc1`
+Current version: `1.0.0`
 
 ## Requirements
 

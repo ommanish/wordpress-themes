@@ -1,9 +1,9 @@
 # Changelog
 
-## 1.0.0-rc1 - Unreleased
+## 1.0.0 - 2026-07-12
 
-Release-candidate preparation for local production testing, customer beta
-testing, marketplace review preparation, and installable ZIP packaging.
+Initial release preparation for local production testing, customer beta testing,
+marketplace review preparation, and installable ZIP packaging.
 
 ### Major Feature Groups
 
@@ -42,7 +42,6 @@ testing, marketplace review preparation, and installable ZIP packaging.
 
 ### Known Limitations
 
-- `screenshot.png` is not yet present and remains a release blocker.
 - Browser, keyboard, screen-reader smoke, contrast, LocalWP install, and ZIP
-  install tests must still be completed manually before final release.
+  install tests should be repeated before marketplace submission.
 - Companion plugin and child theme packaging are reserved for later work.
