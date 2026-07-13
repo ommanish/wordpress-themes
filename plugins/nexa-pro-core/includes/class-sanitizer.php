@@ -313,8 +313,13 @@ final class Sanitizer {
 	 */
 	public static function generate_instance_id( $component_type ) {
 		$component_type = \sanitize_key( $component_type );
-		$random         = function_exists( 'wp_generate_password' ) ? \wp_generate_password( 10, false, false ) : bin2hex( random_bytes( 5 ) );
-		$random         = strtolower( preg_replace( '/[^a-z0-9]/', '', $random ) );
+		$random         = function_exists( 'wp_generate_password' ) ? \wp_generate_password( 16, false, false ) : bin2hex( random_bytes( 8 ) );
+		$random         = preg_replace( '/[^a-z0-9]/', '', strtolower( $random ) );
+
+		if ( strlen( $random ) < 10 ) {
+			$seed    = function_exists( 'wp_rand' ) ? \wp_rand() : random_int( 0, PHP_INT_MAX );
+			$random .= substr( md5( $component_type . microtime( true ) . $seed ), 0, 10 );
+		}
 
 		return 'nexa_' . $component_type . '_' . substr( $random, 0, 10 );
 	}
