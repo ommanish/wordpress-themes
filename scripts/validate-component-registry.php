@@ -77,6 +77,32 @@ if ( ! function_exists( 'sanitize_html_class' ) ) {
 	}
 }
 
+if ( ! function_exists( 'sanitize_hex_color' ) ) {
+	/**
+	 * sanitize_hex_color shim.
+	 *
+	 * @param mixed $color Raw color.
+	 * @return string|null
+	 */
+	function sanitize_hex_color( $color ) {
+		$color = trim( (string) $color );
+
+		return preg_match( '/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', $color ) ? strtolower( $color ) : null;
+	}
+}
+
+if ( ! function_exists( 'absint' ) ) {
+	/**
+	 * absint shim.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return int
+	 */
+	function absint( $value ) {
+		return abs( (int) $value );
+	}
+}
+
 if ( ! function_exists( 'wp_parse_args' ) ) {
 	/**
 	 * wp_parse_args shim.
@@ -208,6 +234,23 @@ $registry = nexa_pro_get_component_registry();
 
 nexa_pro_component_registry_assert( array_keys( $registry ) === nexa_pro_get_component_types(), 'Component type helper should match registry keys.' );
 
+$required_layouts = array(
+	'hero'         => array( 'centered', 'split-left', 'split-right', 'background-image', 'minimal', 'full-height' ),
+	'about'        => array( 'text-only', 'image-left', 'image-right', 'statistics', 'split-content' ),
+	'services'     => array( 'card-grid', 'icon-grid', 'alternating-rows', 'image-cards', 'compact-list' ),
+	'features'     => array( 'icon-grid', 'bento-grid', 'alternating', 'centered-grid', 'checklist' ),
+	'process'      => array( 'horizontal-steps', 'vertical-timeline', 'numbered-cards', 'connected-steps' ),
+	'why'          => array( 'benefit-cards', 'icon-list', 'split-media', 'statistics' ),
+	'portfolio'    => array( 'grid', 'masonry-grid', 'featured-project', 'case-study-cards' ),
+	'testimonials' => array( 'grid', 'featured-quote', 'static-slider', 'logo-and-quote' ),
+	'team'         => array( 'profile-grid', 'compact-list', 'leadership-feature', 'image-cards' ),
+	'faq'          => array( 'accordion', 'two-column', 'categorized-list' ),
+	'cta'          => array( 'centered', 'split', 'banner', 'image-background', 'compact' ),
+	'contact'      => array( 'details-only', 'form-and-details', 'split-map-placeholder', 'cards' ),
+);
+
+$required_presets = array( 'inherit', 'light', 'dark', 'brand', 'accent', 'minimal', 'elevated', 'image-overlay' );
+
 foreach ( $required_types as $type ) {
 	nexa_pro_component_registry_assert( isset( $registry[ $type ] ), "Missing component type: {$type}" );
 	nexa_pro_component_registry_assert( nexa_pro_component_type_exists( $type ), "Component type should exist: {$type}" );
@@ -216,7 +259,77 @@ foreach ( $required_types as $type ) {
 	nexa_pro_component_registry_assert( '' !== $template, "Component template missing: {$type}" );
 	nexa_pro_component_registry_assert( file_exists( NEXA_PRO_DIR . '/' . $template ), "Component template file missing: {$type}" );
 	nexa_pro_component_registry_assert( 0 === strpos( $template, 'template-parts/sections/' ), "Component template must stay in sections directory: {$type}" );
+	nexa_pro_component_registry_assert( ! empty( $registry[ $type ]['layout_controls'] ), "Layout controls missing: {$type}" );
+	nexa_pro_component_registry_assert( ! empty( $registry[ $type ]['design_capabilities'] ), "Design capabilities missing: {$type}" );
+	nexa_pro_component_registry_assert( ! empty( $registry[ $type ]['preview']['label'] ), "Preview label missing: {$type}" );
+	nexa_pro_component_registry_assert( ! empty( $registry[ $type ]['responsive_notes'] ), "Responsive notes missing: {$type}" );
+
+	foreach ( $required_layouts[ $type ] as $layout ) {
+		nexa_pro_component_registry_assert( in_array( $layout, $registry[ $type ]['supported_layouts'], true ), "Missing layout {$layout} for component {$type}." );
+	}
+
+	$default_layout = nexa_pro_get_component_default_layout( $type );
+	nexa_pro_component_registry_assert( in_array( $default_layout, $registry[ $type ]['supported_layouts'], true ), "Default layout must be allowed for {$type}." );
+	nexa_pro_component_registry_assert( $default_layout === nexa_pro_get_component_layout_or_default( $type, 'not-a-real-layout' ), "Unknown layout should fall back to default for {$type}." );
 }
+
+$presets = nexa_pro_get_component_design_presets();
+nexa_pro_component_registry_assert( $required_presets === array_keys( $presets ), 'Design presets must match the Phase 6E preset list and order.' );
+nexa_pro_component_registry_assert( $required_presets === nexa_pro_get_component_design_preset_keys(), 'Preset key helper should match built-in presets.' );
+
+$tokens = nexa_pro_get_component_design_tokens();
+foreach ( array( 'container_width', 'section_spacing', 'card_style', 'radius', 'shadow', 'image_style', 'button_style', 'background_type', 'text_theme' ) as $token_key ) {
+	nexa_pro_component_registry_assert( ! empty( $tokens[ $token_key ] ) && is_array( $tokens[ $token_key ] ), "Design token list missing: {$token_key}" );
+}
+
+$resolved = nexa_pro_resolve_component_design(
+	'services',
+	array(
+		'preset'           => 'dark',
+		'section_spacing'  => 'compact',
+		'radius'           => 'pill',
+		'shadow'           => 'definitely-not-valid',
+		'background_color' => '#123456',
+		'custom_css'       => 'body{display:none}',
+	)
+);
+
+nexa_pro_component_registry_assert( 'dark' === $resolved['preset'], 'Resolved design should preserve a valid selected preset.' );
+nexa_pro_component_registry_assert( 'compact' === $resolved['section_spacing'], 'Explicit overrides should beat preset values.' );
+nexa_pro_component_registry_assert( 'pill' === $resolved['radius'], 'Token overrides should be preserved when allowed.' );
+nexa_pro_component_registry_assert( '#123456' === $resolved['background_color'], 'Valid color overrides should be preserved.' );
+nexa_pro_component_registry_assert( ! isset( $resolved['custom_css'] ), 'Arbitrary CSS should not enter resolved design values.' );
+nexa_pro_component_registry_assert( 'none' === $resolved['shadow'], 'Invalid token overrides should fall back to preset or global values.' );
+
+$classes = nexa_pro_get_component_render_classes(
+	'services',
+	'card-grid',
+	array(
+		'preset'            => 'dark',
+		'section_spacing'   => 'compact',
+		'content_alignment' => 'center',
+		'column_count'      => 3,
+		'background_type'   => 'solid',
+		'text_theme'        => 'light',
+	),
+	array(
+		'custom_css_class' => 'custom-ok bad;class another_ok',
+	)
+);
+
+nexa_pro_component_registry_assert( in_array( 'nexa-layout--card-grid', $classes, true ), 'Layout class should be tokenized.' );
+nexa_pro_component_registry_assert( in_array( 'nexa-preset--dark', $classes, true ), 'Preset class should be tokenized.' );
+nexa_pro_component_registry_assert( in_array( 'nexa-column-count--3', $classes, true ), 'Column-count class should be tokenized.' );
+nexa_pro_component_registry_assert( ! in_array( 'bad;class', $classes, true ), 'Unsafe class fragments should be discarded.' );
+
+$style_properties = nexa_pro_normalize_component_style_properties(
+	array(
+		'--nexa-pro-safe' => '#fff',
+		'color'           => 'red',
+		'--nexa-pro-bad'  => 'red;display:none',
+	)
+);
+nexa_pro_component_registry_assert( array( '--nexa-pro-safe' => '#fff' ) === $style_properties, 'Custom properties should reject arbitrary declarations.' );
 
 $unique_types = array_unique( nexa_pro_get_component_types() );
 nexa_pro_component_registry_assert( count( $unique_types ) === count( nexa_pro_get_component_types() ), 'Component types must be unique.' );

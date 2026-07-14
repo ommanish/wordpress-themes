@@ -9,6 +9,7 @@
 define( 'NEXA_PRO_CORE_TESTING', true );
 
 $plugin_dir = realpath( __DIR__ . '/..' );
+$theme_dir  = realpath( __DIR__ . '/../../../themes/nexa-pro' );
 $wp_load    = getenv( 'NEXA_PRO_CORE_WP_LOAD' );
 $failures   = array();
 $cleanup    = array();
@@ -38,6 +39,14 @@ if ( $wp_load && file_exists( $wp_load ) ) {
 	}
 } else {
 	nexa_pro_core_builder_validation_bootstrap_standalone_wordpress( $plugin_dir );
+}
+
+if ( $theme_dir && ! defined( 'NEXA_PRO_DIR' ) ) {
+	define( 'NEXA_PRO_DIR', $theme_dir );
+}
+
+if ( $theme_dir && ! function_exists( 'nexa_pro_get_component_registry' ) ) {
+	require_once $theme_dir . '/inc/components/registry.php';
 }
 
 if ( ! defined( 'NEXA_PRO_CORE_VERSION' ) ) {
@@ -104,10 +113,14 @@ function nexa_pro_core_builder_create_test_page( $title ) {
  * @return array
  */
 function nexa_pro_core_builder_component_values( $type = 'hero', $anchor = 'builder-hero', $title = 'Builder Hero' ) {
-	$layout = 'hero' === $type ? 'content-only' : 'card-grid';
+	$layout = 'hero' === $type ? 'centered' : 'card-grid';
 
-	if ( in_array( $type, array( 'cta', 'contact' ), true ) ) {
+	if ( 'cta' === $type ) {
 		$layout = 'centered';
+	}
+
+	if ( 'contact' === $type ) {
+		$layout = 'details-only';
 	}
 
 	if ( 'faq' === $type ) {
@@ -137,10 +150,10 @@ function nexa_pro_core_builder_component_values( $type = 'hero', $anchor = 'buil
 			'text_theme'        => 'automatic',
 			'content_alignment' => 'left',
 			'media_position'    => 'right',
-			'container_width'   => 'default',
+			'container_width'   => 'standard',
 			'column_count'      => '3',
-			'card_style'        => 'default',
-			'section_spacing'   => 'default',
+			'card_style'        => 'bordered',
+			'section_spacing'   => 'standard',
 		),
 		'navigation'     => array(
 			'show_in_navigation' => '1',
@@ -201,7 +214,7 @@ function nexa_pro_core_builder_post_action( $operation, $page_id, array $extra =
 
 do_action( 'admin_menu' );
 
-nexa_pro_core_builder_assert( '0.3.0' === NEXA_PRO_CORE_VERSION, 'Plugin version should be 0.3.0.' );
+nexa_pro_core_builder_assert( '0.4.0' === NEXA_PRO_CORE_VERSION, 'Plugin version should be 0.4.0.' );
 nexa_pro_core_builder_assert( function_exists( 'nexa_pro_core_get_renderable_page_components' ), 'Renderable page component helper should exist.' );
 nexa_pro_core_builder_assert( function_exists( 'nexa_pro_core_has_builder_components' ), 'Builder component presence helper should exist.' );
 
