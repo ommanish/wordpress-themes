@@ -32,7 +32,13 @@ Create a local installable theme ZIP:
 scripts/package-nexa-pro.sh
 ```
 
-The package is written to `dist/` and must not be committed.
+Create a local installable companion plugin ZIP:
+
+```sh
+scripts/package-nexa-pro-core.sh
+```
+
+Packages are written to `dist/` and must not be committed.
 
 ## Release Notes
 

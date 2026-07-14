@@ -645,6 +645,112 @@ Acceptance criteria:
 - Import/export validates schema, page IDs, media IDs, and component IDs.
 - Clean install and upgrade validation pass before beta packaging.
 
+Phase 6F migration model:
+
+- Nexa Pro Core owns migration execution and state in
+  `nexa_pro_core_migration_state`.
+- Migration is never automatic on activation, update, admin page load, or
+  frontend render.
+- The Migration screen is available at
+  `Appearance > Nexa Pro Builder > Migration`.
+- Preview reads `nexa_pro_options`, the selected target page, existing builder
+  data, and plugin navigation state, then reports the proposed component list
+  before any builder data is written.
+- Apply supports `merge` and `replace-builder-data`.
+- Replace mode can replace only plugin-managed page component meta for the
+  selected target page after explicit confirmation and backup.
+- Legacy theme options are preserved and remain readable after migration,
+  rollback, and reapply.
+- Stable migration-generated instance IDs are derived from the legacy source
+  hash and component type so repeated previews and applies do not duplicate
+  components.
+- Unsupported legacy sections such as Trust remain in legacy settings and are
+  reported instead of being converted into invalid component types.
+
+Migration states:
+
+- `not_needed`
+- `available`
+- `previewed`
+- `completed`
+- `failed`
+- `rolled_back`
+
+Migration metadata includes source and target versions, target page ID,
+component and field counts, warnings, errors, migration hash, timestamps, and
+the latest backup reference. Metadata is status/report information only; it
+must not expose private backup payloads in downloadable reports.
+
+Compatibility mode:
+
+- Stored in the plugin-owned `nexa_pro_core_compatibility_mode` option.
+- `legacy` mode keeps the Nexa Pro fixed-section rendering path active.
+- `builder` mode permits the theme to render plugin-managed page components
+  when the selected page has valid renderable builder data.
+- Builder mode falls back to legacy rendering when builder data is missing or
+  invalid.
+- Migration apply does not switch modes unless the administrator explicitly
+  chooses that option.
+- Rollback restores the previous compatibility mode from the latest backup.
+
+Backup and rollback:
+
+- Before migration apply, Core backs up target page component meta, plugin
+  navigation settings, and compatibility mode.
+- Rollback restores only the latest migration backup.
+- Rollback never deletes or rewrites `nexa_pro_options`.
+- Rollback requires capability checks, a nonce, and a visible confirmation
+  control.
+
+Import/export model:
+
+- Import/export is owned by Nexa Pro Core and exposed at
+  `Appearance > Nexa Pro Builder > Import/Export`.
+- Export schema version is `2`.
+- Schema version `1` theme settings exports are accepted only for supported
+  global settings compatibility.
+- Supported scopes are full-site configuration, global settings, navigation,
+  one page, selected pages, selected components, reusable components, and
+  migration report.
+- Exports include a product identifier, export schema, theme version, plugin
+  version, timestamp, scope, selected settings, page records, component
+  instances, reusable components, navigation settings, and migration metadata
+  where applicable.
+- Migration report exports exclude private backup payloads.
+- Import is preview-first. Uploading or pasting JSON does not apply changes.
+- Imports enforce product, supported schema, size, depth, and record-count
+  limits.
+- Conflict modes are `skip`, `merge`, `replace`, and `create-new`.
+- Page imports require explicit mapping, safe slug matching, or create-new
+  behavior.
+- Create-new mode does not silently map to an existing page with the same slug.
+- Reusable component source IDs are remapped to newly created local IDs before
+  linked page instances are imported.
+- Merge mode repairs duplicate imported anchors before saving.
+
+Phase 6F versioning and packages:
+
+- Nexa Pro theme beta version: `1.1.0-beta.1`.
+- Nexa Pro Core beta version: `0.5.0-beta.1`.
+- Component storage schema remains `1`.
+- Theme package: `dist/nexa-pro-1.1.0-beta.1.zip`.
+- Plugin package: `dist/nexa-pro-core-0.5.0-beta.1.zip`.
+- Theme ZIP root is `nexa-pro/`.
+- Plugin ZIP root is `nexa-pro-core/`.
+- Generated ZIP files remain ignored and untracked.
+
+Phase 6F exit criteria:
+
+- Clean install from theme and plugin ZIPs succeeds.
+- Upgrade from Nexa Pro 1.0 fixed-section data preserves legacy frontend output
+  until migration and compatibility mode are explicitly selected.
+- Migration preview, apply, rollback, and reapply are manually tested.
+- Import/export preview, conflict handling, malformed rejection, old-schema
+  compatibility, and exported package structure are tested.
+- Frontend builder rendering, generated navigation, reusable resolution,
+  responsive widths, accessibility smoke checks, console checks, and PHP logs
+  are reviewed before beta PR merge.
+
 ## Safety Rules
 
 - No destructive migration.

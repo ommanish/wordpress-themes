@@ -3,7 +3,7 @@
 Nexa Pro Core is the companion plugin for Nexa Pro component storage and page
 component builder administration.
 
-Current plugin version: `0.4.0`
+Current plugin version: `0.5.0-beta.1`
 
 Current schema version: `1`
 
@@ -19,7 +19,7 @@ design capabilities, and legacy fixed-section compatibility.
 
 ## Current Scope
 
-Included through Phase 6E:
+Included through Phase 6F:
 
 - Plugin bootstrap and activation/deactivation hooks
 - Schema metadata
@@ -54,17 +54,21 @@ Included through Phase 6E:
 - Standalone and WordPress-aware storage, builder, navigation, and reusable
   validation scripts
 - Layout and design validation script
+- Legacy fixed-section migration preview, apply, rollback, and state tracking
+- Explicit compatibility mode for legacy or builder frontend rendering
+- Component platform import/export with preview-first JSON imports
+- Export schema version `2`
+- Backward-compatible preview for schema version `1` settings exports
+- Theme and plugin beta packaging scripts
 
-Not included in Phase 6E:
+Not included in Phase 6F:
 
-- Migration UI
-- Legacy settings migration
-- Import/export UI for component data
 - REST or AJAX write endpoints
 - Demo page creation
 - Drag-and-drop visual canvas editing
 - Arbitrary CSS fields
 - Video or slideshow backgrounds
+- Production 1.1.0 release readiness
 
 ## Installation
 
@@ -346,6 +350,97 @@ The plugin exposes:
 The Nexa Pro theme owns frontend navigation markup and presentation. WordPress
 menus are not overwritten or automatically created.
 
+## Migration And Compatibility Mode
+
+The Migration screen is available at:
+
+```text
+Appearance > Nexa Pro Builder > Migration
+```
+
+Migration is explicit and preview-first. It is never run automatically on
+plugin activation, update, admin page load, or frontend render.
+
+Migration can map Nexa Pro 1.0 fixed-section theme settings into page component
+instances for a selected target page. Supported mappings include Hero, About,
+Services, Features, Process, Why Choose Us, Portfolio, Testimonials, Team, FAQ,
+CTA, and Contact. Unsupported legacy sections remain in theme settings and are
+reported in the preview.
+
+Migration modes:
+
+- `merge`: merge migration-generated components into the target page while
+  preserving existing builder data.
+- `replace-builder-data`: replace only the selected page's plugin-managed
+  builder component meta after backup and explicit confirmation.
+
+Before apply, Core backs up:
+
+- Target page component meta.
+- Plugin navigation settings.
+- Compatibility mode.
+
+Rollback restores the latest migration backup and never deletes
+`nexa_pro_options`.
+
+Compatibility mode is stored in:
+
+```text
+nexa_pro_core_compatibility_mode
+```
+
+Modes:
+
+- `legacy`: the Nexa Pro fixed-section frontend remains active.
+- `builder`: the theme may render plugin-managed components for pages with valid
+  builder data.
+
+Builder mode falls back to legacy rendering when builder data is missing or
+invalid.
+
+## Import And Export
+
+The Import/Export screen is available at:
+
+```text
+Appearance > Nexa Pro Builder > Import/Export
+```
+
+Exports use product identifier `nexa-pro` and export schema version `2`.
+
+Supported export scopes:
+
+- Full site configuration
+- Global visual settings
+- Navigation settings
+- One page
+- Selected pages
+- Selected components
+- Reusable components
+- Migration report without private backup payloads
+
+Imports are preview-first. Uploading or pasting JSON does not apply changes.
+Import preview validates:
+
+- Product identifier
+- Supported schema
+- JSON size
+- JSON depth
+- Record count
+- Page conflicts
+- Component shape
+- Reusable payloads
+
+Conflict modes:
+
+- `skip`
+- `merge`
+- `replace`
+- `create-new`
+
+Schema version `1` settings exports can be previewed for supported global
+settings compatibility, but they do not contain full page component data.
+
 ## Uninstall And Data Preservation
 
 Deactivation does not delete page meta or reusable components.
@@ -361,6 +456,8 @@ Run standalone validation from the repository root:
 php plugins/nexa-pro-core/tests/validate-storage.php
 php plugins/nexa-pro-core/tests/validate-builder-admin.php
 php plugins/nexa-pro-core/tests/validate-layout-design.php
+php plugins/nexa-pro-core/tests/validate-migration.php
+php plugins/nexa-pro-core/tests/validate-transfer.php
 php plugins/nexa-pro-core/tests/validate-navigation.php --wp-load="/path/to/site/app/public/wp-load.php"
 php plugins/nexa-pro-core/tests/validate-reusable.php --wp-load="/path/to/site/app/public/wp-load.php"
 ```
@@ -371,6 +468,8 @@ Run against a LocalWP installation by passing `wp-load.php`:
 php plugins/nexa-pro-core/tests/validate-storage.php --wp-load="/path/to/site/app/public/wp-load.php"
 php plugins/nexa-pro-core/tests/validate-builder-admin.php --wp-load="/path/to/site/app/public/wp-load.php"
 php plugins/nexa-pro-core/tests/validate-layout-design.php
+php plugins/nexa-pro-core/tests/validate-migration.php --wp-load="/path/to/site/app/public/wp-load.php"
+php plugins/nexa-pro-core/tests/validate-transfer.php --wp-load="/path/to/site/app/public/wp-load.php"
 php plugins/nexa-pro-core/tests/validate-navigation.php --wp-load="/path/to/site/app/public/wp-load.php"
 php plugins/nexa-pro-core/tests/validate-reusable.php --wp-load="/path/to/site/app/public/wp-load.php"
 ```
@@ -378,11 +477,18 @@ php plugins/nexa-pro-core/tests/validate-reusable.php --wp-load="/path/to/site/a
 The validation scripts create temporary storage and builder test pages and remove
 them when the run completes.
 
-## Next Phase
+## Packaging
 
-The next scoped phase is Phase 6F: Migration, import/export, and beta release
-validation.
+From the repository root:
 
-Phase 6F may add migration previews, component import/export, rollback flows,
-clean install validation, upgrade testing, and beta packaging readiness. It
-should not delete legacy theme settings automatically.
+```sh
+scripts/package-nexa-pro-core.sh
+```
+
+The package script writes `dist/nexa-pro-core-0.5.0-beta.1.zip` with a
+`nexa-pro-core/` ZIP root. Tests and development artifacts are excluded.
+
+## Beta Status
+
+Nexa Pro Core `0.5.0-beta.1` is intended for controlled beta testing with Nexa
+Pro `1.1.0-beta.1`. Use on staging or test sites only.

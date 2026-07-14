@@ -4,7 +4,10 @@ Nexa Pro is a commercial-ready WordPress parent theme for professional service
 websites, agencies, consultants, SaaS teams, startups, recruiters, and similar
 businesses.
 
-Current version: `1.0.0`
+Current version: `1.1.0-beta.1`
+
+Nexa Pro `1.1.0-beta.1` is beta software intended for staging and controlled
+test sites while the component builder platform is validated.
 
 ## Requirements
 
@@ -66,6 +69,11 @@ Update menu and CTA links manually when they target disabled sections.
 
 ## Component Presentation
 
+When Nexa Pro Core compatibility mode is explicitly set to builder mode, Nexa
+Pro can render plugin-managed page component data. In legacy mode, the 1.0
+fixed-section frontend remains active and builder data remains stored but unused
+on the frontend.
+
 When rendered from Nexa Pro Core builder data, Nexa Pro supports registry-driven
 layout variations for Hero, About, Services, Features, Process, Why Choose Us,
 Portfolio, Testimonials, Team, FAQ, CTA, and Contact components. Component
@@ -115,7 +123,7 @@ still required before a final release.
 ## Screenshot
 
 Nexa Pro includes `screenshot.png` at `themes/nexa-pro/screenshot.png`.
-The screenshot is `1200 x 900` and is included in the Nexa Pro 1.0.0
+The screenshot is `1200 x 900` and is included in the Nexa Pro 1.1 beta
 release package.
 
 ## Development Commands
@@ -125,6 +133,7 @@ From the repository root:
 ```sh
 scripts/validate-theme.sh
 scripts/package-nexa-pro.sh
+scripts/package-nexa-pro-core.sh
 ```
 
 The package script writes ZIP files to `dist/`, which is intentionally ignored
