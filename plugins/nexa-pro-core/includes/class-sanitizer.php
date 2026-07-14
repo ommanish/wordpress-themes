@@ -109,12 +109,81 @@ final class Sanitizer {
 			}
 		}
 
-		$layouts = array_merge(
-			$layouts,
-			array( 'content-only', 'image-left', 'image-right', 'background-image', 'card-grid', 'list', 'centered' )
-		);
-
 		return array_values( array_unique( array_map( 'sanitize_key', $layouts ) ) );
+	}
+
+	/**
+	 * Get the default layout for a component type.
+	 *
+	 * @param string $type Component type.
+	 * @return string
+	 */
+	public static function default_layout_for_type( $type ) {
+		$type = \sanitize_key( $type );
+
+		if ( function_exists( 'nexa_pro_get_component_default_layout' ) ) {
+			$layout = \nexa_pro_get_component_default_layout( $type );
+
+			if ( $layout ) {
+				return \sanitize_key( $layout );
+			}
+		}
+
+		$layouts = self::allowed_layouts_for_type( $type );
+
+		return ! empty( $layouts[0] ) ? $layouts[0] : 'default';
+	}
+
+	/**
+	 * Get allowed design tokens.
+	 *
+	 * @return array
+	 */
+	public static function design_tokens() {
+		if ( function_exists( 'nexa_pro_get_component_design_tokens' ) ) {
+			$tokens = \nexa_pro_get_component_design_tokens();
+
+			if ( is_array( $tokens ) ) {
+				return $tokens;
+			}
+		}
+
+		return array(
+			'container_width'    => array( 'inherit', 'narrow', 'standard', 'wide', 'full' ),
+			'content_width'      => array( 'inherit', 'narrow', 'standard', 'wide' ),
+			'content_alignment'  => array( 'inherit', 'left', 'center', 'right' ),
+			'media_position'     => array( 'inherit', 'left', 'right', 'top', 'bottom', 'background' ),
+			'section_spacing'    => array( 'inherit', 'none', 'compact', 'standard', 'spacious', 'extra-spacious' ),
+			'content_spacing'    => array( 'inherit', 'compact', 'standard', 'spacious' ),
+			'item_spacing'       => array( 'inherit', 'compact', 'standard', 'spacious' ),
+			'card_density'       => array( 'inherit', 'compact', 'comfortable', 'spacious' ),
+			'background_type'    => array( 'inherit', 'solid', 'gradient', 'image' ),
+			'gradient_direction' => array( 'to-bottom', 'to-right', 'to-bottom-right', 'to-bottom-left' ),
+			'text_theme'         => array( 'inherit', 'automatic', 'light', 'dark' ),
+			'card_style'         => array( 'inherit', 'flat', 'bordered', 'elevated', 'glass', 'minimal' ),
+			'radius'             => array( 'inherit', 'none', 'small', 'medium', 'large', 'pill' ),
+			'shadow'             => array( 'inherit', 'none', 'subtle', 'medium', 'strong' ),
+			'image_style'        => array( 'inherit', 'square', 'soft', 'rounded', 'pill', 'circle' ),
+			'button_style'       => array( 'inherit', 'primary', 'secondary', 'outline', 'ghost', 'text' ),
+			'column_count'       => array( 1, 2, 3, 4, 5, 6 ),
+		);
+	}
+
+	/**
+	 * Get allowed design presets.
+	 *
+	 * @return array
+	 */
+	public static function allowed_design_presets() {
+		if ( function_exists( 'nexa_pro_get_component_design_preset_keys' ) ) {
+			$presets = \nexa_pro_get_component_design_preset_keys();
+
+			if ( is_array( $presets ) ) {
+				return array_values( array_unique( array_map( 'sanitize_key', $presets ) ) );
+			}
+		}
+
+		return array( 'inherit', 'light', 'dark', 'brand', 'accent', 'minimal', 'elevated', 'image-overlay' );
 	}
 
 	/**
@@ -184,7 +253,7 @@ final class Sanitizer {
 		$allowed_layouts = self::allowed_layouts_for_type( $component_type );
 
 		if ( ! in_array( $layout, $allowed_layouts, true ) ) {
-			$layout = $allowed_layouts ? $allowed_layouts[0] : 'default';
+			$layout = self::default_layout_for_type( $component_type );
 		}
 
 		$inheritance_mode = isset( $component['inheritance_mode'] ) ? \sanitize_key( $component['inheritance_mode'] ) : '';
@@ -377,7 +446,7 @@ final class Sanitizer {
 		$value = (string) $value;
 
 		if ( self::content_key_is_attachment_id( $key_context ) ) {
-			return absint( $value );
+			return self::sanitize_image_attachment_id( $value );
 		}
 
 		if ( self::content_key_is_url( $key_context ) ) {
@@ -402,17 +471,49 @@ final class Sanitizer {
 			return array();
 		}
 
-		$sanitized = array();
+		$sanitized       = array();
+		$tokens          = self::design_tokens();
+		$inherit_tokens  = array( '', 'inherit', 'default' );
+		$token_field_map = array(
+			'background_type',
+			'gradient_direction',
+			'text_theme',
+			'content_alignment',
+			'media_position',
+			'container_width',
+			'content_width',
+			'section_spacing',
+			'content_spacing',
+			'item_spacing',
+			'card_density',
+			'card_style',
+			'radius',
+			'shadow',
+			'image_style',
+			'button_style',
+		);
 
 		if ( isset( $design['preset'] ) ) {
-			$sanitized['preset'] = \sanitize_key( $design['preset'] );
+			$preset = \sanitize_key( $design['preset'] );
+
+			if ( ! in_array( $preset, $inherit_tokens, true ) && in_array( $preset, self::allowed_design_presets(), true ) ) {
+				$sanitized['preset'] = $preset;
+			}
 		}
 
-		if ( isset( $design['background_type'] ) ) {
-			$background_type = \sanitize_key( $design['background_type'] );
+		foreach ( $token_field_map as $field ) {
+			if ( ! isset( $design[ $field ] ) || empty( $tokens[ $field ] ) ) {
+				continue;
+			}
 
-			if ( in_array( $background_type, array( 'default', 'solid', 'gradient', 'image' ), true ) ) {
-				$sanitized['background_type'] = $background_type;
+			$value = \sanitize_key( $design[ $field ] );
+
+			if ( in_array( $value, $inherit_tokens, true ) ) {
+				continue;
+			}
+
+			if ( in_array( $value, $tokens[ $field ], true ) ) {
+				$sanitized[ $field ] = $value;
 			}
 		}
 
@@ -427,14 +528,10 @@ final class Sanitizer {
 		}
 
 		if ( isset( $design['background_image_id'] ) ) {
-			$sanitized['background_image_id'] = absint( $design['background_image_id'] );
-		}
+			$attachment_id = self::sanitize_image_attachment_id( $design['background_image_id'] );
 
-		if ( isset( $design['gradient_direction'] ) ) {
-			$gradient_direction = \sanitize_key( $design['gradient_direction'] );
-
-			if ( in_array( $gradient_direction, array( 'to-bottom', 'to-right', 'to-bottom-right', 'to-bottom-left' ), true ) ) {
-				$sanitized['gradient_direction'] = $gradient_direction;
+			if ( $attachment_id ) {
+				$sanitized['background_image_id'] = $attachment_id;
 			}
 		}
 
@@ -442,58 +539,16 @@ final class Sanitizer {
 			$sanitized['overlay_enabled'] = self::sanitize_bool( $design['overlay_enabled'] );
 		}
 
-		if ( isset( $design['overlay_opacity'] ) ) {
-			$sanitized['overlay_opacity'] = self::bounded_float( $design['overlay_opacity'], 0, 100 );
-		}
+		if ( isset( $design['overlay_opacity'] ) && is_numeric( $design['overlay_opacity'] ) ) {
+			$opacity = (float) $design['overlay_opacity'];
 
-		if ( isset( $design['text_theme'] ) ) {
-			$text_theme = \sanitize_key( $design['text_theme'] );
-
-			if ( in_array( $text_theme, array( 'automatic', 'light', 'dark' ), true ) ) {
-				$sanitized['text_theme'] = $text_theme;
-			}
-		}
-
-		if ( isset( $design['content_alignment'] ) ) {
-			$content_alignment = \sanitize_key( $design['content_alignment'] );
-
-			if ( in_array( $content_alignment, array( 'left', 'center', 'right' ), true ) ) {
-				$sanitized['content_alignment'] = $content_alignment;
-			}
-		}
-
-		if ( isset( $design['media_position'] ) ) {
-			$media_position = \sanitize_key( $design['media_position'] );
-
-			if ( in_array( $media_position, array( 'left', 'right', 'top', 'bottom', 'background' ), true ) ) {
-				$sanitized['media_position'] = $media_position;
-			}
-		}
-
-		if ( isset( $design['container_width'] ) ) {
-			$container_width = \sanitize_key( $design['container_width'] );
-
-			if ( in_array( $container_width, array( 'default', 'narrow', 'wide', 'full' ), true ) ) {
-				$sanitized['container_width'] = $container_width;
+			if ( $opacity >= 0 && $opacity <= 100 ) {
+				$sanitized['overlay_opacity'] = $opacity;
 			}
 		}
 
 		if ( isset( $design['column_count'] ) ) {
 			$sanitized['column_count'] = max( 1, min( 6, absint( $design['column_count'] ) ) );
-		}
-
-		if ( isset( $design['card_style'] ) ) {
-			$card_style = \sanitize_key( $design['card_style'] );
-
-			if ( in_array( $card_style, array( 'default', 'bordered', 'elevated', 'plain' ), true ) ) {
-				$sanitized['card_style'] = $card_style;
-			}
-		}
-
-		foreach ( array( 'spacing', 'section_spacing', 'radius', 'shadow' ) as $token_key ) {
-			if ( isset( $design[ $token_key ] ) ) {
-				$sanitized[ $token_key ] = \sanitize_key( $design[ $token_key ] );
-			}
 		}
 
 		return $sanitized;
@@ -647,6 +702,26 @@ final class Sanitizer {
 		$value = is_numeric( $value ) ? (float) $value : 0.0;
 
 		return max( $min, min( $max, $value ) );
+	}
+
+	/**
+	 * Sanitize an image attachment ID.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return int
+	 */
+	public static function sanitize_image_attachment_id( $value ) {
+		$attachment_id = absint( $value );
+
+		if ( ! $attachment_id ) {
+			return 0;
+		}
+
+		if ( function_exists( 'wp_attachment_is_image' ) && ! \wp_attachment_is_image( $attachment_id ) ) {
+			return 0;
+		}
+
+		return $attachment_id;
 	}
 
 	/**

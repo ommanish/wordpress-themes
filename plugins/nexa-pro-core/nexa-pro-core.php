@@ -3,7 +3,7 @@
  * Plugin Name: Nexa Pro Core
  * Plugin URI: https://github.com/ommanish/wordpress-themes
  * Description: Storage and builder administration for Nexa Pro component composition.
- * Version: 0.3.0
+ * Version: 0.4.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * Author: Nexa Pro
@@ -25,7 +25,7 @@ if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
 	return;
 }
 
-define( 'NEXA_PRO_CORE_VERSION', '0.3.0' );
+define( 'NEXA_PRO_CORE_VERSION', '0.4.0' );
 define( 'NEXA_PRO_CORE_SCHEMA_VERSION', 1 );
 define( 'NEXA_PRO_CORE_PAGE_META_KEY', '_nexa_pro_components' );
 define( 'NEXA_PRO_CORE_REUSABLE_POST_TYPE', 'nexa_component' );

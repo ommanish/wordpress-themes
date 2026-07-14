@@ -159,6 +159,13 @@ final class Storage {
 
 			$changes['instance_id']    = $component['instance_id'];
 			$changes['component_type'] = $component['component_type'];
+
+			foreach ( array( 'content', 'design', 'navigation', 'advanced' ) as $group ) {
+				if ( isset( $changes[ $group ] ) && is_array( $changes[ $group ] ) && isset( $component[ $group ] ) && is_array( $component[ $group ] ) ) {
+					$changes[ $group ] = array_merge( $component[ $group ], $changes[ $group ] );
+				}
+			}
+
 			$updated                   = Sanitizer::sanitize_component_instance( array_merge( $component, $changes ), $component, true );
 
 			if ( \is_wp_error( $updated ) ) {

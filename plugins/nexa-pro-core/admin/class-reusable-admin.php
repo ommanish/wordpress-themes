@@ -208,7 +208,10 @@ final class Reusable_Admin {
 	 * @return void
 	 */
 	private static function render_editor_form( $post_id, array $component, array $registry ) {
-		$type       = ! empty( $component['component_type'] ) ? $component['component_type'] : key( $registry );
+		$type       = ! empty( $component['component_type'] ) ? $component['component_type'] : self::first_reusable_type( $registry );
+		if ( ! $post_id && ( empty( $registry[ $type ]['reusable']['eligible'] ) ) ) {
+			$type = self::first_reusable_type( $registry );
+		}
 		$definition = isset( $registry[ $type ] ) ? $registry[ $type ] : reset( $registry );
 		$usage      = $post_id ? Reusable_Components::list_linked_page_instances( $post_id ) : array();
 		?>
@@ -248,14 +251,52 @@ final class Reusable_Admin {
 
 			<details>
 				<summary><?php esc_html_e( 'Layout', 'nexa-pro-core' ); ?></summary>
-				<?php self::render_select( 'component[layout]', 'nexa-pro-core-reusable-layout', __( 'Layout variation', 'nexa-pro-core' ), array_combine( $definition['supported_layouts'], $definition['supported_layouts'] ), isset( $component['layout'] ) ? $component['layout'] : $definition['supported_layouts'][0] ); ?>
+				<?php
+				self::render_select( 'component[layout]', 'nexa-pro-core-reusable-layout', __( 'Layout variation', 'nexa-pro-core' ), array_combine( $definition['supported_layouts'], $definition['supported_layouts'] ), isset( $component['layout'] ) ? $component['layout'] : self::first_layout( $definition ) );
+
+				if ( self::supports_layout_control( $definition, 'container_width' ) ) {
+					self::render_select( 'component[design][container_width]', 'nexa-pro-core-reusable-container-width', __( 'Container width', 'nexa-pro-core' ), self::container_width_options(), self::nested_value( $component, array( 'design', 'container_width' ), 'inherit' ) );
+				}
+
+				if ( self::supports_layout_control( $definition, 'content_alignment' ) ) {
+					self::render_select( 'component[design][content_alignment]', 'nexa-pro-core-reusable-content-alignment', __( 'Content alignment', 'nexa-pro-core' ), self::alignment_options(), self::nested_value( $component, array( 'design', 'content_alignment' ), 'inherit' ) );
+				}
+
+				if ( self::supports_layout_control( $definition, 'section_spacing' ) ) {
+					self::render_select( 'component[design][section_spacing]', 'nexa-pro-core-reusable-section-spacing', __( 'Section spacing', 'nexa-pro-core' ), self::spacing_options(), self::nested_value( $component, array( 'design', 'section_spacing' ), 'inherit' ) );
+				}
+				?>
 			</details>
 
 			<details>
 				<summary><?php esc_html_e( 'Design', 'nexa-pro-core' ); ?></summary>
-				<?php self::render_select( 'component[design][background_type]', 'nexa-pro-core-reusable-background-type', __( 'Background type', 'nexa-pro-core' ), self::background_options(), self::nested_value( $component, array( 'design', 'background_type' ), 'default' ) ); ?>
-				<?php self::render_text( 'component[design][background_color]', 'nexa-pro-core-reusable-background-color', __( 'Background color', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'background_color' ) ) ); ?>
-				<?php self::render_select( 'component[design][text_theme]', 'nexa-pro-core-reusable-text-theme', __( 'Text theme', 'nexa-pro-core' ), self::text_theme_options(), self::nested_value( $component, array( 'design', 'text_theme' ), 'automatic' ) ); ?>
+				<?php
+				if ( self::supports_design_capability( $definition, 'design_preset' ) ) {
+					self::render_select( 'component[design][preset]', 'nexa-pro-core-reusable-preset', __( 'Design preset', 'nexa-pro-core' ), self::design_preset_options(), self::nested_value( $component, array( 'design', 'preset' ), 'inherit' ) );
+				}
+
+				if ( self::supports_design_capability( $definition, 'background' ) ) {
+					$background_type = self::nested_value( $component, array( 'design', 'background_type' ), 'inherit' );
+					self::render_select( 'component[design][background_type]', 'nexa-pro-core-reusable-background-type', __( 'Background type', 'nexa-pro-core' ), self::background_options(), $background_type );
+					self::render_text( 'component[design][background_color]', 'nexa-pro-core-reusable-background-color', __( 'Background color', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'background_color' ) ) );
+				}
+
+				if ( self::supports_design_capability( $definition, 'text_theme' ) ) {
+					self::render_select( 'component[design][text_theme]', 'nexa-pro-core-reusable-text-theme', __( 'Text theme', 'nexa-pro-core' ), self::text_theme_options(), self::nested_value( $component, array( 'design', 'text_theme' ), 'inherit' ) );
+				}
+
+				if ( self::supports_design_capability( $definition, 'card_style' ) ) {
+					self::render_select( 'component[design][card_style]', 'nexa-pro-core-reusable-card-style', __( 'Card style', 'nexa-pro-core' ), self::card_style_options(), self::nested_value( $component, array( 'design', 'card_style' ), 'inherit' ) );
+				}
+
+				if ( self::supports_design_capability( $definition, 'radius' ) ) {
+					self::render_select( 'component[design][radius]', 'nexa-pro-core-reusable-radius', __( 'Radius', 'nexa-pro-core' ), self::radius_options(), self::nested_value( $component, array( 'design', 'radius' ), 'inherit' ) );
+				}
+
+				if ( self::supports_design_capability( $definition, 'shadow' ) ) {
+					self::render_select( 'component[design][shadow]', 'nexa-pro-core-reusable-shadow', __( 'Shadow', 'nexa-pro-core' ), self::shadow_options(), self::nested_value( $component, array( 'design', 'shadow' ), 'inherit' ) );
+				}
+				?>
 			</details>
 
 			<details>
@@ -347,13 +388,13 @@ final class Reusable_Admin {
 	 * @return array
 	 */
 	private static function empty_component( array $registry ) {
-		$type = key( $registry );
+		$type = self::first_reusable_type( $registry );
 
 		return array(
 			'component_type' => $type,
 			'admin_title'    => Sanitizer::default_admin_title( $type ),
 			'enabled'        => true,
-			'layout'         => isset( $registry[ $type ]['supported_layouts'][0] ) ? $registry[ $type ]['supported_layouts'][0] : 'default',
+			'layout'         => self::first_layout( isset( $registry[ $type ] ) ? $registry[ $type ] : array() ),
 			'content'        => array(),
 			'design'         => array(),
 			'navigation'     => array(),
@@ -418,6 +459,22 @@ final class Reusable_Admin {
 	}
 
 	/**
+	 * Get the first reusable-eligible component type.
+	 *
+	 * @param array $registry Registry.
+	 * @return string
+	 */
+	private static function first_reusable_type( array $registry ) {
+		foreach ( $registry as $type => $definition ) {
+			if ( ! empty( $definition['reusable']['eligible'] ) ) {
+				return $type;
+			}
+		}
+
+		return (string) key( $registry );
+	}
+
+	/**
 	 * Build URL for reusable view.
 	 */
 	private static function url( $extra = array() ) {
@@ -475,12 +532,70 @@ final class Reusable_Admin {
 		echo '</select></p>';
 	}
 
+	private static function first_layout( array $definition ) {
+		return ! empty( $definition['default_layout'] ) ? $definition['default_layout'] : ( ! empty( $definition['supported_layouts'][0] ) ? $definition['supported_layouts'][0] : 'default' );
+	}
+
+	private static function supports_layout_control( array $definition, $control ) {
+		$controls = ! empty( $definition['layout_controls'] ) && is_array( $definition['layout_controls'] ) ? $definition['layout_controls'] : array( 'layout' );
+
+		return in_array( \sanitize_key( $control ), $controls, true );
+	}
+
+	private static function supports_design_capability( array $definition, $capability ) {
+		$capabilities = ! empty( $definition['design_capabilities'] ) && is_array( $definition['design_capabilities'] ) ? $definition['design_capabilities'] : array();
+
+		return in_array( \sanitize_key( $capability ), $capabilities, true );
+	}
+
+	private static function alignment_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'left' => __( 'Left', 'nexa-pro-core' ), 'center' => __( 'Center', 'nexa-pro-core' ), 'right' => __( 'Right', 'nexa-pro-core' ) );
+	}
+
+	private static function container_width_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'narrow' => __( 'Narrow', 'nexa-pro-core' ), 'standard' => __( 'Standard', 'nexa-pro-core' ), 'wide' => __( 'Wide', 'nexa-pro-core' ), 'full' => __( 'Full width', 'nexa-pro-core' ) );
+	}
+
+	private static function spacing_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'none' => __( 'None', 'nexa-pro-core' ), 'compact' => __( 'Compact', 'nexa-pro-core' ), 'standard' => __( 'Standard', 'nexa-pro-core' ), 'spacious' => __( 'Spacious', 'nexa-pro-core' ), 'extra-spacious' => __( 'Extra spacious', 'nexa-pro-core' ) );
+	}
+
 	private static function background_options() {
-		return array( 'default' => __( 'Default', 'nexa-pro-core' ), 'solid' => __( 'Solid', 'nexa-pro-core' ), 'gradient' => __( 'Gradient', 'nexa-pro-core' ), 'image' => __( 'Image', 'nexa-pro-core' ) );
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'solid' => __( 'Solid', 'nexa-pro-core' ), 'gradient' => __( 'Gradient', 'nexa-pro-core' ), 'image' => __( 'Image', 'nexa-pro-core' ) );
 	}
 
 	private static function text_theme_options() {
-		return array( 'automatic' => __( 'Automatic', 'nexa-pro-core' ), 'light' => __( 'Light', 'nexa-pro-core' ), 'dark' => __( 'Dark', 'nexa-pro-core' ) );
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'automatic' => __( 'Automatic', 'nexa-pro-core' ), 'light' => __( 'Light', 'nexa-pro-core' ), 'dark' => __( 'Dark', 'nexa-pro-core' ) );
+	}
+
+	private static function card_style_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'flat' => __( 'Flat', 'nexa-pro-core' ), 'bordered' => __( 'Bordered', 'nexa-pro-core' ), 'elevated' => __( 'Elevated', 'nexa-pro-core' ), 'glass' => __( 'Glass', 'nexa-pro-core' ), 'minimal' => __( 'Minimal', 'nexa-pro-core' ) );
+	}
+
+	private static function radius_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'none' => __( 'None', 'nexa-pro-core' ), 'small' => __( 'Small', 'nexa-pro-core' ), 'medium' => __( 'Medium', 'nexa-pro-core' ), 'large' => __( 'Large', 'nexa-pro-core' ), 'pill' => __( 'Pill', 'nexa-pro-core' ) );
+	}
+
+	private static function shadow_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'none' => __( 'None', 'nexa-pro-core' ), 'subtle' => __( 'Subtle', 'nexa-pro-core' ), 'medium' => __( 'Medium', 'nexa-pro-core' ), 'strong' => __( 'Strong', 'nexa-pro-core' ) );
+	}
+
+	private static function design_preset_options() {
+		$options = array();
+
+		if ( function_exists( 'nexa_pro_get_component_design_presets' ) ) {
+			foreach ( \nexa_pro_get_component_design_presets() as $key => $preset ) {
+				$options[ \sanitize_key( $key ) ] = ! empty( $preset['label'] ) ? $preset['label'] : $key;
+			}
+		}
+
+		if ( empty( $options ) ) {
+			foreach ( Sanitizer::allowed_design_presets() as $key ) {
+				$options[ $key ] = ucwords( str_replace( '-', ' ', $key ) );
+			}
+		}
+
+		return $options;
 	}
 
 	private static function visibility_options() {

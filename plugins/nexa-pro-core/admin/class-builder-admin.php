@@ -737,32 +737,98 @@ final class Builder_Admin {
 			<details>
 				<summary><?php esc_html_e( 'Layout', 'nexa-pro-core' ); ?></summary>
 				<?php
-				self::render_select_field( 'component[layout]', 'nexa-pro-core-layout', __( 'Layout variation', 'nexa-pro-core' ), array_combine( $definition['supported_layouts'], $definition['supported_layouts'] ), isset( $component['layout'] ) ? $component['layout'] : self::first_layout( $definition ) );
-				self::render_select_field( 'component[design][content_alignment]', 'nexa-pro-core-content-alignment', __( 'Content alignment', 'nexa-pro-core' ), self::alignment_options(), self::nested_value( $component, array( 'design', 'content_alignment' ), 'left' ) );
-				self::render_select_field( 'component[design][media_position]', 'nexa-pro-core-media-position', __( 'Media position', 'nexa-pro-core' ), self::media_position_options(), self::nested_value( $component, array( 'design', 'media_position' ), 'right' ) );
-				self::render_select_field( 'component[design][container_width]', 'nexa-pro-core-container-width', __( 'Container width', 'nexa-pro-core' ), self::container_width_options(), self::nested_value( $component, array( 'design', 'container_width' ), 'default' ) );
-				self::render_number_field( 'component[design][column_count]', 'nexa-pro-core-column-count', __( 'Column count', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'column_count' ), 3 ), 1, 6 );
-				self::render_select_field( 'component[design][section_spacing]', 'nexa-pro-core-section-spacing', __( 'Section spacing', 'nexa-pro-core' ), self::spacing_options(), self::nested_value( $component, array( 'design', 'section_spacing' ), 'default' ) );
+				self::render_layout_preview( $definition );
+
+				if ( self::supports_layout_control( $definition, 'layout' ) ) {
+					self::render_select_field( 'component[layout]', 'nexa-pro-core-layout', __( 'Layout variation', 'nexa-pro-core' ), array_combine( $definition['supported_layouts'], $definition['supported_layouts'] ), isset( $component['layout'] ) ? $component['layout'] : self::first_layout( $definition ) );
+				}
+
+				if ( self::supports_layout_control( $definition, 'container_width' ) ) {
+					self::render_select_field( 'component[design][container_width]', 'nexa-pro-core-container-width', __( 'Container width', 'nexa-pro-core' ), self::container_width_options(), self::nested_value( $component, array( 'design', 'container_width' ), 'inherit' ) );
+				}
+
+				if ( self::supports_layout_control( $definition, 'content_alignment' ) ) {
+					self::render_select_field( 'component[design][content_alignment]', 'nexa-pro-core-content-alignment', __( 'Content alignment', 'nexa-pro-core' ), self::alignment_options(), self::nested_value( $component, array( 'design', 'content_alignment' ), 'inherit' ) );
+				}
+
+				if ( self::supports_layout_control( $definition, 'content_width' ) ) {
+					self::render_select_field( 'component[design][content_width]', 'nexa-pro-core-content-width', __( 'Content width', 'nexa-pro-core' ), self::content_width_options(), self::nested_value( $component, array( 'design', 'content_width' ), 'inherit' ) );
+				}
+
+				if ( self::supports_layout_control( $definition, 'media_position' ) ) {
+					self::render_select_field( 'component[design][media_position]', 'nexa-pro-core-media-position', __( 'Media position', 'nexa-pro-core' ), self::media_position_options(), self::nested_value( $component, array( 'design', 'media_position' ), 'inherit' ) );
+				}
+
+				if ( self::supports_layout_control( $definition, 'column_count' ) ) {
+					self::render_number_field( 'component[design][column_count]', 'nexa-pro-core-column-count', __( 'Column count', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'column_count' ), 3 ), 1, 6 );
+				}
+
+				if ( self::supports_layout_control( $definition, 'card_density' ) ) {
+					self::render_select_field( 'component[design][card_density]', 'nexa-pro-core-card-density', __( 'Card density', 'nexa-pro-core' ), self::card_density_options(), self::nested_value( $component, array( 'design', 'card_density' ), 'inherit' ) );
+				}
+
+				if ( self::supports_layout_control( $definition, 'section_spacing' ) ) {
+					self::render_select_field( 'component[design][section_spacing]', 'nexa-pro-core-section-spacing', __( 'Section spacing', 'nexa-pro-core' ), self::spacing_options(), self::nested_value( $component, array( 'design', 'section_spacing' ), 'inherit' ) );
+				}
+
+				if ( self::supports_layout_control( $definition, 'item_spacing' ) ) {
+					self::render_select_field( 'component[design][item_spacing]', 'nexa-pro-core-item-spacing', __( 'Item spacing', 'nexa-pro-core' ), self::item_spacing_options(), self::nested_value( $component, array( 'design', 'item_spacing' ), 'inherit' ) );
+				}
 				?>
 			</details>
 
 			<details>
 				<summary><?php esc_html_e( 'Design', 'nexa-pro-core' ); ?></summary>
 				<?php
-				self::render_text_field( 'component[design][preset]', 'nexa-pro-core-design-preset', __( 'Design preset', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'preset' ) ) );
-				self::render_select_field( 'component[design][background_type]', 'nexa-pro-core-background-type', __( 'Background type', 'nexa-pro-core' ), self::background_options(), self::nested_value( $component, array( 'design', 'background_type' ), 'default' ) );
-				self::render_color_field( 'component[design][background_color]', 'nexa-pro-core-background-color', __( 'Background color', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'background_color' ) ) );
-				self::render_color_field( 'component[design][gradient_start]', 'nexa-pro-core-gradient-start', __( 'Gradient start', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'gradient_start' ) ) );
-				self::render_color_field( 'component[design][gradient_end]', 'nexa-pro-core-gradient-end', __( 'Gradient end', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'gradient_end' ) ) );
-				self::render_select_field( 'component[design][gradient_direction]', 'nexa-pro-core-gradient-direction', __( 'Gradient direction', 'nexa-pro-core' ), self::gradient_direction_options(), self::nested_value( $component, array( 'design', 'gradient_direction' ), 'to-bottom' ) );
-				self::render_number_field( 'component[design][background_image_id]', 'nexa-pro-core-background-image-id', __( 'Background image attachment ID', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'background_image_id' ) ), 0, 999999 );
-				self::render_checkbox_field( 'component[design][overlay_enabled]', 'nexa-pro-core-overlay-enabled', __( 'Enable overlay', 'nexa-pro-core' ), (bool) self::nested_value( $component, array( 'design', 'overlay_enabled' ) ) );
-				self::render_color_field( 'component[design][overlay_color]', 'nexa-pro-core-overlay-color', __( 'Overlay color', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'overlay_color' ) ) );
-				self::render_number_field( 'component[design][overlay_opacity]', 'nexa-pro-core-overlay-opacity', __( 'Overlay opacity', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'overlay_opacity' ), 40 ), 0, 100 );
-				self::render_select_field( 'component[design][text_theme]', 'nexa-pro-core-text-theme', __( 'Text theme', 'nexa-pro-core' ), self::text_theme_options(), self::nested_value( $component, array( 'design', 'text_theme' ), 'automatic' ) );
-				self::render_select_field( 'component[design][card_style]', 'nexa-pro-core-card-style', __( 'Card style', 'nexa-pro-core' ), self::card_style_options(), self::nested_value( $component, array( 'design', 'card_style' ), 'default' ) );
-				self::render_select_field( 'component[design][radius]', 'nexa-pro-core-radius', __( 'Radius token', 'nexa-pro-core' ), self::token_options(), self::nested_value( $component, array( 'design', 'radius' ), 'default' ) );
-				self::render_select_field( 'component[design][shadow]', 'nexa-pro-core-shadow', __( 'Shadow token', 'nexa-pro-core' ), self::token_options(), self::nested_value( $component, array( 'design', 'shadow' ), 'default' ) );
+				if ( self::supports_design_capability( $definition, 'design_preset' ) ) {
+					self::render_select_field( 'component[design][preset]', 'nexa-pro-core-design-preset', __( 'Design preset', 'nexa-pro-core' ), self::design_preset_options(), self::nested_value( $component, array( 'design', 'preset' ), 'inherit' ) );
+				}
+
+				if ( self::supports_design_capability( $definition, 'background' ) ) {
+					$background_type = self::nested_value( $component, array( 'design', 'background_type' ), 'inherit' );
+					self::render_select_field( 'component[design][background_type]', 'nexa-pro-core-background-type', __( 'Background type', 'nexa-pro-core' ), self::background_options(), $background_type );
+					self::render_color_field( 'component[design][background_color]', 'nexa-pro-core-background-color', __( 'Solid/background color', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'background_color' ) ) );
+
+					if ( 'gradient' === $background_type && self::supports_design_capability( $definition, 'gradient' ) ) {
+						self::render_color_field( 'component[design][gradient_start]', 'nexa-pro-core-gradient-start', __( 'Gradient start', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'gradient_start' ) ) );
+						self::render_color_field( 'component[design][gradient_end]', 'nexa-pro-core-gradient-end', __( 'Gradient end', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'gradient_end' ) ) );
+						self::render_select_field( 'component[design][gradient_direction]', 'nexa-pro-core-gradient-direction', __( 'Gradient direction', 'nexa-pro-core' ), self::gradient_direction_options(), self::nested_value( $component, array( 'design', 'gradient_direction' ), 'to-bottom' ) );
+					}
+
+					if ( 'image' === $background_type && self::supports_design_capability( $definition, 'background_image' ) ) {
+						self::render_number_field( 'component[design][background_image_id]', 'nexa-pro-core-background-image-id', __( 'Background image attachment ID', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'background_image_id' ) ), 0, 999999 );
+
+						if ( self::supports_design_capability( $definition, 'overlay' ) ) {
+							self::render_checkbox_field( 'component[design][overlay_enabled]', 'nexa-pro-core-overlay-enabled', __( 'Enable overlay', 'nexa-pro-core' ), (bool) self::nested_value( $component, array( 'design', 'overlay_enabled' ) ) );
+							self::render_color_field( 'component[design][overlay_color]', 'nexa-pro-core-overlay-color', __( 'Overlay color', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'overlay_color' ) ) );
+							self::render_number_field( 'component[design][overlay_opacity]', 'nexa-pro-core-overlay-opacity', __( 'Overlay opacity', 'nexa-pro-core' ), self::nested_value( $component, array( 'design', 'overlay_opacity' ), 40 ), 0, 100 );
+						}
+					}
+				}
+
+				if ( self::supports_design_capability( $definition, 'text_theme' ) ) {
+					self::render_select_field( 'component[design][text_theme]', 'nexa-pro-core-text-theme', __( 'Text theme', 'nexa-pro-core' ), self::text_theme_options(), self::nested_value( $component, array( 'design', 'text_theme' ), 'inherit' ) );
+				}
+
+				if ( self::supports_design_capability( $definition, 'card_style' ) ) {
+					self::render_select_field( 'component[design][card_style]', 'nexa-pro-core-card-style', __( 'Card style', 'nexa-pro-core' ), self::card_style_options(), self::nested_value( $component, array( 'design', 'card_style' ), 'inherit' ) );
+				}
+
+				if ( self::supports_design_capability( $definition, 'radius' ) ) {
+					self::render_select_field( 'component[design][radius]', 'nexa-pro-core-radius', __( 'Radius token', 'nexa-pro-core' ), self::radius_options(), self::nested_value( $component, array( 'design', 'radius' ), 'inherit' ) );
+				}
+
+				if ( self::supports_design_capability( $definition, 'shadow' ) ) {
+					self::render_select_field( 'component[design][shadow]', 'nexa-pro-core-shadow', __( 'Shadow token', 'nexa-pro-core' ), self::shadow_options(), self::nested_value( $component, array( 'design', 'shadow' ), 'inherit' ) );
+				}
+
+				if ( self::supports_design_capability( $definition, 'image_style' ) ) {
+					self::render_select_field( 'component[design][image_style]', 'nexa-pro-core-image-style', __( 'Image style', 'nexa-pro-core' ), self::image_style_options(), self::nested_value( $component, array( 'design', 'image_style' ), 'inherit' ) );
+				}
+
+				if ( self::supports_design_capability( $definition, 'button_style' ) ) {
+					self::render_select_field( 'component[design][button_style]', 'nexa-pro-core-button-style', __( 'Button style', 'nexa-pro-core' ), self::button_style_options(), self::nested_value( $component, array( 'design', 'button_style' ), 'inherit' ) );
+				}
 				?>
 			</details>
 
@@ -809,12 +875,22 @@ final class Builder_Admin {
 			$registry = array();
 
 			foreach ( Sanitizer::fallback_component_types() as $type ) {
+				$layouts = Sanitizer::allowed_layouts_for_type( $type );
 				$registry[ $type ] = array(
 					'type'                      => $type,
 					'label'                     => Sanitizer::default_admin_title( $type ),
 					'description'               => __( 'Fallback component definition. Activate Nexa Pro for full presentation metadata.', 'nexa-pro-core' ),
 					'default_anchor'            => $type,
-					'supported_layouts'         => Sanitizer::allowed_layouts_for_type( $type ),
+					'supported_layouts'         => $layouts,
+					'default_layout'            => ! empty( $layouts[0] ) ? $layouts[0] : 'default',
+					'layout_controls'           => array( 'layout', 'container_width', 'content_alignment', 'section_spacing' ),
+					'content_capabilities'      => array(),
+					'design_capabilities'       => array( 'design_preset', 'background', 'text_theme', 'radius', 'shadow' ),
+					'preview'                   => array(
+						'label'       => Sanitizer::default_admin_title( $type ),
+						'description' => __( 'Fallback layout preview.', 'nexa-pro-core' ),
+					),
+					'responsive_notes'          => '',
 					'supported_design_features' => array(),
 					'navigation'                => array(
 						'supported'     => true,
@@ -841,11 +917,24 @@ final class Builder_Admin {
 				'description'               => isset( $definition['description'] ) ? \sanitize_text_field( $definition['description'] ) : '',
 				'default_anchor'            => isset( $definition['default_anchor'] ) ? \sanitize_key( $definition['default_anchor'] ) : $type,
 				'supported_layouts'         => ! empty( $definition['supported_layouts'] ) && is_array( $definition['supported_layouts'] ) ? array_values( array_map( 'sanitize_key', $definition['supported_layouts'] ) ) : array( 'default' ),
+				'default_layout'            => ! empty( $definition['default_layout'] ) ? \sanitize_key( $definition['default_layout'] ) : '',
+				'layout_controls'           => ! empty( $definition['layout_controls'] ) && is_array( $definition['layout_controls'] ) ? array_values( array_map( 'sanitize_key', $definition['layout_controls'] ) ) : array( 'layout' ),
+				'content_capabilities'      => ! empty( $definition['content_capabilities'] ) && is_array( $definition['content_capabilities'] ) ? array_values( array_map( 'sanitize_key', $definition['content_capabilities'] ) ) : array(),
+				'design_capabilities'       => ! empty( $definition['design_capabilities'] ) && is_array( $definition['design_capabilities'] ) ? array_values( array_map( 'sanitize_key', $definition['design_capabilities'] ) ) : array(),
+				'preview'                   => ! empty( $definition['preview'] ) && is_array( $definition['preview'] ) ? array(
+					'label'       => isset( $definition['preview']['label'] ) ? \sanitize_text_field( $definition['preview']['label'] ) : '',
+					'description' => isset( $definition['preview']['description'] ) ? \sanitize_text_field( $definition['preview']['description'] ) : '',
+				) : array(),
+				'responsive_notes'          => isset( $definition['responsive_notes'] ) ? \sanitize_text_field( $definition['responsive_notes'] ) : '',
 				'supported_design_features' => ! empty( $definition['supported_design_features'] ) && is_array( $definition['supported_design_features'] ) ? array_values( array_map( 'sanitize_key', $definition['supported_design_features'] ) ) : array(),
 				'navigation'                => isset( $definition['navigation'] ) && is_array( $definition['navigation'] ) ? $definition['navigation'] : array( 'supported' => true, 'default_label' => Sanitizer::default_admin_title( $type ) ),
 				'repeatable'                => isset( $definition['repeatable'] ) && is_array( $definition['repeatable'] ) ? $definition['repeatable'] : array( 'supported' => true ),
 				'reusable'                  => isset( $definition['reusable'] ) && is_array( $definition['reusable'] ) ? $definition['reusable'] : array( 'eligible' => true ),
 			);
+
+			if ( '' === $normalized[ $type ]['default_layout'] || ! in_array( $normalized[ $type ]['default_layout'], $normalized[ $type ]['supported_layouts'], true ) ) {
+				$normalized[ $type ]['default_layout'] = $normalized[ $type ]['supported_layouts'][0];
+			}
 		}
 
 		return $normalized;
@@ -1176,7 +1265,66 @@ final class Builder_Admin {
 	 * @return string
 	 */
 	private static function first_layout( array $definition ) {
+		if ( ! empty( $definition['default_layout'] ) ) {
+			return $definition['default_layout'];
+		}
+
 		return ! empty( $definition['supported_layouts'][0] ) ? $definition['supported_layouts'][0] : 'default';
+	}
+
+	/**
+	 * Determine whether a component definition supports a layout control.
+	 *
+	 * @param array  $definition Definition.
+	 * @param string $control    Control key.
+	 * @return bool
+	 */
+	private static function supports_layout_control( array $definition, $control ) {
+		$controls = ! empty( $definition['layout_controls'] ) && is_array( $definition['layout_controls'] ) ? $definition['layout_controls'] : array( 'layout' );
+
+		return in_array( \sanitize_key( $control ), $controls, true );
+	}
+
+	/**
+	 * Determine whether a component definition supports a design capability.
+	 *
+	 * @param array  $definition Definition.
+	 * @param string $capability Capability key.
+	 * @return bool
+	 */
+	private static function supports_design_capability( array $definition, $capability ) {
+		$capabilities = ! empty( $definition['design_capabilities'] ) && is_array( $definition['design_capabilities'] ) ? $definition['design_capabilities'] : array();
+
+		return in_array( \sanitize_key( $capability ), $capabilities, true );
+	}
+
+	/**
+	 * Render a lightweight layout preview.
+	 *
+	 * @param array $definition Definition.
+	 * @return void
+	 */
+	private static function render_layout_preview( array $definition ) {
+		$preview = ! empty( $definition['preview'] ) && is_array( $definition['preview'] ) ? $definition['preview'] : array();
+		$label   = ! empty( $preview['label'] ) ? $preview['label'] : $definition['label'];
+		$text    = ! empty( $preview['description'] ) ? $preview['description'] : $definition['description'];
+		?>
+		<div class="nexa-pro-core-builder__layout-preview" aria-label="<?php echo esc_attr( $label ); ?>">
+			<span class="nexa-pro-core-builder__layout-preview-media" aria-hidden="true"></span>
+			<span class="nexa-pro-core-builder__layout-preview-lines" aria-hidden="true">
+				<span></span>
+				<span></span>
+				<span></span>
+			</span>
+			<p><strong><?php echo esc_html( $label ); ?></strong></p>
+			<?php if ( $text ) : ?>
+				<p class="description"><?php echo esc_html( $text ); ?></p>
+			<?php endif; ?>
+			<?php if ( ! empty( $definition['responsive_notes'] ) ) : ?>
+				<p class="description"><?php echo esc_html( $definition['responsive_notes'] ); ?></p>
+			<?php endif; ?>
+		</div>
+		<?php
 	}
 
 	/**
@@ -1312,23 +1460,35 @@ final class Builder_Admin {
 	}
 
 	private static function alignment_options() {
-		return array( 'left' => __( 'Left', 'nexa-pro-core' ), 'center' => __( 'Center', 'nexa-pro-core' ), 'right' => __( 'Right', 'nexa-pro-core' ) );
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'left' => __( 'Left', 'nexa-pro-core' ), 'center' => __( 'Center', 'nexa-pro-core' ), 'right' => __( 'Right', 'nexa-pro-core' ) );
 	}
 
 	private static function media_position_options() {
-		return array( 'left' => __( 'Left', 'nexa-pro-core' ), 'right' => __( 'Right', 'nexa-pro-core' ), 'top' => __( 'Top', 'nexa-pro-core' ), 'bottom' => __( 'Bottom', 'nexa-pro-core' ), 'background' => __( 'Background', 'nexa-pro-core' ) );
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'left' => __( 'Left', 'nexa-pro-core' ), 'right' => __( 'Right', 'nexa-pro-core' ), 'top' => __( 'Top', 'nexa-pro-core' ), 'bottom' => __( 'Bottom', 'nexa-pro-core' ), 'background' => __( 'Background', 'nexa-pro-core' ) );
 	}
 
 	private static function container_width_options() {
-		return array( 'default' => __( 'Default', 'nexa-pro-core' ), 'narrow' => __( 'Narrow', 'nexa-pro-core' ), 'wide' => __( 'Wide', 'nexa-pro-core' ), 'full' => __( 'Full width', 'nexa-pro-core' ) );
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'narrow' => __( 'Narrow', 'nexa-pro-core' ), 'standard' => __( 'Standard', 'nexa-pro-core' ), 'wide' => __( 'Wide', 'nexa-pro-core' ), 'full' => __( 'Full width', 'nexa-pro-core' ) );
+	}
+
+	private static function content_width_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'narrow' => __( 'Narrow', 'nexa-pro-core' ), 'standard' => __( 'Standard', 'nexa-pro-core' ), 'wide' => __( 'Wide', 'nexa-pro-core' ) );
 	}
 
 	private static function spacing_options() {
-		return array( 'default' => __( 'Default', 'nexa-pro-core' ), 'compact' => __( 'Compact', 'nexa-pro-core' ), 'spacious' => __( 'Spacious', 'nexa-pro-core' ) );
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'none' => __( 'None', 'nexa-pro-core' ), 'compact' => __( 'Compact', 'nexa-pro-core' ), 'standard' => __( 'Standard', 'nexa-pro-core' ), 'spacious' => __( 'Spacious', 'nexa-pro-core' ), 'extra-spacious' => __( 'Extra spacious', 'nexa-pro-core' ) );
+	}
+
+	private static function item_spacing_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'compact' => __( 'Compact', 'nexa-pro-core' ), 'standard' => __( 'Standard', 'nexa-pro-core' ), 'spacious' => __( 'Spacious', 'nexa-pro-core' ) );
+	}
+
+	private static function card_density_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'compact' => __( 'Compact', 'nexa-pro-core' ), 'comfortable' => __( 'Comfortable', 'nexa-pro-core' ), 'spacious' => __( 'Spacious', 'nexa-pro-core' ) );
 	}
 
 	private static function background_options() {
-		return array( 'default' => __( 'Default', 'nexa-pro-core' ), 'solid' => __( 'Solid', 'nexa-pro-core' ), 'gradient' => __( 'Gradient', 'nexa-pro-core' ), 'image' => __( 'Image', 'nexa-pro-core' ) );
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'solid' => __( 'Solid', 'nexa-pro-core' ), 'gradient' => __( 'Gradient', 'nexa-pro-core' ), 'image' => __( 'Image', 'nexa-pro-core' ) );
 	}
 
 	private static function gradient_direction_options() {
@@ -1336,15 +1496,45 @@ final class Builder_Admin {
 	}
 
 	private static function text_theme_options() {
-		return array( 'automatic' => __( 'Automatic', 'nexa-pro-core' ), 'light' => __( 'Light', 'nexa-pro-core' ), 'dark' => __( 'Dark', 'nexa-pro-core' ) );
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'automatic' => __( 'Automatic', 'nexa-pro-core' ), 'light' => __( 'Light', 'nexa-pro-core' ), 'dark' => __( 'Dark', 'nexa-pro-core' ) );
 	}
 
 	private static function card_style_options() {
-		return array( 'default' => __( 'Default', 'nexa-pro-core' ), 'bordered' => __( 'Bordered', 'nexa-pro-core' ), 'elevated' => __( 'Elevated', 'nexa-pro-core' ), 'plain' => __( 'Plain', 'nexa-pro-core' ) );
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'flat' => __( 'Flat', 'nexa-pro-core' ), 'bordered' => __( 'Bordered', 'nexa-pro-core' ), 'elevated' => __( 'Elevated', 'nexa-pro-core' ), 'glass' => __( 'Glass', 'nexa-pro-core' ), 'minimal' => __( 'Minimal', 'nexa-pro-core' ) );
 	}
 
-	private static function token_options() {
-		return array( 'default' => __( 'Default', 'nexa-pro-core' ), 'none' => __( 'None', 'nexa-pro-core' ), 'small' => __( 'Small', 'nexa-pro-core' ), 'medium' => __( 'Medium', 'nexa-pro-core' ), 'large' => __( 'Large', 'nexa-pro-core' ) );
+	private static function radius_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'none' => __( 'None', 'nexa-pro-core' ), 'small' => __( 'Small', 'nexa-pro-core' ), 'medium' => __( 'Medium', 'nexa-pro-core' ), 'large' => __( 'Large', 'nexa-pro-core' ), 'pill' => __( 'Pill', 'nexa-pro-core' ) );
+	}
+
+	private static function shadow_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'none' => __( 'None', 'nexa-pro-core' ), 'subtle' => __( 'Subtle', 'nexa-pro-core' ), 'medium' => __( 'Medium', 'nexa-pro-core' ), 'strong' => __( 'Strong', 'nexa-pro-core' ) );
+	}
+
+	private static function image_style_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'square' => __( 'Square', 'nexa-pro-core' ), 'soft' => __( 'Soft', 'nexa-pro-core' ), 'rounded' => __( 'Rounded', 'nexa-pro-core' ), 'pill' => __( 'Pill', 'nexa-pro-core' ), 'circle' => __( 'Circle', 'nexa-pro-core' ) );
+	}
+
+	private static function button_style_options() {
+		return array( 'inherit' => __( 'Inherit', 'nexa-pro-core' ), 'primary' => __( 'Primary', 'nexa-pro-core' ), 'secondary' => __( 'Secondary', 'nexa-pro-core' ), 'outline' => __( 'Outline', 'nexa-pro-core' ), 'ghost' => __( 'Ghost', 'nexa-pro-core' ), 'text' => __( 'Text', 'nexa-pro-core' ) );
+	}
+
+	private static function design_preset_options() {
+		$options = array();
+
+		if ( function_exists( 'nexa_pro_get_component_design_presets' ) ) {
+			foreach ( \nexa_pro_get_component_design_presets() as $key => $preset ) {
+				$options[ \sanitize_key( $key ) ] = ! empty( $preset['label'] ) ? $preset['label'] : $key;
+			}
+		}
+
+		if ( empty( $options ) ) {
+			foreach ( Sanitizer::allowed_design_presets() as $key ) {
+				$options[ $key ] = ucwords( str_replace( '-', ' ', $key ) );
+			}
+		}
+
+		return $options;
 	}
 
 	private static function visibility_options() {

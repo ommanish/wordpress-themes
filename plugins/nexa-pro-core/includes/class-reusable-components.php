@@ -168,6 +168,13 @@ final class Reusable_Components {
 
 		$changes['instance_id']    = $existing['instance_id'];
 		$changes['component_type'] = $existing['component_type'];
+
+		foreach ( array( 'content', 'design', 'navigation', 'advanced' ) as $group ) {
+			if ( isset( $changes[ $group ] ) && is_array( $changes[ $group ] ) && isset( $existing[ $group ] ) && is_array( $existing[ $group ] ) ) {
+				$changes[ $group ] = array_merge( $existing[ $group ], $changes[ $group ] );
+			}
+		}
+
 		$updated                   = Sanitizer::sanitize_component_instance( array_merge( $existing, $changes ), $existing, true );
 
 		if ( \is_wp_error( $updated ) ) {
