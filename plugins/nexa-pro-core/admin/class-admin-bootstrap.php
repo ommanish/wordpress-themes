@@ -33,6 +33,14 @@ final class Admin_Bootstrap {
 			Navigation_Actions::register();
 		}
 
+		if ( class_exists( Migration_Actions::class ) ) {
+			Migration_Actions::register();
+		}
+
+		if ( class_exists( Transfer_Actions::class ) ) {
+			Transfer_Actions::register();
+		}
+
 		if ( class_exists( Reusable_Actions::class ) ) {
 			Reusable_Actions::register();
 		}

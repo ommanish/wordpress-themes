@@ -10,6 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Nexa_Pro_Core\Capabilities;
+use Nexa_Pro_Core\Compatibility_Mode;
+use Nexa_Pro_Core\Migration;
 use Nexa_Pro_Core\Navigation_Settings;
 use Nexa_Pro_Core\Navigation_Tree;
 use Nexa_Pro_Core\Render_API;
@@ -17,6 +19,7 @@ use Nexa_Pro_Core\Reusable_Components;
 use Nexa_Pro_Core\Schema;
 use Nexa_Pro_Core\Sanitizer;
 use Nexa_Pro_Core\Storage;
+use Nexa_Pro_Core\Transfer;
 
 /**
  * Get page components.
@@ -142,6 +145,35 @@ function nexa_pro_core_get_renderable_page_components( $page_id ) {
  */
 function nexa_pro_core_has_builder_components( $page_id ) {
 	return Render_API::has_builder_components( $page_id );
+}
+
+/**
+ * Get the current compatibility mode.
+ *
+ * @return string
+ */
+function nexa_pro_core_get_compatibility_mode() {
+	return Compatibility_Mode::get_mode();
+}
+
+/**
+ * Save the current compatibility mode.
+ *
+ * @param string $mode Mode.
+ * @return string
+ */
+function nexa_pro_core_set_compatibility_mode( $mode ) {
+	return Compatibility_Mode::set_mode( $mode );
+}
+
+/**
+ * Determine whether the theme should render builder components for a page.
+ *
+ * @param int $page_id Page ID.
+ * @return bool
+ */
+function nexa_pro_core_should_render_builder_page( $page_id ) {
+	return Compatibility_Mode::should_render_builder_page( $page_id );
 }
 
 /**
@@ -358,4 +390,91 @@ function nexa_pro_core_get_page_navigation_items( $page_id, $args = array() ) {
  */
 function nexa_pro_core_validate_navigation_tree( array $items ) {
 	return Navigation_Tree::validate_navigation_tree( $items );
+}
+
+/**
+ * Get migration state.
+ *
+ * @return array
+ */
+function nexa_pro_core_get_migration_state() {
+	return Migration::get_state();
+}
+
+/**
+ * Detect available migration source data.
+ *
+ * @param int $target_page_id Target page.
+ * @return array
+ */
+function nexa_pro_core_detect_migration( $target_page_id = 0 ) {
+	return Migration::detect( $target_page_id );
+}
+
+/**
+ * Preview migration.
+ *
+ * @param int    $target_page_id Target page.
+ * @param string $mode           Mode.
+ * @return array
+ */
+function nexa_pro_core_preview_migration( $target_page_id = 0, $mode = 'merge' ) {
+	return Migration::preview( $target_page_id, $mode );
+}
+
+/**
+ * Apply migration.
+ *
+ * @param int    $target_page_id Target page.
+ * @param string $mode           Mode.
+ * @param bool   $switch_mode    Switch to builder mode.
+ * @param array  $args           Args.
+ * @return array|WP_Error
+ */
+function nexa_pro_core_apply_migration( $target_page_id, $mode = 'merge', $switch_mode = false, $args = array() ) {
+	return Migration::apply( $target_page_id, $mode, $switch_mode, $args );
+}
+
+/**
+ * Roll back migration.
+ *
+ * @param array $args Args.
+ * @return array|WP_Error
+ */
+function nexa_pro_core_rollback_migration( $args = array() ) {
+	return Migration::rollback( $args );
+}
+
+/**
+ * Build a component platform export.
+ *
+ * @param string $scope Scope.
+ * @param array  $args  Args.
+ * @return array
+ */
+function nexa_pro_core_build_export( $scope = 'full-site', $args = array() ) {
+	return Transfer::build_export( $scope, is_array( $args ) ? $args : array() );
+}
+
+/**
+ * Preview a component platform import.
+ *
+ * @param string|array $payload Payload.
+ * @return array|WP_Error
+ */
+function nexa_pro_core_preview_import( $payload ) {
+	return Transfer::preview_import( $payload );
+}
+
+/**
+ * Apply a component platform import.
+ *
+ * @param array  $payload       Payload.
+ * @param string $conflict_mode Conflict mode.
+ * @param array  $page_map      Page map.
+ * @param array  $args          Args.
+ * @return array|WP_Error
+ */
+function nexa_pro_core_apply_import( array $payload, $conflict_mode = 'skip', array $page_map = array(), $args = array() ) {
+	return Transfer::apply_import( $payload, $conflict_mode, $page_map, $args );
 }
