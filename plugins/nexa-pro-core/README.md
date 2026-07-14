@@ -3,7 +3,7 @@
 Nexa Pro Core is the companion plugin for Nexa Pro component storage and page
 component builder administration.
 
-Current plugin version: `0.3.0`
+Current plugin version: `0.4.0`
 
 Current schema version: `1`
 
@@ -19,7 +19,7 @@ design capabilities, and legacy fixed-section compatibility.
 
 ## Current Scope
 
-Included through Phase 6D:
+Included through Phase 6E:
 
 - Plugin bootstrap and activation/deactivation hooks
 - Schema metadata
@@ -43,19 +43,28 @@ Included through Phase 6D:
 - Linked and local reusable insertion workflows
 - Reusable usage counts and affected page lists
 - Reusable detach, archive, restore, and safe delete behavior
+- Expanded component layout variation support
+- Registry-driven Layout tab controls
+- Registry-driven Design tab controls
+- Built-in design presets
+- Safe component-level token overrides
+- Content-preserving layout switches
+- Linked/local reusable compatibility for layout and design selections
 - Conservative uninstall behavior
 - Standalone and WordPress-aware storage, builder, navigation, and reusable
   validation scripts
+- Layout and design validation script
 
-Not included in Phase 6D:
+Not included in Phase 6E:
 
 - Migration UI
 - Legacy settings migration
 - Import/export UI for component data
 - REST or AJAX write endpoints
 - Demo page creation
-- Layout variation expansion
-- Layout or design preset inheritance
+- Drag-and-drop visual canvas editing
+- Arbitrary CSS fields
+- Video or slideshow backgrounds
 
 ## Installation
 
@@ -198,13 +207,54 @@ automatically, and does not create WordPress menus automatically.
 The builder editor groups fields into:
 
 - Content: admin title, enabled state, common text, CTA, and attachment-ID fields.
-- Layout: layout variation, alignment, media position, width, columns, and spacing.
-- Design: preset, background, gradient, overlay, text-theme, card, radius, and shadow controls.
+- Layout: registry-supported layout variation, container width, content alignment,
+  content width, media position, column count, card density, section spacing, and
+  item spacing controls.
+- Design: registry-supported preset, background, gradient, background image ID,
+  overlay, text theme, card style, radius, shadow, image style, and button style
+  controls.
 - Navigation: future generated-navigation values such as label, anchor, CTA highlight, and mobile visibility.
 - Advanced: sanitized class tokens, ARIA label, semantic element, device visibility, and animation preset.
 
 The editor uses typed controls rather than arbitrary JSON, CSS, JavaScript, or
 PHP input.
+
+## Layout And Design Presets
+
+The Nexa Pro theme registry declares each component's allowed layouts, default
+layout, supported controls, design capabilities, preview labels, and responsive
+notes. Nexa Pro Core consumes that registry as the source of truth and falls
+back to conservative safe values only when the theme registry is unavailable.
+
+Built-in presets:
+
+- `inherit`
+- `light`
+- `dark`
+- `brand`
+- `accent`
+- `minimal`
+- `elevated`
+- `image-overlay`
+
+Inheritance priority:
+
+1. explicit component override
+2. selected component preset
+3. global design token
+4. theme default
+
+Component records store only the selected preset key and explicit overrides.
+They do not duplicate full preset payloads. Sanitization accepts only known
+tokens for spacing, width, alignment, media position, card style, radius,
+shadow, image style, button style, background type, gradient direction, text
+theme, and column count. Raw CSS, raw shadow strings, unsupported preset keys,
+invalid attachment IDs, and out-of-range overlay opacity values are discarded.
+
+Switching layouts preserves nested `content`, `design`, `navigation`, and
+`advanced` groups so hidden fields remain available when switching back. Linked
+reusable instances resolve source layout and design values; local copies remain
+independent.
 
 ## Reusable Component Behavior
 
@@ -310,6 +360,7 @@ Run standalone validation from the repository root:
 ```sh
 php plugins/nexa-pro-core/tests/validate-storage.php
 php plugins/nexa-pro-core/tests/validate-builder-admin.php
+php plugins/nexa-pro-core/tests/validate-layout-design.php
 php plugins/nexa-pro-core/tests/validate-navigation.php --wp-load="/path/to/site/app/public/wp-load.php"
 php plugins/nexa-pro-core/tests/validate-reusable.php --wp-load="/path/to/site/app/public/wp-load.php"
 ```
@@ -319,6 +370,7 @@ Run against a LocalWP installation by passing `wp-load.php`:
 ```sh
 php plugins/nexa-pro-core/tests/validate-storage.php --wp-load="/path/to/site/app/public/wp-load.php"
 php plugins/nexa-pro-core/tests/validate-builder-admin.php --wp-load="/path/to/site/app/public/wp-load.php"
+php plugins/nexa-pro-core/tests/validate-layout-design.php
 php plugins/nexa-pro-core/tests/validate-navigation.php --wp-load="/path/to/site/app/public/wp-load.php"
 php plugins/nexa-pro-core/tests/validate-reusable.php --wp-load="/path/to/site/app/public/wp-load.php"
 ```
@@ -328,8 +380,9 @@ them when the run completes.
 
 ## Next Phase
 
-The next scoped phase is Phase 6E: Layout variations and design presets.
+The next scoped phase is Phase 6F: Migration, import/export, and beta release
+validation.
 
-Phase 6E may expand layout choices and design presets on top of the Phase 6D
-navigation and reusable component APIs. It should not require moving plugin-owned
-builder data into theme options.
+Phase 6F may add migration previews, component import/export, rollback flows,
+clean install validation, upgrade testing, and beta packaging readiness. It
+should not delete legacy theme settings automatically.

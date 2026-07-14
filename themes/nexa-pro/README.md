@@ -12,9 +12,10 @@ Current version: `1.0.0`
 - PHP 7.4 or newer
 - A modern browser for the best admin editing experience
 
-The theme is designed to work without the future companion plugin. Plugin-owned
-content types such as services, case studies, team members, and testimonials are
-reserved for `nexa-pro-core` in a later phase.
+The theme is designed to work without the companion plugin. When Nexa Pro Core
+is active, the theme owns component presentation, layout variations, design
+token classes, responsive behavior, and accessibility of rendered components.
+Plugin-owned persistent builder content remains in `nexa-pro-core`.
 
 ## Installation
 
@@ -62,6 +63,19 @@ Controlled sections include:
 
 If a section is disabled, its wrapper and anchor are removed from the page.
 Update menu and CTA links manually when they target disabled sections.
+
+## Component Presentation
+
+When rendered from Nexa Pro Core builder data, Nexa Pro supports registry-driven
+layout variations for Hero, About, Services, Features, Process, Why Choose Us,
+Portfolio, Testimonials, Team, FAQ, CTA, and Contact components. Component
+design can inherit global theme tokens, use a built-in preset, or apply safe
+overrides for spacing, width, alignment, backgrounds, cards, radius, shadow,
+images, and buttons.
+
+The theme does not accept arbitrary CSS from component data. It renders
+allowlisted classes and safe CSS custom properties only. FAQ accordions use
+native buttons and remain readable without JavaScript.
 
 ## Import, Export, Presets, And Rollback
 
