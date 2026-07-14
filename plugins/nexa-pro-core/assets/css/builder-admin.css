@@ -43,6 +43,27 @@
 	gap: 16px;
 }
 
+.nexa-pro-core-builder__summary-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 12px;
+}
+
+.nexa-pro-core-builder__summary-card {
+	display: grid;
+	gap: 6px;
+	min-width: 0;
+	padding: 12px;
+	border: 1px solid var(--nexa-core-border);
+	border-radius: 8px;
+	background: #f6f7f7;
+}
+
+.nexa-pro-core-builder__summary-card span,
+.nexa-pro-core-builder__table code {
+	overflow-wrap: anywhere;
+}
+
 .nexa-pro-core-builder__two-column {
 	display: grid;
 	grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
@@ -68,6 +89,9 @@
 .nexa-pro-core-builder__component-form input,
 .nexa-pro-core-builder__component-form select,
 .nexa-pro-core-builder__component-form textarea,
+.nexa-pro-core-builder__panel input,
+.nexa-pro-core-builder__panel select,
+.nexa-pro-core-builder__panel textarea,
 .nexa-pro-core-builder__move-form select {
 	width: 100%;
 	max-width: 100%;

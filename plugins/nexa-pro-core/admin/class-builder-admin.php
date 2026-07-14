@@ -114,6 +114,28 @@ final class Builder_Admin {
 			return;
 		}
 
+		if ( 'migration' === $view ) {
+			?>
+			<div class="wrap nexa-pro-core-builder">
+				<h1><?php esc_html_e( 'Nexa Pro Builder', 'nexa-pro-core' ); ?></h1>
+				<?php self::render_view_tabs( $view ); ?>
+				<?php self::render_migration_screen(); ?>
+			</div>
+			<?php
+			return;
+		}
+
+		if ( 'transfer' === $view ) {
+			?>
+			<div class="wrap nexa-pro-core-builder">
+				<h1><?php esc_html_e( 'Nexa Pro Builder', 'nexa-pro-core' ); ?></h1>
+				<?php self::render_view_tabs( $view ); ?>
+				<?php self::render_transfer_screen(); ?>
+			</div>
+			<?php
+			return;
+		}
+
 		if ( 'reusable' === $view && class_exists( Reusable_Admin::class ) ) {
 			?>
 			<div class="wrap nexa-pro-core-builder">
@@ -182,7 +204,7 @@ final class Builder_Admin {
 	private static function get_current_view() {
 		$view = isset( $_GET['builder_view'] ) ? \sanitize_key( \wp_unslash( $_GET['builder_view'] ) ) : 'components';
 
-		return in_array( $view, array( 'components', 'navigation', 'reusable' ), true ) ? $view : 'components';
+		return in_array( $view, array( 'components', 'navigation', 'reusable', 'migration', 'transfer' ), true ) ? $view : 'components';
 	}
 
 	/**
@@ -196,6 +218,8 @@ final class Builder_Admin {
 			'components' => __( 'Pages & Components', 'nexa-pro-core' ),
 			'navigation' => __( 'Navigation', 'nexa-pro-core' ),
 			'reusable'   => __( 'Reusable Components', 'nexa-pro-core' ),
+			'migration'  => __( 'Migration', 'nexa-pro-core' ),
+			'transfer'   => __( 'Import/Export', 'nexa-pro-core' ),
 		);
 		?>
 		<nav class="nav-tab-wrapper nexa-pro-core-builder__tabs" aria-label="<?php esc_attr_e( 'Nexa Pro Builder sections', 'nexa-pro-core' ); ?>">
@@ -222,6 +246,469 @@ final class Builder_Admin {
 				</a>
 			<?php endforeach; ?>
 		</nav>
+		<?php
+	}
+
+	/**
+	 * Render migration screen.
+	 *
+	 * @return void
+	 */
+	private static function render_migration_screen() {
+		$pages          = self::get_editable_pages();
+		$target_page_id = isset( $_GET['target_page_id'] ) ? absint( \wp_unslash( $_GET['target_page_id'] ) ) : 0;
+		$target_page_id = Migration::normalize_target_page_id( $target_page_id );
+		$mode           = isset( $_GET['migration_mode'] ) ? Migration::sanitize_mode( \wp_unslash( $_GET['migration_mode'] ) ) : 'merge';
+		$detection      = Migration::detect( $target_page_id );
+		$state          = Migration::get_state();
+		$preview        = array();
+
+		if ( ! empty( $_GET['migration_preview'] ) ) {
+			$preview = Migration::preview( $target_page_id, $mode );
+		}
+
+		Migration_Actions::render_notices();
+		?>
+		<div class="nexa-pro-core-builder__section">
+			<p class="nexa-pro-core-builder__intro">
+				<?php esc_html_e( 'Preview and migrate Nexa Pro 1.0 fixed-section settings into plugin-owned page components. Legacy theme options are never deleted.', 'nexa-pro-core' ); ?>
+			</p>
+
+			<div class="nexa-pro-core-builder__summary-grid" role="list">
+				<?php
+				self::render_summary_card( __( 'Migration status', 'nexa-pro-core' ), self::status_label_for_migration( $state['status'] ) );
+				self::render_summary_card( __( 'Compatibility mode', 'nexa-pro-core' ), Compatibility_Mode::get_mode() );
+				self::render_summary_card( __( 'Source hash', 'nexa-pro-core' ), $detection['migration_hash'] ? $detection['migration_hash'] : __( 'No source data', 'nexa-pro-core' ) );
+				self::render_summary_card( __( 'Existing builder data', 'nexa-pro-core' ), ! empty( $detection['has_builder_data'] ) ? __( 'Detected', 'nexa-pro-core' ) : __( 'None detected', 'nexa-pro-core' ) );
+				?>
+			</div>
+
+			<?php self::render_notice_list( isset( $detection['warnings'] ) ? $detection['warnings'] : array(), 'warning' ); ?>
+
+			<div class="nexa-pro-core-builder__two-column">
+				<section class="nexa-pro-core-builder__panel" aria-labelledby="nexa-pro-core-migration-preview-title">
+					<h2 id="nexa-pro-core-migration-preview-title"><?php esc_html_e( 'Migration preview', 'nexa-pro-core' ); ?></h2>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="nexa_pro_core_migration_preview">
+						<?php wp_nonce_field( Migration_Actions::nonce_action( 'preview' ) ); ?>
+						<p>
+							<label for="nexa-pro-core-migration-page"><?php esc_html_e( 'Target page', 'nexa-pro-core' ); ?></label>
+							<select id="nexa-pro-core-migration-page" name="target_page_id">
+								<?php self::render_page_options( $pages, $target_page_id ); ?>
+							</select>
+						</p>
+						<p>
+							<label for="nexa-pro-core-migration-mode"><?php esc_html_e( 'Migration mode', 'nexa-pro-core' ); ?></label>
+							<select id="nexa-pro-core-migration-mode" name="migration_mode">
+								<?php self::render_options( self::migration_modes(), $mode ); ?>
+							</select>
+						</p>
+						<p class="description"><?php esc_html_e( 'Merge preserves existing builder components. Replace mode overwrites only plugin-managed page component data after backup and explicit confirmation.', 'nexa-pro-core' ); ?></p>
+						<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Preview migration', 'nexa-pro-core' ); ?></button></p>
+					</form>
+				</section>
+
+				<section class="nexa-pro-core-builder__panel" aria-labelledby="nexa-pro-core-compatibility-title">
+					<h2 id="nexa-pro-core-compatibility-title"><?php esc_html_e( 'Compatibility mode', 'nexa-pro-core' ); ?></h2>
+					<p><?php esc_html_e( 'Legacy mode keeps the Nexa Pro 1.0 fixed-section frontend active. Builder mode lets the theme render plugin-managed components when a page has valid builder data.', 'nexa-pro-core' ); ?></p>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="nexa_pro_core_compatibility_mode_save">
+						<?php wp_nonce_field( Migration_Actions::nonce_action( 'mode' ) ); ?>
+						<label for="nexa-pro-core-compatibility-mode"><?php esc_html_e( 'Frontend mode', 'nexa-pro-core' ); ?></label>
+						<select id="nexa-pro-core-compatibility-mode" name="compatibility_mode">
+							<?php self::render_options( array( 'legacy' => __( 'Legacy fixed sections', 'nexa-pro-core' ), 'builder' => __( 'Builder components', 'nexa-pro-core' ) ), Compatibility_Mode::get_mode() ); ?>
+						</select>
+						<p><button type="submit" class="button"><?php esc_html_e( 'Save mode', 'nexa-pro-core' ); ?></button></p>
+					</form>
+				</section>
+			</div>
+
+			<?php if ( $preview ) : ?>
+				<?php self::render_migration_preview_summary( $preview ); ?>
+			<?php endif; ?>
+
+			<div class="nexa-pro-core-builder__two-column">
+				<section class="nexa-pro-core-builder__panel" aria-labelledby="nexa-pro-core-migration-apply-title">
+					<h2 id="nexa-pro-core-migration-apply-title"><?php esc_html_e( 'Apply migration', 'nexa-pro-core' ); ?></h2>
+					<p><?php esc_html_e( 'Applying migration writes plugin-owned builder data for the selected target page. A rollback backup is created first.', 'nexa-pro-core' ); ?></p>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="nexa_pro_core_migration_apply">
+						<input type="hidden" name="target_page_id" value="<?php echo esc_attr( $target_page_id ); ?>">
+						<input type="hidden" name="migration_mode" value="<?php echo esc_attr( $mode ); ?>">
+						<?php wp_nonce_field( Migration_Actions::nonce_action( 'apply' ) ); ?>
+						<p>
+							<label>
+								<input type="checkbox" name="switch_builder_mode" value="1">
+								<?php esc_html_e( 'Switch frontend compatibility mode to builder after migration', 'nexa-pro-core' ); ?>
+							</label>
+						</p>
+						<p>
+							<label>
+								<input type="checkbox" name="confirm_migration" value="1" required>
+								<?php esc_html_e( 'I understand this writes builder data while preserving legacy settings.', 'nexa-pro-core' ); ?>
+							</label>
+						</p>
+						<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Apply migration', 'nexa-pro-core' ); ?></button></p>
+					</form>
+				</section>
+
+				<section class="nexa-pro-core-builder__panel" aria-labelledby="nexa-pro-core-migration-rollback-title">
+					<h2 id="nexa-pro-core-migration-rollback-title"><?php esc_html_e( 'Rollback and report', 'nexa-pro-core' ); ?></h2>
+					<p><?php esc_html_e( 'Rollback restores the latest migration backup for page components, navigation settings, and compatibility mode. Legacy options remain untouched.', 'nexa-pro-core' ); ?></p>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="nexa_pro_core_migration_rollback">
+						<?php wp_nonce_field( Migration_Actions::nonce_action( 'rollback' ) ); ?>
+						<p>
+							<label>
+								<input type="checkbox" name="confirm_rollback" value="1" required>
+								<?php esc_html_e( 'I understand rollback restores the latest migration backup.', 'nexa-pro-core' ); ?>
+							</label>
+						</p>
+						<p><button type="submit" class="button"><?php esc_html_e( 'Roll back migration', 'nexa-pro-core' ); ?></button></p>
+					</form>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="nexa_pro_core_migration_report_download">
+						<?php wp_nonce_field( Migration_Actions::nonce_action( 'report' ) ); ?>
+						<p><button type="submit" class="button"><?php esc_html_e( 'Download migration report', 'nexa-pro-core' ); ?></button></p>
+					</form>
+				</section>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render transfer screen.
+	 *
+	 * @return void
+	 */
+	private static function render_transfer_screen() {
+		$pages         = self::get_editable_pages();
+		$token         = isset( $_GET['import_token'] ) ? \sanitize_text_field( \wp_unslash( $_GET['import_token'] ) ) : '';
+		$conflict_mode = isset( $_GET['conflict_mode'] ) ? \sanitize_key( \wp_unslash( $_GET['conflict_mode'] ) ) : 'skip';
+		$payload       = $token ? Transfer::get_preview_payload( $token ) : array();
+		$preview       = $payload ? Transfer::preview_import( $payload ) : array();
+
+		Transfer_Actions::render_notices();
+		?>
+		<div class="nexa-pro-core-builder__section">
+			<p class="nexa-pro-core-builder__intro">
+				<?php esc_html_e( 'Export and import plugin-owned builder data with a preview-first flow. Imports validate product, schema, record limits, and component data before anything is applied.', 'nexa-pro-core' ); ?>
+			</p>
+
+			<div class="nexa-pro-core-builder__two-column">
+				<section class="nexa-pro-core-builder__panel" aria-labelledby="nexa-pro-core-export-title">
+					<h2 id="nexa-pro-core-export-title"><?php esc_html_e( 'Export', 'nexa-pro-core' ); ?></h2>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="nexa_pro_core_export">
+						<?php wp_nonce_field( Transfer_Actions::nonce_action( 'export' ) ); ?>
+						<p>
+							<label for="nexa-pro-core-export-scope"><?php esc_html_e( 'Export scope', 'nexa-pro-core' ); ?></label>
+							<select id="nexa-pro-core-export-scope" name="export_scope">
+								<?php self::render_options( self::export_scopes(), 'full-site' ); ?>
+							</select>
+						</p>
+						<p>
+							<label for="nexa-pro-core-export-page"><?php esc_html_e( 'Page for one-page export', 'nexa-pro-core' ); ?></label>
+							<select id="nexa-pro-core-export-page" name="export_page_id">
+								<option value="0"><?php esc_html_e( 'Choose a page when needed', 'nexa-pro-core' ); ?></option>
+								<?php self::render_page_options( $pages, 0 ); ?>
+							</select>
+						</p>
+						<p class="description"><?php esc_html_e( 'Full-site exports include global settings, navigation, pages, reusable components, and migration metadata without private backup payloads.', 'nexa-pro-core' ); ?></p>
+						<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Download export', 'nexa-pro-core' ); ?></button></p>
+					</form>
+				</section>
+
+				<section class="nexa-pro-core-builder__panel" aria-labelledby="nexa-pro-core-import-title">
+					<h2 id="nexa-pro-core-import-title"><?php esc_html_e( 'Import preview', 'nexa-pro-core' ); ?></h2>
+					<form method="post" enctype="multipart/form-data" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+						<input type="hidden" name="action" value="nexa_pro_core_import_preview">
+						<?php wp_nonce_field( Transfer_Actions::nonce_action( 'import_preview' ) ); ?>
+						<p>
+							<label for="nexa-pro-core-import-file"><?php esc_html_e( 'Import JSON file', 'nexa-pro-core' ); ?></label>
+							<input id="nexa-pro-core-import-file" type="file" name="import_file" accept="application/json,.json">
+						</p>
+						<p>
+							<label for="nexa-pro-core-import-json"><?php esc_html_e( 'Or paste JSON', 'nexa-pro-core' ); ?></label>
+							<textarea id="nexa-pro-core-import-json" name="import_json" rows="8"></textarea>
+						</p>
+						<p>
+							<label for="nexa-pro-core-conflict-mode"><?php esc_html_e( 'Conflict handling', 'nexa-pro-core' ); ?></label>
+							<select id="nexa-pro-core-conflict-mode" name="conflict_mode">
+								<?php self::render_options( self::conflict_modes(), $conflict_mode ); ?>
+							</select>
+						</p>
+						<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Preview import', 'nexa-pro-core' ); ?></button></p>
+					</form>
+				</section>
+			</div>
+
+			<?php if ( is_array( $preview ) && ! \is_wp_error( $preview ) && ! empty( $preview['preview'] ) ) : ?>
+				<?php self::render_import_preview_summary( $preview['preview'], $token, $conflict_mode, $pages, $payload ); ?>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render a compact summary card.
+	 *
+	 * @param string $label Label.
+	 * @param string $value Value.
+	 * @return void
+	 */
+	private static function render_summary_card( $label, $value ) {
+		?>
+		<div class="nexa-pro-core-builder__summary-card" role="listitem">
+			<strong><?php echo esc_html( $label ); ?></strong>
+			<span><?php echo esc_html( $value ); ?></span>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render notice list.
+	 *
+	 * @param array  $messages Messages.
+	 * @param string $type     Type.
+	 * @return void
+	 */
+	private static function render_notice_list( array $messages, $type = 'warning' ) {
+		if ( empty( $messages ) ) {
+			return;
+		}
+
+		$class = 'error' === $type ? 'notice-error' : 'notice-warning';
+		?>
+		<div class="notice <?php echo esc_attr( $class ); ?>" role="<?php echo 'error' === $type ? 'alert' : 'status'; ?>">
+			<ul>
+				<?php foreach ( $messages as $message ) : ?>
+					<li><?php echo esc_html( $message ); ?></li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render page options.
+	 *
+	 * @param array $pages    Pages.
+	 * @param int   $selected Selected page ID.
+	 * @return void
+	 */
+	private static function render_page_options( array $pages, $selected ) {
+		foreach ( $pages as $page ) {
+			printf(
+				'<option value="%1$d" %2$s>%3$s</option>',
+				absint( $page->ID ),
+				selected( absint( $selected ), absint( $page->ID ), false ),
+				esc_html( get_the_title( $page ) )
+			);
+		}
+	}
+
+	/**
+	 * Migration mode labels.
+	 *
+	 * @return array
+	 */
+	private static function migration_modes() {
+		return array(
+			'merge'                => __( 'Merge with existing builder data', 'nexa-pro-core' ),
+			'replace-builder-data' => __( 'Replace existing builder data after backup', 'nexa-pro-core' ),
+		);
+	}
+
+	/**
+	 * Export scope labels.
+	 *
+	 * @return array
+	 */
+	private static function export_scopes() {
+		return array(
+			'full-site'           => __( 'Full site configuration', 'nexa-pro-core' ),
+			'global-settings'     => __( 'Global visual settings', 'nexa-pro-core' ),
+			'navigation'          => __( 'Navigation settings', 'nexa-pro-core' ),
+			'one-page'            => __( 'One page', 'nexa-pro-core' ),
+			'selected-pages'      => __( 'Selected pages', 'nexa-pro-core' ),
+			'selected-components' => __( 'Selected components', 'nexa-pro-core' ),
+			'reusable-components' => __( 'Reusable components', 'nexa-pro-core' ),
+			'migration-report'    => __( 'Migration report', 'nexa-pro-core' ),
+		);
+	}
+
+	/**
+	 * Import conflict labels.
+	 *
+	 * @return array
+	 */
+	private static function conflict_modes() {
+		return array(
+			'skip'       => __( 'Skip pages with existing builder data', 'nexa-pro-core' ),
+			'merge'      => __( 'Merge into mapped pages', 'nexa-pro-core' ),
+			'replace'    => __( 'Replace mapped page builder data', 'nexa-pro-core' ),
+			'create-new' => __( 'Create new draft pages when unmapped', 'nexa-pro-core' ),
+		);
+	}
+
+	/**
+	 * Migration status label.
+	 *
+	 * @param string $status Status.
+	 * @return string
+	 */
+	private static function status_label_for_migration( $status ) {
+		$labels = array(
+			'not_needed'  => __( 'Not needed', 'nexa-pro-core' ),
+			'available'   => __( 'Available', 'nexa-pro-core' ),
+			'previewed'   => __( 'Previewed', 'nexa-pro-core' ),
+			'completed'   => __( 'Completed', 'nexa-pro-core' ),
+			'failed'      => __( 'Failed', 'nexa-pro-core' ),
+			'rolled_back' => __( 'Rolled back', 'nexa-pro-core' ),
+		);
+
+		return isset( $labels[ $status ] ) ? $labels[ $status ] : $status;
+	}
+
+	/**
+	 * Render migration preview details.
+	 *
+	 * @param array $preview Preview.
+	 * @return void
+	 */
+	private static function render_migration_preview_summary( array $preview ) {
+		$components = ! empty( $preview['components'] ) && is_array( $preview['components'] ) ? $preview['components'] : array();
+		?>
+		<section class="nexa-pro-core-builder__panel" aria-labelledby="nexa-pro-core-migration-preview-summary-title">
+			<h2 id="nexa-pro-core-migration-preview-summary-title"><?php esc_html_e( 'Preview summary', 'nexa-pro-core' ); ?></h2>
+			<div class="nexa-pro-core-builder__summary-grid" role="list">
+				<?php
+				self::render_summary_card( __( 'Mode', 'nexa-pro-core' ), isset( $preview['mode'] ) ? $preview['mode'] : 'merge' );
+				self::render_summary_card( __( 'Components to create', 'nexa-pro-core' ), (string) count( $components ) );
+				self::render_summary_card( __( 'Fields mapped', 'nexa-pro-core' ), isset( $preview['fields_migrated'] ) ? (string) absint( $preview['fields_migrated'] ) : '0' );
+				self::render_summary_card( __( 'Existing target components', 'nexa-pro-core' ), isset( $preview['existing_components'] ) ? (string) absint( $preview['existing_components'] ) : '0' );
+				?>
+			</div>
+			<?php self::render_notice_list( ! empty( $preview['warnings'] ) && is_array( $preview['warnings'] ) ? $preview['warnings'] : array(), 'warning' ); ?>
+			<?php self::render_notice_list( ! empty( $preview['errors'] ) && is_array( $preview['errors'] ) ? $preview['errors'] : array(), 'error' ); ?>
+
+			<?php if ( ! empty( $preview['legacy_order'] ) && is_array( $preview['legacy_order'] ) ) : ?>
+				<p><strong><?php esc_html_e( 'Legacy order:', 'nexa-pro-core' ); ?></strong> <?php echo esc_html( implode( ', ', array_map( 'sanitize_key', $preview['legacy_order'] ) ) ); ?></p>
+			<?php endif; ?>
+
+			<?php if ( ! empty( $preview['unsupported_sections'] ) && is_array( $preview['unsupported_sections'] ) ) : ?>
+				<p><strong><?php esc_html_e( 'Unsupported sections preserved in legacy settings:', 'nexa-pro-core' ); ?></strong> <?php echo esc_html( implode( ', ', array_map( 'sanitize_key', $preview['unsupported_sections'] ) ) ); ?></p>
+			<?php endif; ?>
+
+			<?php if ( $components ) : ?>
+				<table class="widefat striped nexa-pro-core-builder__table">
+					<thead>
+						<tr>
+							<th scope="col"><?php esc_html_e( 'Order', 'nexa-pro-core' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Component', 'nexa-pro-core' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Anchor', 'nexa-pro-core' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Fields', 'nexa-pro-core' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ( $components as $component ) : ?>
+							<?php
+							$field_count = 0;
+							foreach ( array( 'content', 'design', 'navigation', 'advanced' ) as $group ) {
+								$field_count += ! empty( $component[ $group ] ) && is_array( $component[ $group ] ) ? count( $component[ $group ] ) : 0;
+							}
+							?>
+							<tr>
+								<td><?php echo esc_html( isset( $component['order'] ) ? (string) absint( $component['order'] ) : '0' ); ?></td>
+								<td>
+									<strong><?php echo esc_html( isset( $component['admin_title'] ) ? $component['admin_title'] : '' ); ?></strong><br>
+									<code><?php echo esc_html( isset( $component['component_type'] ) ? $component['component_type'] : '' ); ?></code>
+								</td>
+								<td><code><?php echo esc_html( isset( $component['navigation']['anchor_id'] ) ? $component['navigation']['anchor_id'] : '' ); ?></code></td>
+								<td><?php echo esc_html( (string) $field_count ); ?></td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php endif; ?>
+		</section>
+		<?php
+	}
+
+	/**
+	 * Render import preview details.
+	 *
+	 * @param array  $preview       Preview.
+	 * @param string $token         Token.
+	 * @param string $conflict_mode Conflict mode.
+	 * @param array  $pages         Editable pages.
+	 * @param array  $payload       Payload.
+	 * @return void
+	 */
+	private static function render_import_preview_summary( array $preview, $token, $conflict_mode, array $pages, array $payload ) {
+		$page_records = ! empty( $payload['pages'] ) && is_array( $payload['pages'] ) ? $payload['pages'] : array();
+		?>
+		<section class="nexa-pro-core-builder__panel" aria-labelledby="nexa-pro-core-import-preview-title">
+			<h2 id="nexa-pro-core-import-preview-title"><?php esc_html_e( 'Import preview summary', 'nexa-pro-core' ); ?></h2>
+			<div class="nexa-pro-core-builder__summary-grid" role="list">
+				<?php
+				self::render_summary_card( __( 'Schema', 'nexa-pro-core' ), isset( $preview['export_schema'] ) ? (string) absint( $preview['export_schema'] ) : '' );
+				self::render_summary_card( __( 'Scope', 'nexa-pro-core' ), isset( $preview['scope'] ) ? $preview['scope'] : '' );
+				self::render_summary_card( __( 'Pages', 'nexa-pro-core' ), isset( $preview['pages_included'] ) ? (string) absint( $preview['pages_included'] ) : '0' );
+				self::render_summary_card( __( 'Reusable components', 'nexa-pro-core' ), isset( $preview['reusable_included'] ) ? (string) absint( $preview['reusable_included'] ) : '0' );
+				?>
+			</div>
+			<?php self::render_notice_list( ! empty( $preview['warnings'] ) && is_array( $preview['warnings'] ) ? $preview['warnings'] : array(), 'warning' ); ?>
+			<?php self::render_notice_list( ! empty( $preview['conflicts'] ) && is_array( $preview['conflicts'] ) ? $preview['conflicts'] : array(), 'warning' ); ?>
+
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<input type="hidden" name="action" value="nexa_pro_core_import_apply">
+				<input type="hidden" name="import_token" value="<?php echo esc_attr( $token ); ?>">
+				<input type="hidden" name="conflict_mode" value="<?php echo esc_attr( $conflict_mode ); ?>">
+				<?php wp_nonce_field( Transfer_Actions::nonce_action( 'import_apply' ) ); ?>
+
+				<?php if ( $page_records ) : ?>
+					<h3><?php esc_html_e( 'Page mapping', 'nexa-pro-core' ); ?></h3>
+					<p class="description"><?php esc_html_e( 'Map imported pages explicitly when you do not want slug matching or create-new behavior.', 'nexa-pro-core' ); ?></p>
+					<table class="widefat striped nexa-pro-core-builder__table">
+						<thead>
+							<tr>
+								<th scope="col"><?php esc_html_e( 'Imported page', 'nexa-pro-core' ); ?></th>
+								<th scope="col"><?php esc_html_e( 'Target page', 'nexa-pro-core' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( $page_records as $record ) : ?>
+								<?php $source_id = ! empty( $record['source_page_id'] ) ? absint( $record['source_page_id'] ) : 0; ?>
+								<tr>
+									<td>
+										<strong><?php echo esc_html( ! empty( $record['title'] ) ? $record['title'] : __( 'Untitled page', 'nexa-pro-core' ) ); ?></strong><br>
+										<code><?php echo esc_html( ! empty( $record['slug'] ) ? $record['slug'] : '' ); ?></code>
+									</td>
+									<td>
+										<label class="screen-reader-text" for="<?php echo esc_attr( 'nexa-pro-core-page-map-' . $source_id ); ?>"><?php esc_html_e( 'Target page', 'nexa-pro-core' ); ?></label>
+										<select id="<?php echo esc_attr( 'nexa-pro-core-page-map-' . $source_id ); ?>" name="page_map[<?php echo esc_attr( $source_id ); ?>]">
+											<option value="0"><?php esc_html_e( 'Use slug matching or create-new mode', 'nexa-pro-core' ); ?></option>
+											<?php self::render_page_options( $pages, 0 ); ?>
+										</select>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				<?php endif; ?>
+
+				<p>
+					<label>
+						<input type="checkbox" name="confirm_import" value="1" required>
+						<?php esc_html_e( 'I reviewed the preview and want to apply this import.', 'nexa-pro-core' ); ?>
+					</label>
+				</p>
+				<p><button type="submit" class="button button-primary"><?php esc_html_e( 'Apply import', 'nexa-pro-core' ); ?></button></p>
+			</form>
+		</section>
 		<?php
 	}
 
@@ -506,7 +993,7 @@ final class Builder_Admin {
 		<?php if ( empty( $components ) ) : ?>
 			<div class="nexa-pro-core-builder__empty">
 				<h3><?php esc_html_e( 'No components yet', 'nexa-pro-core' ); ?></h3>
-				<p><?php esc_html_e( 'Add a component to start composing this page. The theme frontend remains unchanged until builder rendering is enabled in a later phase.', 'nexa-pro-core' ); ?></p>
+				<p><?php esc_html_e( 'Add a component to start composing this page. The theme frontend remains unchanged until builder mode is explicitly enabled on the Migration screen.', 'nexa-pro-core' ); ?></p>
 			</div>
 		<?php else : ?>
 			<form class="nexa-pro-core-builder__order-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -714,7 +1201,7 @@ final class Builder_Admin {
 
 			<h3><?php echo esc_html( $form_title ); ?>: <?php echo esc_html( $definition['label'] ); ?></h3>
 			<p class="description"><?php echo esc_html( $definition['description'] ); ?></p>
-			<p class="notice notice-info inline"><?php esc_html_e( 'Builder output is stored by Nexa Pro Core. It does not replace the current theme frontend until builder rendering is explicitly enabled in a later phase.', 'nexa-pro-core' ); ?></p>
+			<p class="notice notice-info inline"><?php esc_html_e( 'Builder output is stored by Nexa Pro Core. It does not replace the current theme frontend until builder mode is explicitly enabled on the Migration screen.', 'nexa-pro-core' ); ?></p>
 
 			<details open>
 				<summary><?php esc_html_e( 'Content', 'nexa-pro-core' ); ?></summary>
