@@ -372,7 +372,7 @@ function nexa_pro_render_component( $type, array $data = array(), array $context
  * @return bool
  */
 function nexa_pro_has_builder_page_components( $page_id ) {
-	return function_exists( 'nexa_pro_core_get_renderable_page_components' ) && ! empty( nexa_pro_get_builder_page_components( $page_id ) );
+	return function_exists( 'nexa_pro_core_should_render_builder_page' ) && nexa_pro_core_should_render_builder_page( absint( $page_id ) ) && ! empty( nexa_pro_get_builder_page_components( $page_id ) );
 }
 
 /**
@@ -398,6 +398,10 @@ function nexa_pro_get_builder_page_components( $page_id ) {
  * @return bool
  */
 function nexa_pro_render_builder_page_components( $page_id ) {
+	if ( ! function_exists( 'nexa_pro_core_should_render_builder_page' ) || ! nexa_pro_core_should_render_builder_page( absint( $page_id ) ) ) {
+		return false;
+	}
+
 	$components = nexa_pro_get_builder_page_components( $page_id );
 
 	if ( empty( $components ) ) {
