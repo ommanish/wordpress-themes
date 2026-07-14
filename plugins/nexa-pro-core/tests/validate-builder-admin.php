@@ -214,7 +214,7 @@ function nexa_pro_core_builder_post_action( $operation, $page_id, array $extra =
 
 do_action( 'admin_menu' );
 
-nexa_pro_core_builder_assert( '0.4.0' === NEXA_PRO_CORE_VERSION, 'Plugin version should be 0.4.0.' );
+nexa_pro_core_builder_assert( '0.5.0-beta.1' === NEXA_PRO_CORE_VERSION, 'Plugin version should be 0.5.0-beta.1.' );
 nexa_pro_core_builder_assert( function_exists( 'nexa_pro_core_get_renderable_page_components' ), 'Renderable page component helper should exist.' );
 nexa_pro_core_builder_assert( function_exists( 'nexa_pro_core_has_builder_components' ), 'Builder component presence helper should exist.' );
 
