@@ -83,6 +83,11 @@
 		padding: var(--nexa-pro-space-lg);
 	}
 
+	.nexa-layout--alternating-rows .homepage-card:nth-child(n),
+	.nexa-layout--alternating .homepage-card:nth-child(n) {
+		margin-inline: 0;
+	}
+
 }
 
 @media (max-width: 779px) {
@@ -118,6 +123,11 @@
 		order: -1;
 	}
 
+	.homepage-hero--split-left .homepage-hero__media,
+	.homepage-hero--image-position-left .homepage-hero__media {
+		order: -1;
+	}
+
 	.homepage-hero__image--desktop {
 		display: block;
 	}
@@ -128,6 +138,54 @@
 
 	.homepage-grid--three {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.nexa-column-count--1 .homepage-grid,
+	.nexa-column-count--1.homepage-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.nexa-column-count--2 .homepage-grid,
+	.nexa-column-count--2.homepage-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.nexa-column-count--3 .homepage-grid,
+	.nexa-column-count--3.homepage-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.nexa-column-count--4 .homepage-grid,
+	.nexa-column-count--4.homepage-grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.nexa-column-count--5 .homepage-grid,
+	.nexa-column-count--5.homepage-grid,
+	.nexa-column-count--6 .homepage-grid,
+	.nexa-column-count--6.homepage-grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.nexa-layout--bento-grid .homepage-card:first-child,
+	.nexa-layout--featured-project .homepage-card:first-child,
+	.nexa-layout--featured-quote .homepage-note,
+	.nexa-layout--leadership-feature .homepage-card:first-child {
+		grid-column: span 2;
+	}
+
+	.nexa-layout--masonry-grid .homepage-grid {
+		grid-auto-flow: dense;
+		align-items: start;
+	}
+
+	.nexa-layout--masonry-grid .homepage-card:nth-child(3n + 1) {
+		grid-row: span 2;
+	}
+
+	.nexa-layout--two-column .homepage-faq,
+	.homepage-faq--two-column {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 	.homepage-cta__inner {
@@ -262,6 +320,18 @@
 	.nexa-pro-header--centered .primary-navigation__panel,
 	.nexa-pro-header--centered .primary-menu {
 		justify-content: center;
+	}
+}
+
+@media (min-width: 1280px) {
+	.nexa-column-count--5 .homepage-grid,
+	.nexa-column-count--5.homepage-grid {
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+	}
+
+	.nexa-column-count--6 .homepage-grid,
+	.nexa-column-count--6.homepage-grid {
+		grid-template-columns: repeat(6, minmax(0, 1fr));
 	}
 }
 

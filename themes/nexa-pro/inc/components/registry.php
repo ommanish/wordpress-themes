@@ -23,6 +23,50 @@ function nexa_pro_get_default_component_registry() {
 		'text-theme',
 	);
 
+	$shared_layout_controls = array(
+		'layout',
+		'container_width',
+		'content_alignment',
+		'content_width',
+		'section_spacing',
+	);
+
+	$media_layout_controls = array_merge(
+		$shared_layout_controls,
+		array(
+			'media_position',
+		)
+	);
+
+	$grid_layout_controls = array_merge(
+		$shared_layout_controls,
+		array(
+			'column_count',
+			'card_density',
+			'item_spacing',
+		)
+	);
+
+	$shared_design_capabilities = array(
+		'design_preset',
+		'background',
+		'gradient',
+		'background_image',
+		'overlay',
+		'text_theme',
+		'radius',
+		'shadow',
+		'button_style',
+	);
+
+	$card_design_capabilities = array_merge(
+		$shared_design_capabilities,
+		array(
+			'card_style',
+			'image_style',
+		)
+	);
+
 	$section_capabilities = array(
 		'repeatable' => array(
 			'supported'     => true,
@@ -42,7 +86,16 @@ function nexa_pro_get_default_component_registry() {
 			'template'                  => 'template-parts/sections/hero.php',
 			'legacy_section_key'        => 'hero',
 			'default_anchor'            => 'hero',
-			'supported_layouts'         => array( 'content-only', 'image-left', 'image-right', 'background-image' ),
+			'supported_layouts'         => array( 'centered', 'split-left', 'split-right', 'background-image', 'minimal', 'full-height' ),
+			'default_layout'            => 'centered',
+			'layout_controls'           => array_merge( $media_layout_controls, array( 'mobile_image_visibility' ) ),
+			'content_capabilities'      => array( 'eyebrow', 'heading', 'body', 'primary_cta', 'secondary_cta', 'desktop_image', 'mobile_image' ),
+			'design_capabilities'       => array_merge( $shared_design_capabilities, array( 'image_style' ) ),
+			'preview'                   => array(
+				'label'       => __( 'Intro layouts', 'nexa-pro' ),
+				'description' => __( 'Choose between centered, split-media, background, minimal, and full-height introductions.', 'nexa-pro' ),
+			),
+			'responsive_notes'          => __( 'Split layouts stack on small screens; full-height uses safe viewport sizing.', 'nexa-pro' ),
 			'supported_design_features' => array_merge( $shared_section_design, array( 'foreground-image', 'content-alignment', 'content-width' ) ),
 			'navigation'                => array(
 				'supported'     => false,
@@ -66,7 +119,16 @@ function nexa_pro_get_default_component_registry() {
 				'template'                  => 'template-parts/sections/about.php',
 				'legacy_section_key'        => 'about',
 				'default_anchor'            => 'about',
-				'supported_layouts'         => array( 'default', 'image-left', 'image-right', 'text-only' ),
+				'supported_layouts'         => array( 'text-only', 'image-left', 'image-right', 'statistics', 'split-content' ),
+				'default_layout'            => 'image-right',
+				'layout_controls'           => $media_layout_controls,
+				'content_capabilities'      => array( 'eyebrow', 'heading', 'body', 'points', 'foreground_image', 'statistics' ),
+				'design_capabilities'       => $card_design_capabilities,
+				'preview'                   => array(
+					'label'       => __( 'Narrative layouts', 'nexa-pro' ),
+					'description' => __( 'Use text, split media, statistics, or mixed content layouts.', 'nexa-pro' ),
+				),
+				'responsive_notes'          => __( 'Media and statistics stack below content on narrow screens.', 'nexa-pro' ),
 				'supported_design_features' => array_merge( $shared_section_design, array( 'foreground-image' ) ),
 				'navigation'                => array(
 					'supported'     => true,
@@ -83,7 +145,16 @@ function nexa_pro_get_default_component_registry() {
 				'template'                  => 'template-parts/sections/services.php',
 				'legacy_section_key'        => 'services',
 				'default_anchor'            => 'services',
-				'supported_layouts'         => array( 'card-grid', 'compact-grid', 'list' ),
+				'supported_layouts'         => array( 'card-grid', 'icon-grid', 'alternating-rows', 'image-cards', 'compact-list' ),
+				'default_layout'            => 'card-grid',
+				'layout_controls'           => $grid_layout_controls,
+				'content_capabilities'      => array( 'eyebrow', 'heading', 'body', 'items', 'links' ),
+				'design_capabilities'       => $card_design_capabilities,
+				'preview'                   => array(
+					'label'       => __( 'Service presentations', 'nexa-pro' ),
+					'description' => __( 'Present services as grids, rows, image cards, or compact lists.', 'nexa-pro' ),
+				),
+				'responsive_notes'          => __( 'Cards reflow to one column before they crowd.', 'nexa-pro' ),
 				'supported_design_features' => array_merge( $shared_section_design, array( 'card-style' ) ),
 				'navigation'                => array(
 					'supported'     => true,
@@ -100,7 +171,16 @@ function nexa_pro_get_default_component_registry() {
 				'template'                  => 'template-parts/sections/features.php',
 				'legacy_section_key'        => 'features',
 				'default_anchor'            => 'features',
-				'supported_layouts'         => array( 'card-grid', 'compact-grid', 'list' ),
+				'supported_layouts'         => array( 'icon-grid', 'bento-grid', 'alternating', 'centered-grid', 'checklist' ),
+				'default_layout'            => 'icon-grid',
+				'layout_controls'           => $grid_layout_controls,
+				'content_capabilities'      => array( 'eyebrow', 'heading', 'body', 'items' ),
+				'design_capabilities'       => $card_design_capabilities,
+				'preview'                   => array(
+					'label'       => __( 'Feature structures', 'nexa-pro' ),
+					'description' => __( 'Use feature grids, bento grouping, alternating copy, or checklist style.', 'nexa-pro' ),
+				),
+				'responsive_notes'          => __( 'Bento layouts collapse to regular cards at tablet and phone widths.', 'nexa-pro' ),
 				'supported_design_features' => array_merge( $shared_section_design, array( 'card-style' ) ),
 				'navigation'                => array(
 					'supported'     => true,
@@ -117,7 +197,16 @@ function nexa_pro_get_default_component_registry() {
 				'template'                  => 'template-parts/sections/process.php',
 				'legacy_section_key'        => 'process',
 				'default_anchor'            => 'process',
-				'supported_layouts'         => array( 'steps', 'timeline', 'card-grid' ),
+				'supported_layouts'         => array( 'horizontal-steps', 'vertical-timeline', 'numbered-cards', 'connected-steps' ),
+				'default_layout'            => 'horizontal-steps',
+				'layout_controls'           => $grid_layout_controls,
+				'content_capabilities'      => array( 'eyebrow', 'heading', 'body', 'items', 'numbered_items' ),
+				'design_capabilities'       => $card_design_capabilities,
+				'preview'                   => array(
+					'label'       => __( 'Process flow', 'nexa-pro' ),
+					'description' => __( 'Show steps horizontally, vertically, as numbered cards, or connected stages.', 'nexa-pro' ),
+				),
+				'responsive_notes'          => __( 'Horizontal and connected layouts become vertical on mobile.', 'nexa-pro' ),
 				'supported_design_features' => array_merge( $shared_section_design, array( 'numbered-items' ) ),
 				'navigation'                => array(
 					'supported'     => true,
@@ -134,7 +223,16 @@ function nexa_pro_get_default_component_registry() {
 				'template'                  => 'template-parts/sections/why.php',
 				'legacy_section_key'        => 'why',
 				'default_anchor'            => 'why',
-				'supported_layouts'         => array( 'default', 'image-left', 'image-right', 'text-only' ),
+				'supported_layouts'         => array( 'benefit-cards', 'icon-list', 'split-media', 'statistics' ),
+				'default_layout'            => 'benefit-cards',
+				'layout_controls'           => $media_layout_controls,
+				'content_capabilities'      => array( 'eyebrow', 'heading', 'body', 'points', 'foreground_image', 'statistics' ),
+				'design_capabilities'       => $card_design_capabilities,
+				'preview'                   => array(
+					'label'       => __( 'Benefit layouts', 'nexa-pro' ),
+					'description' => __( 'Use cards, lists, split media, or statistical proof points.', 'nexa-pro' ),
+				),
+				'responsive_notes'          => __( 'Media and benefit cards stack cleanly on small screens.', 'nexa-pro' ),
 				'supported_design_features' => array_merge( $shared_section_design, array( 'foreground-image' ) ),
 				'navigation'                => array(
 					'supported'     => true,
@@ -151,7 +249,16 @@ function nexa_pro_get_default_component_registry() {
 				'template'                  => 'template-parts/sections/portfolio.php',
 				'legacy_section_key'        => 'portfolio',
 				'default_anchor'            => 'portfolio',
-				'supported_layouts'         => array( 'card-grid', 'featured-image', 'list' ),
+				'supported_layouts'         => array( 'grid', 'masonry-grid', 'featured-project', 'case-study-cards' ),
+				'default_layout'            => 'grid',
+				'layout_controls'           => $grid_layout_controls,
+				'content_capabilities'      => array( 'eyebrow', 'heading', 'body', 'items', 'foreground_image' ),
+				'design_capabilities'       => $card_design_capabilities,
+				'preview'                   => array(
+					'label'       => __( 'Portfolio layouts', 'nexa-pro' ),
+					'description' => __( 'Show examples in grids, masonry-like grids, featured layouts, or case-study cards.', 'nexa-pro' ),
+				),
+				'responsive_notes'          => __( 'Masonry-like grids use CSS Grid and degrade to simple grids.', 'nexa-pro' ),
 				'supported_design_features' => array_merge( $shared_section_design, array( 'foreground-image', 'card-style' ) ),
 				'navigation'                => array(
 					'supported'     => true,
@@ -168,7 +275,16 @@ function nexa_pro_get_default_component_registry() {
 				'template'                  => 'template-parts/sections/testimonials.php',
 				'legacy_section_key'        => 'testimonials',
 				'default_anchor'            => 'testimonials',
-				'supported_layouts'         => array( 'message', 'cards', 'quote-grid' ),
+				'supported_layouts'         => array( 'grid', 'featured-quote', 'static-slider', 'logo-and-quote' ),
+				'default_layout'            => 'grid',
+				'layout_controls'           => $grid_layout_controls,
+				'content_capabilities'      => array( 'eyebrow', 'heading', 'body', 'items', 'quotes' ),
+				'design_capabilities'       => $card_design_capabilities,
+				'preview'                   => array(
+					'label'       => __( 'Testimonial layouts', 'nexa-pro' ),
+					'description' => __( 'Use grids, featured quotes, slide-ready static rows, or logo-and-quote layouts.', 'nexa-pro' ),
+				),
+				'responsive_notes'          => __( 'Static sliders do not autoplay and remain keyboard scrollable.', 'nexa-pro' ),
 				'supported_design_features' => array_merge( $shared_section_design, array( 'card-style' ) ),
 				'navigation'                => array(
 					'supported'     => true,
@@ -185,7 +301,16 @@ function nexa_pro_get_default_component_registry() {
 				'template'                  => 'template-parts/sections/team.php',
 				'legacy_section_key'        => 'team',
 				'default_anchor'            => 'team',
-				'supported_layouts'         => array( 'card-grid', 'compact-grid', 'list' ),
+				'supported_layouts'         => array( 'profile-grid', 'compact-list', 'leadership-feature', 'image-cards' ),
+				'default_layout'            => 'profile-grid',
+				'layout_controls'           => $grid_layout_controls,
+				'content_capabilities'      => array( 'eyebrow', 'heading', 'body', 'items', 'profiles' ),
+				'design_capabilities'       => $card_design_capabilities,
+				'preview'                   => array(
+					'label'       => __( 'Team layouts', 'nexa-pro' ),
+					'description' => __( 'Present team members as profile grids, compact lists, leadership features, or image cards.', 'nexa-pro' ),
+				),
+				'responsive_notes'          => __( 'Profile cards keep images responsive and avoid distortion.', 'nexa-pro' ),
 				'supported_design_features' => array_merge( $shared_section_design, array( 'card-style' ) ),
 				'navigation'                => array(
 					'supported'     => true,
@@ -202,7 +327,16 @@ function nexa_pro_get_default_component_registry() {
 				'template'                  => 'template-parts/sections/faq.php',
 				'legacy_section_key'        => 'faq',
 				'default_anchor'            => 'faq',
-				'supported_layouts'         => array( 'accordion', 'two-column', 'stacked' ),
+				'supported_layouts'         => array( 'accordion', 'two-column', 'categorized-list' ),
+				'default_layout'            => 'accordion',
+				'layout_controls'           => array_merge( $shared_layout_controls, array( 'item_spacing' ) ),
+				'content_capabilities'      => array( 'eyebrow', 'heading', 'body', 'items', 'categories' ),
+				'design_capabilities'       => $card_design_capabilities,
+				'preview'                   => array(
+					'label'       => __( 'FAQ layouts', 'nexa-pro' ),
+					'description' => __( 'Use accessible accordion controls, two-column lists, or categorized groups.', 'nexa-pro' ),
+				),
+				'responsive_notes'          => __( 'Two-column FAQ layouts collapse before answers become cramped.', 'nexa-pro' ),
 				'supported_design_features' => array_merge( $shared_section_design, array( 'disclosure-items' ) ),
 				'navigation'                => array(
 					'supported'     => true,
@@ -219,7 +353,16 @@ function nexa_pro_get_default_component_registry() {
 				'template'                  => 'template-parts/sections/cta.php',
 				'legacy_section_key'        => 'cta',
 				'default_anchor'            => 'cta',
-				'supported_layouts'         => array( 'centered', 'split', 'banner' ),
+				'supported_layouts'         => array( 'centered', 'split', 'banner', 'image-background', 'compact' ),
+				'default_layout'            => 'centered',
+				'layout_controls'           => $media_layout_controls,
+				'content_capabilities'      => array( 'heading', 'body', 'primary_cta', 'foreground_image' ),
+				'design_capabilities'       => $shared_design_capabilities,
+				'preview'                   => array(
+					'label'       => __( 'Action layouts', 'nexa-pro' ),
+					'description' => __( 'Use centered, split, banner, image-background, or compact calls to action.', 'nexa-pro' ),
+				),
+				'responsive_notes'          => __( 'CTA buttons wrap and split layouts stack on small screens.', 'nexa-pro' ),
 				'supported_design_features' => array_merge( $shared_section_design, array( 'action-button' ) ),
 				'navigation'                => array(
 					'supported'     => true,
@@ -236,7 +379,16 @@ function nexa_pro_get_default_component_registry() {
 				'template'                  => 'template-parts/sections/contact.php',
 				'legacy_section_key'        => 'contact',
 				'default_anchor'            => 'contact',
-				'supported_layouts'         => array( 'default', 'split', 'details-grid' ),
+				'supported_layouts'         => array( 'details-only', 'form-and-details', 'split-map-placeholder', 'cards' ),
+				'default_layout'            => 'details-only',
+				'layout_controls'           => $grid_layout_controls,
+				'content_capabilities'      => array( 'eyebrow', 'heading', 'body', 'items', 'contact_details', 'map_placeholder' ),
+				'design_capabilities'       => $card_design_capabilities,
+				'preview'                   => array(
+					'label'       => __( 'Contact layouts', 'nexa-pro' ),
+					'description' => __( 'Use details-only, form-ready split, safe map placeholder, or contact cards.', 'nexa-pro' ),
+				),
+				'responsive_notes'          => __( 'Form-ready and card layouts stack without remote map embeds.', 'nexa-pro' ),
 				'supported_design_features' => array_merge( $shared_section_design, array( 'contact-details' ) ),
 				'navigation'                => array(
 					'supported'     => true,
@@ -391,6 +543,15 @@ function nexa_pro_normalize_component_definition( $definition, $type = '' ) {
 		'legacy_section_key'        => isset( $definition['legacy_section_key'] ) ? sanitize_key( $definition['legacy_section_key'] ) : $type,
 		'default_anchor'            => isset( $definition['default_anchor'] ) ? sanitize_key( $definition['default_anchor'] ) : $type,
 		'supported_layouts'         => isset( $definition['supported_layouts'] ) ? nexa_pro_sanitize_component_token_list( $definition['supported_layouts'] ) : array(),
+		'default_layout'            => isset( $definition['default_layout'] ) ? sanitize_key( $definition['default_layout'] ) : '',
+		'layout_controls'           => isset( $definition['layout_controls'] ) ? nexa_pro_sanitize_component_token_list( $definition['layout_controls'] ) : array(),
+		'content_capabilities'      => isset( $definition['content_capabilities'] ) ? nexa_pro_sanitize_component_token_list( $definition['content_capabilities'] ) : array(),
+		'design_capabilities'       => isset( $definition['design_capabilities'] ) ? nexa_pro_sanitize_component_token_list( $definition['design_capabilities'] ) : array(),
+		'preview'                   => array(
+			'label'       => $label,
+			'description' => '',
+		),
+		'responsive_notes'          => isset( $definition['responsive_notes'] ) && is_scalar( $definition['responsive_notes'] ) ? sanitize_text_field( (string) $definition['responsive_notes'] ) : '',
 		'supported_design_features' => isset( $definition['supported_design_features'] ) ? nexa_pro_sanitize_component_token_list( $definition['supported_design_features'] ) : array(),
 		'navigation'                => array(
 			'supported'     => false,
@@ -399,6 +560,28 @@ function nexa_pro_normalize_component_definition( $definition, $type = '' ) {
 		'repeatable'                => isset( $definition['repeatable'] ) ? nexa_pro_normalize_component_capability( $definition['repeatable'], 'supported', false ) : array( 'supported' => false ),
 		'reusable'                  => isset( $definition['reusable'] ) ? nexa_pro_normalize_component_capability( $definition['reusable'], 'eligible', false ) : array( 'eligible' => false ),
 	);
+
+	if ( empty( $normalized['supported_layouts'] ) ) {
+		$normalized['supported_layouts'] = array( 'default' );
+	}
+
+	if ( '' === $normalized['default_layout'] || ! in_array( $normalized['default_layout'], $normalized['supported_layouts'], true ) ) {
+		$normalized['default_layout'] = $normalized['supported_layouts'][0];
+	}
+
+	if ( empty( $normalized['layout_controls'] ) ) {
+		$normalized['layout_controls'] = array( 'layout' );
+	}
+
+	if ( isset( $definition['preview'] ) && is_array( $definition['preview'] ) ) {
+		if ( isset( $definition['preview']['label'] ) && is_scalar( $definition['preview']['label'] ) ) {
+			$normalized['preview']['label'] = sanitize_text_field( (string) $definition['preview']['label'] );
+		}
+
+		if ( isset( $definition['preview']['description'] ) && is_scalar( $definition['preview']['description'] ) ) {
+			$normalized['preview']['description'] = sanitize_text_field( (string) $definition['preview']['description'] );
+		}
+	}
 
 	if ( isset( $definition['navigation'] ) && is_array( $definition['navigation'] ) ) {
 		$normalized['navigation']['supported'] = ! empty( $definition['navigation']['supported'] );
@@ -535,4 +718,196 @@ function nexa_pro_get_component_supported_layouts( $type ) {
 	$definition = nexa_pro_get_component_definition( $type );
 
 	return ! empty( $definition['supported_layouts'] ) && is_array( $definition['supported_layouts'] ) ? $definition['supported_layouts'] : array();
+}
+
+/**
+ * Get the default layout for a component type.
+ *
+ * @param string $type Component type.
+ * @return string
+ */
+function nexa_pro_get_component_default_layout( $type ) {
+	$definition = nexa_pro_get_component_definition( $type );
+
+	return ! empty( $definition['default_layout'] ) ? $definition['default_layout'] : 'default';
+}
+
+/**
+ * Validate a component layout against its registry definition.
+ *
+ * @param string $type   Component type.
+ * @param string $layout Layout token.
+ * @return string
+ */
+function nexa_pro_get_component_layout_or_default( $type, $layout ) {
+	$type    = sanitize_key( $type );
+	$layout  = sanitize_key( $layout );
+	$layouts = nexa_pro_get_component_supported_layouts( $type );
+
+	if ( in_array( $layout, $layouts, true ) ) {
+		return $layout;
+	}
+
+	return nexa_pro_get_component_default_layout( $type );
+}
+
+/**
+ * Get layout controls declared for a component type.
+ *
+ * @param string $type Component type.
+ * @return array
+ */
+function nexa_pro_get_component_layout_controls( $type ) {
+	$definition = nexa_pro_get_component_definition( $type );
+
+	return ! empty( $definition['layout_controls'] ) && is_array( $definition['layout_controls'] ) ? $definition['layout_controls'] : array( 'layout' );
+}
+
+/**
+ * Get design capabilities declared for a component type.
+ *
+ * @param string $type Component type.
+ * @return array
+ */
+function nexa_pro_get_component_design_capabilities( $type ) {
+	$definition = nexa_pro_get_component_definition( $type );
+
+	return ! empty( $definition['design_capabilities'] ) && is_array( $definition['design_capabilities'] ) ? $definition['design_capabilities'] : array();
+}
+
+/**
+ * Get safe design token options for component rendering and storage.
+ *
+ * @return array
+ */
+function nexa_pro_get_component_design_tokens() {
+	return array(
+		'container_width'    => array( 'inherit', 'narrow', 'standard', 'wide', 'full' ),
+		'content_width'      => array( 'inherit', 'narrow', 'standard', 'wide' ),
+		'content_alignment'  => array( 'inherit', 'left', 'center', 'right' ),
+		'media_position'     => array( 'inherit', 'left', 'right', 'top', 'bottom', 'background' ),
+		'section_spacing'    => array( 'inherit', 'none', 'compact', 'standard', 'spacious', 'extra-spacious' ),
+		'content_spacing'    => array( 'inherit', 'compact', 'standard', 'spacious' ),
+		'item_spacing'       => array( 'inherit', 'compact', 'standard', 'spacious' ),
+		'card_density'       => array( 'inherit', 'compact', 'comfortable', 'spacious' ),
+		'background_type'    => array( 'inherit', 'solid', 'gradient', 'image' ),
+		'gradient_direction' => array( 'to-bottom', 'to-right', 'to-bottom-right', 'to-bottom-left' ),
+		'text_theme'         => array( 'inherit', 'automatic', 'light', 'dark' ),
+		'card_style'         => array( 'inherit', 'flat', 'bordered', 'elevated', 'glass', 'minimal' ),
+		'radius'             => array( 'inherit', 'none', 'small', 'medium', 'large', 'pill' ),
+		'shadow'             => array( 'inherit', 'none', 'subtle', 'medium', 'strong' ),
+		'image_style'        => array( 'inherit', 'square', 'soft', 'rounded', 'pill', 'circle' ),
+		'button_style'       => array( 'inherit', 'primary', 'secondary', 'outline', 'ghost', 'text' ),
+		'column_count'       => array( 1, 2, 3, 4, 5, 6 ),
+	);
+}
+
+/**
+ * Get built-in component design presets.
+ *
+ * @return array
+ */
+function nexa_pro_get_component_design_presets() {
+	return array(
+		'inherit'       => array(
+			'label'  => __( 'Inherit', 'nexa-pro' ),
+			'design' => array(),
+		),
+		'light'         => array(
+			'label'  => __( 'Light', 'nexa-pro' ),
+			'design' => array(
+				'background_type' => 'solid',
+				'background_color' => '#ffffff',
+				'text_theme'      => 'dark',
+				'section_spacing' => 'standard',
+				'card_style'      => 'bordered',
+				'radius'          => 'medium',
+				'shadow'          => 'none',
+			),
+		),
+		'dark'          => array(
+			'label'  => __( 'Dark', 'nexa-pro' ),
+			'design' => array(
+				'background_type' => 'solid',
+				'background_color' => '#15171a',
+				'text_theme'      => 'light',
+				'section_spacing' => 'spacious',
+				'card_style'      => 'minimal',
+				'radius'          => 'medium',
+				'shadow'          => 'none',
+			),
+		),
+		'brand'         => array(
+			'label'  => __( 'Brand', 'nexa-pro' ),
+			'design' => array(
+				'background_type' => 'solid',
+				'background_color' => '#2563eb',
+				'text_theme'      => 'light',
+				'section_spacing' => 'spacious',
+				'card_style'      => 'glass',
+				'radius'          => 'large',
+				'shadow'          => 'subtle',
+				'button_style'    => 'secondary',
+			),
+		),
+		'accent'        => array(
+			'label'  => __( 'Accent', 'nexa-pro' ),
+			'design' => array(
+				'background_type' => 'solid',
+				'background_color' => '#0f766e',
+				'text_theme'      => 'light',
+				'section_spacing' => 'spacious',
+				'card_style'      => 'glass',
+				'radius'          => 'large',
+				'shadow'          => 'subtle',
+			),
+		),
+		'minimal'       => array(
+			'label'  => __( 'Minimal', 'nexa-pro' ),
+			'design' => array(
+				'background_type' => 'inherit',
+				'text_theme'      => 'inherit',
+				'section_spacing' => 'compact',
+				'card_style'      => 'minimal',
+				'radius'          => 'small',
+				'shadow'          => 'none',
+				'button_style'    => 'text',
+			),
+		),
+		'elevated'      => array(
+			'label'  => __( 'Elevated', 'nexa-pro' ),
+			'design' => array(
+				'background_type' => 'solid',
+				'background_color' => '#f7f9fc',
+				'text_theme'      => 'dark',
+				'section_spacing' => 'spacious',
+				'card_style'      => 'elevated',
+				'radius'          => 'large',
+				'shadow'          => 'medium',
+			),
+		),
+		'image-overlay' => array(
+			'label'  => __( 'Image overlay', 'nexa-pro' ),
+			'design' => array(
+				'background_type' => 'image',
+				'overlay_enabled' => true,
+				'overlay_color'   => '#15171a',
+				'overlay_opacity' => 62,
+				'text_theme'      => 'light',
+				'section_spacing' => 'extra-spacious',
+				'card_style'      => 'glass',
+				'radius'          => 'large',
+				'shadow'          => 'subtle',
+			),
+		),
+	);
+}
+
+/**
+ * Get valid design preset keys.
+ *
+ * @return array
+ */
+function nexa_pro_get_component_design_preset_keys() {
+	return array_keys( nexa_pro_get_component_design_presets() );
 }

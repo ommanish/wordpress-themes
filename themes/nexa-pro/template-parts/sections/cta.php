@@ -11,7 +11,13 @@ if ( empty( $section['heading'] ) || empty( $section['text'] ) ) {
 	return;
 }
 
-$section_attrs = nexa_pro_homepage_section_attributes( $section, 'homepage-section homepage-cta has-nexa-pro-dark-surface' );
+$base_class = 'homepage-section homepage-cta';
+
+if ( empty( $section['component_classes'] ) ) {
+	$base_class .= ' has-nexa-pro-dark-surface';
+}
+
+$section_attrs = nexa_pro_homepage_section_attributes( $section, $base_class );
 
 $action_attrs = '';
 
@@ -19,7 +25,7 @@ if ( ! empty( $section['action']['label'] ) && ! empty( $section['action']['url'
 	$action_attrs = nexa_pro_get_action_link_attributes(
 		$section['action']['url'],
 		array(
-			'class' => 'button',
+			'class' => ! empty( $section['action']['style'] ) && 'primary' !== $section['action']['style'] ? 'button button--' . sanitize_html_class( $section['action']['style'] ) : 'button',
 		)
 	);
 }
