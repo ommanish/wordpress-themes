@@ -1,9 +1,38 @@
 # Changelog
 
-## 1.0.0-rc1 - Unreleased
+## 1.1.0-beta.1 - 2026-07-13
 
-Release-candidate preparation for local production testing, customer beta
-testing, marketplace review preparation, and installable ZIP packaging.
+Beta release preparation for the Nexa Pro component builder platform.
+
+### Added
+
+- Nexa Pro Core migration preview, apply, rollback, and migration-state tracking
+- Explicit legacy/builder compatibility mode
+- Safe builder-mode frontend rendering gate
+- Component platform import/export with schema version `2`
+- Preview-first import flow with conflict handling
+- Reusable ID remapping and duplicate-anchor protection during imports
+- Migration and transfer validation scripts
+- Nexa Pro Core packaging script
+- Nexa Pro 1.1 beta testing guide
+
+### Changed
+
+- Theme version updated to `1.1.0-beta.1`.
+- Nexa Pro Core version updated to `0.5.0-beta.1`.
+- Component storage schema remains `1`.
+
+### Beta Notes
+
+- This is not a final stable 1.1.0 release.
+- Use on staging or test sites only.
+- Migration does not run automatically and never deletes legacy theme options.
+- Rollback restores the latest migration backup only.
+
+## 1.0.0 - 2026-07-12
+
+Initial release preparation for local production testing, customer beta testing,
+marketplace review preparation, and installable ZIP packaging.
 
 ### Major Feature Groups
 
@@ -42,7 +71,6 @@ testing, marketplace review preparation, and installable ZIP packaging.
 
 ### Known Limitations
 
-- `screenshot.png` is not yet present and remains a release blocker.
 - Browser, keyboard, screen-reader smoke, contrast, LocalWP install, and ZIP
-  install tests must still be completed manually before final release.
+  install tests should be repeated before marketplace submission.
 - Companion plugin and child theme packaging are reserved for later work.

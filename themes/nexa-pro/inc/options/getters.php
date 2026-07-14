@@ -486,6 +486,20 @@ function nexa_pro_get_hero_design() {
  * @return array
  */
 function nexa_pro_get_navigation_settings() {
+	if ( function_exists( 'nexa_pro_core_get_navigation_settings' ) ) {
+		$core_settings = nexa_pro_core_get_navigation_settings();
+		$source        = isset( $core_settings['navigation_source'] ) ? sanitize_key( $core_settings['navigation_source'] ) : 'wordpress';
+
+		if ( in_array( $source, array( 'generated', 'hybrid' ), true ) ) {
+			return array(
+				'mode'          => $source,
+				'smooth_scroll' => ! empty( $core_settings['smooth_scroll_enabled'] ) && '1' === (string) $core_settings['smooth_scroll_enabled'],
+				'active_state'  => ! empty( $core_settings['active_section_enabled'] ) && '1' === (string) $core_settings['active_section_enabled'],
+				'scroll_offset' => isset( $core_settings['scroll_offset'] ) ? max( 0, min( 240, absint( $core_settings['scroll_offset'] ) ) ) : 0,
+			);
+		}
+	}
+
 	$defaults = nexa_pro_get_default_options();
 	$mode     = nexa_pro_get_option( 'navigation_mode', $defaults['navigation_mode'] );
 	$offset   = absint( nexa_pro_get_option( 'single_page_scroll_offset', $defaults['single_page_scroll_offset'] ) );

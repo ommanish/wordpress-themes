@@ -1,0 +1,494 @@
+# Nexa Pro Core
+
+Nexa Pro Core is the companion plugin for Nexa Pro component storage and page
+component builder administration.
+
+Current plugin version: `0.5.0-beta.1`
+
+Current schema version: `1`
+
+## Purpose
+
+Nexa Pro Core owns persistent component composition data that should survive a
+theme switch. It stores page-level component instances, private reusable
+component records, and the builder administration workflow for composing real
+WordPress pages from component instances.
+
+The Nexa Pro theme remains responsible for presentation, templates, rendering,
+design capabilities, and legacy fixed-section compatibility.
+
+## Current Scope
+
+Included through Phase 6F:
+
+- Plugin bootstrap and activation/deactivation hooks
+- Schema metadata
+- Page component storage in page meta
+- Private reusable component custom post type
+- Reusable component payload meta
+- Capability registration
+- Sanitization and validation
+- Helper APIs for storage operations
+- Read-side helpers for future rendering integration
+- Appearance > Nexa Pro Builder admin screen
+- Editable WordPress page list and filters
+- Add, edit, duplicate, enable, disable, reorder, move, delete, and undo actions
+- Component editor groups for Content, Layout, Design, Navigation, and Advanced
+- Plugin-scoped builder admin CSS and JavaScript
+- Navigation settings stored in `nexa_pro_core_navigation`
+- WordPress, generated, and hybrid navigation modes
+- Generated navigation trees from page component metadata
+- Hybrid insertion before, after, or in place of a placeholder menu item
+- Reusable Components admin screen
+- Linked and local reusable insertion workflows
+- Reusable usage counts and affected page lists
+- Reusable detach, archive, restore, and safe delete behavior
+- Expanded component layout variation support
+- Registry-driven Layout tab controls
+- Registry-driven Design tab controls
+- Built-in design presets
+- Safe component-level token overrides
+- Content-preserving layout switches
+- Linked/local reusable compatibility for layout and design selections
+- Conservative uninstall behavior
+- Standalone and WordPress-aware storage, builder, navigation, and reusable
+  validation scripts
+- Layout and design validation script
+- Legacy fixed-section migration preview, apply, rollback, and state tracking
+- Explicit compatibility mode for legacy or builder frontend rendering
+- Component platform import/export with preview-first JSON imports
+- Export schema version `2`
+- Backward-compatible preview for schema version `1` settings exports
+- Theme and plugin beta packaging scripts
+
+Not included in Phase 6F:
+
+- REST or AJAX write endpoints
+- Demo page creation
+- Drag-and-drop visual canvas editing
+- Arbitrary CSS fields
+- Video or slideshow backgrounds
+- Production 1.1.0 release readiness
+
+## Installation
+
+1. Copy or symlink `plugins/nexa-pro-core` into `wp-content/plugins/`.
+2. In WordPress admin, open Plugins.
+3. Activate Nexa Pro Core.
+
+The plugin does not require the Nexa Pro theme to activate. If Nexa Pro is
+active, the plugin can use the theme component registry. If another theme is
+active, stored data remains intact and the plugin uses a safe fallback allowlist.
+
+## Storage Model
+
+Page component instances are stored in page meta:
+
+```text
+_nexa_pro_components
+```
+
+Reusable component records use a private custom post type:
+
+```text
+nexa_component
+```
+
+Reusable component payloads are stored in post meta:
+
+```text
+_nexa_pro_core_component_payload
+```
+
+Schema metadata is stored in:
+
+```text
+nexa_pro_core_migration_state
+```
+
+## Component Instance Fields
+
+Component instances support:
+
+- `instance_id`
+- `component_type`
+- `admin_title`
+- `enabled`
+- `order`
+- `layout`
+- `content`
+- `design`
+- `navigation`
+- `advanced`
+- `reusable_component_id`
+- `inheritance_mode`
+- `schema_version`
+- `created_at`
+- `updated_at`
+
+Instance IDs are stable and generated in the form:
+
+```text
+nexa_<type>_<random>
+```
+
+## APIs
+
+Page component helpers:
+
+- `nexa_pro_core_get_page_components( $page_id )`
+- `nexa_pro_core_save_page_components( $page_id, array $components )`
+- `nexa_pro_core_add_page_component( $page_id, array $component )`
+- `nexa_pro_core_update_page_component( $page_id, $instance_id, array $changes )`
+- `nexa_pro_core_duplicate_page_component( $page_id, $instance_id )`
+- `nexa_pro_core_remove_page_component( $page_id, $instance_id )`
+- `nexa_pro_core_reorder_page_components( $page_id, array $ordered_ids )`
+- `nexa_pro_core_move_page_component( $source_page_id, $target_page_id, $instance_id )`
+- `nexa_pro_core_count_page_components( $page_id )`
+- `nexa_pro_core_get_renderable_page_components( $page_id )`
+- `nexa_pro_core_has_builder_components( $page_id )`
+
+Reusable component helpers:
+
+- `nexa_pro_core_create_reusable_component( array $component )`
+- `nexa_pro_core_get_reusable_component( $post_id )`
+- `nexa_pro_core_update_reusable_component( $post_id, array $changes )`
+- `nexa_pro_core_duplicate_reusable_component( $post_id )`
+- `nexa_pro_core_archive_reusable_component( $post_id )`
+- `nexa_pro_core_delete_reusable_component( $post_id )`
+- `nexa_pro_core_resolve_component_instance( array $instance )`
+- `nexa_pro_core_detach_reusable_component( $page_id, $instance_id )`
+- `nexa_pro_core_get_reusable_usage_count( $post_id )`
+- `nexa_pro_core_list_linked_page_instances( $post_id )`
+
+## Capabilities
+
+Activation grants these capabilities to administrators only:
+
+- `manage_nexa_pro_components`
+- `manage_nexa_pro_reusable_components`
+- `import_nexa_pro_components`
+- `export_nexa_pro_components`
+
+Write helpers verify the appropriate capability. Controlled tests may pass an
+explicit bypass only when `NEXA_PRO_CORE_TESTING` is defined.
+
+## Builder Admin
+
+The Phase 6C builder screen is available at:
+
+```text
+Appearance > Nexa Pro Builder
+```
+
+The screen is provided by Nexa Pro Core and uses the
+`manage_nexa_pro_components` capability. It lists editable WordPress pages,
+filters by search/status/configuration, shows component counts, and provides
+edit and preview links for the selected page.
+
+For the selected page, administrators can:
+
+- Add a component from the theme registry or safe fallback registry.
+- Edit component content, layout, design, navigation, and advanced fields.
+- Duplicate a component with a new instance ID and unique anchor.
+- Enable or disable a component without deleting it.
+- Move components up or down without JavaScript.
+- Drag components to reorder when JavaScript is available, then explicitly save order.
+- Move a component to another editable page.
+- Delete a component after checking a confirmation box.
+- Undo the most recent deletion through a short-lived user-scoped transient.
+
+All write actions use authenticated `admin-post.php` handlers, capability
+checks, nonces, sanitized request data, and PRG redirects. Builder JavaScript is
+progressive enhancement only; core add, edit, save, enable/disable, move,
+delete, and undo paths remain available without JavaScript.
+
+The builder does not overwrite `post_content`, does not create pages
+automatically, and does not create WordPress menus automatically.
+
+## Component Editor Groups
+
+The builder editor groups fields into:
+
+- Content: admin title, enabled state, common text, CTA, and attachment-ID fields.
+- Layout: registry-supported layout variation, container width, content alignment,
+  content width, media position, column count, card density, section spacing, and
+  item spacing controls.
+- Design: registry-supported preset, background, gradient, background image ID,
+  overlay, text theme, card style, radius, shadow, image style, and button style
+  controls.
+- Navigation: future generated-navigation values such as label, anchor, CTA highlight, and mobile visibility.
+- Advanced: sanitized class tokens, ARIA label, semantic element, device visibility, and animation preset.
+
+The editor uses typed controls rather than arbitrary JSON, CSS, JavaScript, or
+PHP input.
+
+## Layout And Design Presets
+
+The Nexa Pro theme registry declares each component's allowed layouts, default
+layout, supported controls, design capabilities, preview labels, and responsive
+notes. Nexa Pro Core consumes that registry as the source of truth and falls
+back to conservative safe values only when the theme registry is unavailable.
+
+Built-in presets:
+
+- `inherit`
+- `light`
+- `dark`
+- `brand`
+- `accent`
+- `minimal`
+- `elevated`
+- `image-overlay`
+
+Inheritance priority:
+
+1. explicit component override
+2. selected component preset
+3. global design token
+4. theme default
+
+Component records store only the selected preset key and explicit overrides.
+They do not duplicate full preset payloads. Sanitization accepts only known
+tokens for spacing, width, alignment, media position, card style, radius,
+shadow, image style, button style, background type, gradient direction, text
+theme, and column count. Raw CSS, raw shadow strings, unsupported preset keys,
+invalid attachment IDs, and out-of-range overlay opacity values are discarded.
+
+Switching layouts preserves nested `content`, `design`, `navigation`, and
+`advanced` groups so hidden fields remain available when switching back. Linked
+reusable instances resolve source layout and design values; local copies remain
+independent.
+
+## Reusable Component Behavior
+
+Reusable components are private records with no public URLs, rewrite rules,
+REST exposure, or default WordPress management screens.
+
+The Reusable Components screen is available at:
+
+```text
+Appearance > Nexa Pro Builder > Reusable Components
+```
+
+The screen supports:
+
+- Create reusable component
+- Edit source content, layout, design, navigation defaults, and advanced fields
+- Duplicate
+- Archive
+- Restore
+- Delete when not linked
+- Detach all linked instances, then delete
+- View linked-use count
+- View affected pages
+- Insert into a page as linked or local
+- Create a reusable source from a page instance
+
+Page instances support two inheritance modes:
+
+- `local`: all data is stored on the page instance.
+- `linked`: content, design, layout, and advanced settings resolve from the
+  reusable component while page placement and navigation remain local.
+
+Recursive and self-referential reusable links are rejected. The builder displays
+visible badges and actions for local instances, linked instances, missing
+sources, and archived sources.
+
+Linked instances resolve content, layout, design, and advanced data from the
+reusable source. Page-local navigation and placement remain on the page
+instance. Local copies store complete data and do not receive future source
+updates.
+
+If a source is missing, the builder does not fatal. Administrators can detach the
+page instance to a local copy using its stored page data.
+
+## Navigation
+
+Navigation settings are available at:
+
+```text
+Appearance > Nexa Pro Builder > Navigation
+```
+
+Settings are stored in:
+
+```text
+nexa_pro_core_navigation
+```
+
+Navigation source modes:
+
+- `wordpress`: preserves the assigned WordPress Primary Menu. No generated
+  items are injected.
+- `generated`: renders menu items from configured pages and eligible component
+  navigation metadata.
+- `hybrid`: combines WordPress Primary Menu items with generated items.
+
+Generated navigation can use:
+
+- A primary single-page page.
+- A configured multipage list.
+- Eligible page component instances.
+- Component labels, anchors, parent relationships, order overrides, CTA
+  highlighting, and mobile visibility.
+
+Hybrid insertion can place generated items:
+
+- Before WordPress menu items.
+- After WordPress menu items.
+- In place of a placeholder URL such as `#nexa-generated-navigation`.
+
+The plugin exposes:
+
+- `nexa_pro_core_get_navigation_settings()`
+- `nexa_pro_core_get_navigation_defaults()`
+- `nexa_pro_core_get_generated_navigation()`
+- `nexa_pro_core_get_page_navigation_items()`
+- `nexa_pro_core_validate_navigation_tree()`
+
+The Nexa Pro theme owns frontend navigation markup and presentation. WordPress
+menus are not overwritten or automatically created.
+
+## Migration And Compatibility Mode
+
+The Migration screen is available at:
+
+```text
+Appearance > Nexa Pro Builder > Migration
+```
+
+Migration is explicit and preview-first. It is never run automatically on
+plugin activation, update, admin page load, or frontend render.
+
+Migration can map Nexa Pro 1.0 fixed-section theme settings into page component
+instances for a selected target page. Supported mappings include Hero, About,
+Services, Features, Process, Why Choose Us, Portfolio, Testimonials, Team, FAQ,
+CTA, and Contact. Unsupported legacy sections remain in theme settings and are
+reported in the preview.
+
+Migration modes:
+
+- `merge`: merge migration-generated components into the target page while
+  preserving existing builder data.
+- `replace-builder-data`: replace only the selected page's plugin-managed
+  builder component meta after backup and explicit confirmation.
+
+Before apply, Core backs up:
+
+- Target page component meta.
+- Plugin navigation settings.
+- Compatibility mode.
+
+Rollback restores the latest migration backup and never deletes
+`nexa_pro_options`.
+
+Compatibility mode is stored in:
+
+```text
+nexa_pro_core_compatibility_mode
+```
+
+Modes:
+
+- `legacy`: the Nexa Pro fixed-section frontend remains active.
+- `builder`: the theme may render plugin-managed components for pages with valid
+  builder data.
+
+Builder mode falls back to legacy rendering when builder data is missing or
+invalid.
+
+## Import And Export
+
+The Import/Export screen is available at:
+
+```text
+Appearance > Nexa Pro Builder > Import/Export
+```
+
+Exports use product identifier `nexa-pro` and export schema version `2`.
+
+Supported export scopes:
+
+- Full site configuration
+- Global visual settings
+- Navigation settings
+- One page
+- Selected pages
+- Selected components
+- Reusable components
+- Migration report without private backup payloads
+
+Imports are preview-first. Uploading or pasting JSON does not apply changes.
+Import preview validates:
+
+- Product identifier
+- Supported schema
+- JSON size
+- JSON depth
+- Record count
+- Page conflicts
+- Component shape
+- Reusable payloads
+
+Conflict modes:
+
+- `skip`
+- `merge`
+- `replace`
+- `create-new`
+
+Schema version `1` settings exports can be previewed for supported global
+settings compatibility, but they do not contain full page component data.
+
+## Uninstall And Data Preservation
+
+Deactivation does not delete page meta or reusable components.
+
+`uninstall.php` is conservative. Data is preserved unless the explicit constant
+`NEXA_PRO_CORE_DELETE_DATA` is defined as `true` before uninstall.
+
+## Testing
+
+Run standalone validation from the repository root:
+
+```sh
+php plugins/nexa-pro-core/tests/validate-storage.php
+php plugins/nexa-pro-core/tests/validate-builder-admin.php
+php plugins/nexa-pro-core/tests/validate-layout-design.php
+php plugins/nexa-pro-core/tests/validate-migration.php
+php plugins/nexa-pro-core/tests/validate-transfer.php
+php plugins/nexa-pro-core/tests/validate-navigation.php --wp-load="/path/to/site/app/public/wp-load.php"
+php plugins/nexa-pro-core/tests/validate-reusable.php --wp-load="/path/to/site/app/public/wp-load.php"
+```
+
+Run against a LocalWP installation by passing `wp-load.php`:
+
+```sh
+php plugins/nexa-pro-core/tests/validate-storage.php --wp-load="/path/to/site/app/public/wp-load.php"
+php plugins/nexa-pro-core/tests/validate-builder-admin.php --wp-load="/path/to/site/app/public/wp-load.php"
+php plugins/nexa-pro-core/tests/validate-layout-design.php
+php plugins/nexa-pro-core/tests/validate-migration.php --wp-load="/path/to/site/app/public/wp-load.php"
+php plugins/nexa-pro-core/tests/validate-transfer.php --wp-load="/path/to/site/app/public/wp-load.php"
+php plugins/nexa-pro-core/tests/validate-navigation.php --wp-load="/path/to/site/app/public/wp-load.php"
+php plugins/nexa-pro-core/tests/validate-reusable.php --wp-load="/path/to/site/app/public/wp-load.php"
+```
+
+The validation scripts create temporary storage and builder test pages and remove
+them when the run completes.
+
+## Packaging
+
+From the repository root:
+
+```sh
+scripts/package-nexa-pro-core.sh
+```
+
+The package script writes `dist/nexa-pro-core-0.5.0-beta.1.zip` with a
+`nexa-pro-core/` ZIP root. Tests and development artifacts are excluded.
+
+## Beta Status
+
+Nexa Pro Core `0.5.0-beta.1` is intended for controlled beta testing with Nexa
+Pro `1.1.0-beta.1`. Use on staging or test sites only.

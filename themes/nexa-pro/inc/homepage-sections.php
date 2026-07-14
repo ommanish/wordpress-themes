@@ -320,20 +320,23 @@ function nexa_pro_homepage_gradient_direction_css( $direction ) {
 function nexa_pro_homepage_section_classes( $section, $base_class = 'homepage-section', $force_image_background = false ) {
 	$classes     = preg_split( '/\s+/', trim( (string) $base_class ) );
 	$section_key = ! empty( $section['section_key'] ) ? sanitize_key( $section['section_key'] ) : '';
+	$design      = ! empty( $section['design'] ) && is_array( $section['design'] ) ? $section['design'] : array();
 
-	if ( '' === $section_key ) {
-		return array_filter( $classes );
+	if ( ! empty( $section['component_classes'] ) && is_array( $section['component_classes'] ) ) {
+		$classes = array_merge( $classes, $section['component_classes'] );
 	}
 
-	$design = nexa_pro_get_section_design( $section_key );
+	if ( empty( $design ) && '' !== $section_key ) {
+		$design = nexa_pro_get_section_design( $section_key );
+	}
 
 	if ( empty( $design ) ) {
-		return array_filter( $classes );
+		return array_values( array_unique( array_filter( $classes ) ) );
 	}
 
-	$background_type = $force_image_background && ! empty( $design['background_image_id'] ) ? 'image' : $design['background_type'];
+	$background_type = $force_image_background && ! empty( $design['background_image_id'] ) ? 'image' : ( ! empty( $design['background_type'] ) ? $design['background_type'] : 'inherit' );
 
-	if ( 'default' !== $background_type ) {
+	if ( ! in_array( $background_type, array( 'default', 'inherit' ), true ) ) {
 		$classes[] = 'homepage-section--design-' . sanitize_html_class( $background_type );
 	}
 
@@ -345,11 +348,11 @@ function nexa_pro_homepage_section_classes( $section, $base_class = 'homepage-se
 		$classes[] = 'homepage-section--has-overlay';
 	}
 
-	if ( ! empty( $design['text_theme'] ) && 'automatic' !== $design['text_theme'] ) {
+	if ( ! empty( $design['text_theme'] ) && ! in_array( $design['text_theme'], array( 'inherit', 'automatic' ), true ) ) {
 		$classes[] = 'has-nexa-pro-' . sanitize_html_class( $design['text_theme'] ) . '-text';
 	}
 
-	return array_filter( $classes );
+	return array_values( array_unique( array_filter( $classes ) ) );
 }
 
 /**
@@ -361,28 +364,37 @@ function nexa_pro_homepage_section_classes( $section, $base_class = 'homepage-se
  */
 function nexa_pro_homepage_section_style( $section, $force_image_background = false ) {
 	$section_key = ! empty( $section['section_key'] ) ? sanitize_key( $section['section_key'] ) : '';
+	$design      = ! empty( $section['design'] ) && is_array( $section['design'] ) ? $section['design'] : array();
 
-	if ( '' === $section_key ) {
-		return '';
+	if ( empty( $design ) && '' !== $section_key ) {
+		$design = nexa_pro_get_section_design( $section_key );
 	}
-
-	$design = nexa_pro_get_section_design( $section_key );
 
 	if ( empty( $design ) ) {
 		return '';
 	}
 
 	$styles          = array();
-	$background_type = $force_image_background && ! empty( $design['background_image_id'] ) ? 'image' : $design['background_type'];
+	$background_type = $force_image_background && ! empty( $design['background_image_id'] ) ? 'image' : ( ! empty( $design['background_type'] ) ? $design['background_type'] : 'inherit' );
 
 	if ( 'solid' === $background_type || 'image' === $background_type ) {
-		$styles[] = '--nexa-pro-section-background-color:' . $design['background_color'];
+		if ( ! empty( $design['background_color'] ) ) {
+			$styles[] = '--nexa-pro-section-background-color:' . $design['background_color'];
+		}
 	}
 
 	if ( 'gradient' === $background_type ) {
-		$styles[] = '--nexa-pro-section-gradient-direction:' . nexa_pro_homepage_gradient_direction_css( $design['gradient_direction'] );
-		$styles[] = '--nexa-pro-section-gradient-start:' . $design['gradient_start'];
-		$styles[] = '--nexa-pro-section-gradient-end:' . $design['gradient_end'];
+		if ( ! empty( $design['gradient_direction'] ) ) {
+			$styles[] = '--nexa-pro-section-gradient-direction:' . nexa_pro_homepage_gradient_direction_css( $design['gradient_direction'] );
+		}
+
+		if ( ! empty( $design['gradient_start'] ) ) {
+			$styles[] = '--nexa-pro-section-gradient-start:' . $design['gradient_start'];
+		}
+
+		if ( ! empty( $design['gradient_end'] ) ) {
+			$styles[] = '--nexa-pro-section-gradient-end:' . $design['gradient_end'];
+		}
 	}
 
 	if ( 'image' === $background_type && ! empty( $design['background_image_id'] ) ) {
@@ -400,8 +412,13 @@ function nexa_pro_homepage_section_style( $section, $force_image_background = fa
 	}
 
 	if ( ! empty( $design['overlay_enabled'] ) && in_array( $background_type, array( 'image', 'gradient', 'solid' ), true ) ) {
-		$styles[] = '--nexa-pro-section-overlay-color:' . $design['overlay_color'];
-		$styles[] = '--nexa-pro-section-overlay-opacity:' . rtrim( rtrim( sprintf( '%.2F', (float) $design['overlay_opacity'] / 100 ), '0' ), '.' );
+		if ( ! empty( $design['overlay_color'] ) ) {
+			$styles[] = '--nexa-pro-section-overlay-color:' . $design['overlay_color'];
+		}
+
+		if ( isset( $design['overlay_opacity'] ) ) {
+			$styles[] = '--nexa-pro-section-overlay-opacity:' . rtrim( rtrim( sprintf( '%.2F', (float) $design['overlay_opacity'] / 100 ), '0' ), '.' );
+		}
 	}
 
 	return implode( ';', $styles );
@@ -529,6 +546,25 @@ function nexa_pro_render_homepage_sections() {
 	foreach ( $sections as $section ) {
 		if ( empty( $section['template'] ) ) {
 			continue;
+		}
+
+		$component_type = '';
+
+		if ( ! empty( $section['section_key'] ) && function_exists( 'nexa_pro_get_component_type_for_legacy_section' ) ) {
+			$component_type = nexa_pro_get_component_type_for_legacy_section( $section['section_key'] );
+		}
+
+		if ( '' !== $component_type && function_exists( 'nexa_pro_render_component' ) ) {
+			if ( nexa_pro_render_component(
+				$component_type,
+				$section,
+				array(
+					'source'             => 'homepage',
+					'legacy_section_key' => $section['section_key'],
+				)
+			) ) {
+				continue;
+			}
 		}
 
 		get_template_part(

@@ -261,6 +261,32 @@
 		});
 	}
 
+	function initFaqAccordions() {
+		var toggles = Array.prototype.slice.call(document.querySelectorAll('[data-nexa-pro-faq-toggle]'));
+
+		if (!toggles.length) {
+			return;
+		}
+
+		toggles.forEach(function (toggle) {
+			var panelId = toggle.getAttribute('aria-controls');
+			var panel = panelId ? document.getElementById(panelId) : null;
+
+			if (!panel) {
+				return;
+			}
+
+			panel.hidden = toggle.getAttribute('aria-expanded') !== 'true';
+
+			toggle.addEventListener('click', function () {
+				var expanded = toggle.getAttribute('aria-expanded') === 'true';
+
+				toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+				panel.hidden = expanded;
+			});
+		});
+	}
+
 	function getSamePageTarget(link) {
 		var linkUrl = null;
 		var currentUrl = null;
@@ -327,7 +353,7 @@
 		var targets = [];
 		var prefersReducedMotion = reducedMotionQuery && reducedMotionQuery.matches;
 
-		if (config.navigationMode !== 'single-page' || !config.isFrontPage) {
+		if (['single-page', 'generated', 'hybrid'].indexOf(config.navigationMode) === -1) {
 			return;
 		}
 
@@ -405,5 +431,6 @@
 
 	initModals();
 	initMobileNavigation();
+	initFaqAccordions();
 	initSinglePageNavigation();
 })();

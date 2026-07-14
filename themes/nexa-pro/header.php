@@ -38,17 +38,7 @@
 				</button>
 
 				<div id="primary-menu-panel" class="primary-navigation__panel">
-					<?php
-					wp_nav_menu(
-						array(
-							'theme_location' => 'primary',
-							'menu_id'        => 'primary-menu',
-							'menu_class'     => 'primary-menu',
-							'container'      => false,
-							'fallback_cb'    => 'nexa_pro_primary_menu_fallback',
-						)
-					);
-					?>
+					<?php nexa_pro_render_primary_navigation_menu(); ?>
 					<?php nexa_pro_render_header_cta( 'mobile' ); ?>
 				</div>
 			</nav>

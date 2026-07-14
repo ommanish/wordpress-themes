@@ -1,0 +1,55 @@
+<?php
+/**
+ * Admin bootstrap for builder screens.
+ *
+ * @package Nexa_Pro_Core
+ */
+
+namespace Nexa_Pro_Core;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Admin bootstrap service.
+ */
+final class Admin_Bootstrap {
+	/**
+	 * Register admin hooks.
+	 *
+	 * @return void
+	 */
+	public static function register() {
+		if ( class_exists( Builder_Admin::class ) ) {
+			Builder_Admin::register();
+		}
+
+		if ( class_exists( Builder_Actions::class ) ) {
+			Builder_Actions::register();
+		}
+
+		if ( class_exists( Navigation_Actions::class ) ) {
+			Navigation_Actions::register();
+		}
+
+		if ( class_exists( Migration_Actions::class ) ) {
+			Migration_Actions::register();
+		}
+
+		if ( class_exists( Transfer_Actions::class ) ) {
+			Transfer_Actions::register();
+		}
+
+		if ( class_exists( Reusable_Actions::class ) ) {
+			Reusable_Actions::register();
+		}
+
+		/**
+		 * Fires when the Nexa Pro Core admin bootstrap is loaded.
+		 *
+		 * @since 0.1.0
+		 */
+		\do_action( 'nexa_pro_core_admin_bootstrap_loaded' );
+	}
+}

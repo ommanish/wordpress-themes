@@ -68,6 +68,7 @@ Confirm:
 
 - Run `scripts/validate-theme.sh`.
 - Run `scripts/package-nexa-pro.sh`.
+- Run `scripts/package-nexa-pro-core.sh` when shipping the companion plugin.
 - Confirm frontend loads no external fonts or third-party scripts.
 - Confirm admin assets load only on Appearance > Nexa Pro.
 - Confirm no console errors.
@@ -77,7 +78,9 @@ Confirm:
 ## Packaging
 
 - Confirm ZIP root is `nexa-pro/`.
+- Confirm plugin ZIP root is `nexa-pro-core/` when shipping Nexa Pro Core.
 - Install-test the generated ZIP from `dist/`.
+- Install-test the generated plugin ZIP from `dist/` when applicable.
 - Confirm `style.css`, `functions.php`, `index.php`, `header.php`, `footer.php`, `theme.json`, assets, README, CHANGELOG, LICENSE, and CREDITS are included.
 - Confirm development-only files, caches, logs, source maps, hidden Git files, and generated artifacts are excluded.
 

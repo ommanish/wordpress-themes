@@ -4,7 +4,10 @@ Nexa Pro is a commercial-ready WordPress parent theme for professional service
 websites, agencies, consultants, SaaS teams, startups, recruiters, and similar
 businesses.
 
-Release-candidate version: `1.0.0-rc1`
+Current version: `1.1.0-beta.1`
+
+Nexa Pro `1.1.0-beta.1` is beta software intended for staging and controlled
+test sites while the component builder platform is validated.
 
 ## Requirements
 
@@ -12,9 +15,10 @@ Release-candidate version: `1.0.0-rc1`
 - PHP 7.4 or newer
 - A modern browser for the best admin editing experience
 
-The theme is designed to work without the future companion plugin. Plugin-owned
-content types such as services, case studies, team members, and testimonials are
-reserved for `nexa-pro-core` in a later phase.
+The theme is designed to work without the companion plugin. When Nexa Pro Core
+is active, the theme owns component presentation, layout variations, design
+token classes, responsive behavior, and accessibility of rendered components.
+Plugin-owned persistent builder content remains in `nexa-pro-core`.
 
 ## Installation
 
@@ -63,6 +67,24 @@ Controlled sections include:
 If a section is disabled, its wrapper and anchor are removed from the page.
 Update menu and CTA links manually when they target disabled sections.
 
+## Component Presentation
+
+When Nexa Pro Core compatibility mode is explicitly set to builder mode, Nexa
+Pro can render plugin-managed page component data. In legacy mode, the 1.0
+fixed-section frontend remains active and builder data remains stored but unused
+on the frontend.
+
+When rendered from Nexa Pro Core builder data, Nexa Pro supports registry-driven
+layout variations for Hero, About, Services, Features, Process, Why Choose Us,
+Portfolio, Testimonials, Team, FAQ, CTA, and Contact components. Component
+design can inherit global theme tokens, use a built-in preset, or apply safe
+overrides for spacing, width, alignment, backgrounds, cards, radius, shadow,
+images, and buttons.
+
+The theme does not accept arbitrary CSS from component data. It renders
+allowlisted classes and safe CSS custom properties only. FAQ accordions use
+native buttons and remain readable without JavaScript.
+
 ## Import, Export, Presets, And Rollback
 
 The Tools tab can export normalized Nexa Pro settings as JSON. Import uses a
@@ -98,11 +120,11 @@ The theme includes:
 Manual keyboard, screen-reader smoke, color contrast, and responsive checks are
 still required before a final release.
 
-## Known Release Blockers
+## Screenshot
 
-- `screenshot.png` is not present yet. A release-ready screenshot should be
-  added at `themes/nexa-pro/screenshot.png` with recommended dimensions
-  `1200 x 900`, using only approved theme content and imagery.
+Nexa Pro includes `screenshot.png` at `themes/nexa-pro/screenshot.png`.
+The screenshot is `1200 x 900` and is included in the Nexa Pro 1.1 beta
+release package.
 
 ## Development Commands
 
@@ -111,6 +133,7 @@ From the repository root:
 ```sh
 scripts/validate-theme.sh
 scripts/package-nexa-pro.sh
+scripts/package-nexa-pro-core.sh
 ```
 
 The package script writes ZIP files to `dist/`, which is intentionally ignored
